@@ -1,0 +1,36 @@
+name: validate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate shell syntax
+        run: |
+          bash -n scripts/ai-kit
+          bash -n scripts/bootstrap.sh
+
+      - name: Validate required structure
+        run: |
+          test -f AGENTS.md
+          test -f CLAUDE.md
+          test -f config/tools.yaml
+          test -f skills/engineering/SKILL.md
+          test -f skills/testing/SKILL.md
+          test -f skills/ui/SKILL.md
+          test -f skills/security/SKILL.md
+
+      - name: Smoke-test profile detection
+        run: bash scripts/ai-kit .
+
+      - name: Smoke-test bootstrap without machine changes
+        run: bash scripts/bootstrap.sh core
