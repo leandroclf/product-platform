@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="${1:-.}"
+
+has() { [[ -e "$ROOT/$1" ]]; }
+
+detect_profile() {
+  local frontend=0 backend=0 devops=0
+
+  if has package.json; then
+    if grep -Eqi '"(next|react|vue|svelte|@angular/core)"' "$ROOT/package.json"; then frontend=1; fi
+    if grep -Eqi '"(fastify|express|nestjs|@nestjs/core|hono)"' "$ROOT/package.json"; then backend=1; fi
+  fi
+
+  if has pom.xml || has build.gradle || has build.gradle.kts || has pyproject.toml || has requirements.txt || has go.mod; then backend=1; fi
+  if has Dockerfile || has docker-compose.yml || has compose.yaml || has helm || has charts || has terraform || has k8s || has .github/workflows; then devops=1; fi
+
+  if (( frontend && backend )); then echo fullstack
+  elif (( frontend )); then echo frontend
+  elif (( backend )); then echo backend
+  elif (( devops )); then echo devops
+  else echo core
+  fi
+}
+
+profile="$(detect_profile)"
+cat <<EOF
+AI Kit project inspection
+-------------------------
+Path: $ROOT
+Suggested profile: $profile
+
+This is a recommendation, not automatic permission to enable privileged tools.
+Core capabilities remain active; activate optional capabilities only for the task at hand.
+EOF

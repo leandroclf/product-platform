@@ -1,0 +1,54 @@
+version: 1
+
+# Capability catalog. External integrations are intentionally declarative:
+# validate the exact package/repository and installation command before pinning it here.
+tools:
+  github:
+    category: core
+    default: true
+    purpose: repository operations, PRs and code collaboration
+
+  context7:
+    category: docs
+    default: true
+    purpose: current library/framework documentation
+
+  playwright:
+    category: browser
+    default: false
+    purpose: browser automation and E2E verification
+
+  ui_skill:
+    category: ui
+    default: false
+    purpose: UI/UX implementation guidance
+    status: exact-integration-required
+
+  strix:
+    category: security
+    default: false
+    purpose: security analysis
+    status: exact-integration-required
+
+  chrome_devtools:
+    category: browser-debug
+    default: false
+    purpose: browser diagnostics and performance inspection
+
+  database:
+    category: data
+    default: false
+    purpose: project-specific PostgreSQL/Supabase/database access
+
+  infrastructure:
+    category: infra
+    default: false
+    purpose: Docker, Kubernetes and cloud operations
+
+profiles:
+  core: [github, context7]
+  frontend: [github, context7, ui_skill, playwright, chrome_devtools]
+  backend: [github, context7, database]
+  devops: [github, context7, infrastructure]
+  security: [github, context7, strix, playwright]
+  fullstack: [github, context7, ui_skill, playwright, chrome_devtools, database]
