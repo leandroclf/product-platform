@@ -1,0 +1,25 @@
+version: 1
+kit:
+  channel: stable
+  update_policy: notify
+  pin: "^0.1"
+
+project:
+  profile: auto
+  agents:
+    codex: true
+    claude: true
+
+capabilities:
+  github: auto
+  context7: auto
+  playwright: auto
+  ui_skill: auto
+  strix: off
+  chrome_devtools: auto
+  database: off
+  infrastructure: off
+
+security:
+  privileged_capabilities_require_explicit_enable: true
+  allow_automatic_execution: false
