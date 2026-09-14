@@ -13,7 +13,7 @@
 
 Built for **OpenAI Codex**, **Claude Code**, and agent-driven engineering workflows.
 
-[Quick start](#quick-start) · [How it works](#how-it-works) · [Profiles](#profiles) · [Architecture](docs/ARCHITECTURE.md) · [Distribution](docs/DISTRIBUTION.md) · [Contributing](CONTRIBUTING.md)
+[Quick start](#quick-start) · [How it works](#how-it-works) · [Token efficiency](#token-efficiency) · [Architecture](docs/ARCHITECTURE.md) · [Distribution](docs/DISTRIBUTION.md) · [Contributing](CONTRIBUTING.md)
 
 </div>
 
@@ -21,24 +21,15 @@ Built for **OpenAI Codex**, **Claude Code**, and agent-driven engineering workfl
 
 ## Why AI Kit?
 
-Coding agents are becoming part of the engineering toolchain, but teams quickly hit a new class of problems:
+Coding agents are becoming part of the engineering toolchain, but teams quickly hit a new class of problems: instructions drift between repositories, every agent receives different context, always-on tools increase context/permissions, developers must remember which skills to activate, and shared standards turn into giant prompt files.
 
-- instructions drift between repositories and developers;
-- every agent receives different context;
-- too many always-on tools increase noise and permissions;
-- developers have to remember which skill, MCP or browser tool to activate;
-- shared engineering standards become giant prompt files that are hard to maintain;
-- updates to AI workflows are difficult to distribute safely across many projects.
-
-**AI Kit treats agent configuration as engineering infrastructure.**
-
-It provides a small central policy layer that can detect project needs, route agents toward reusable skills, recommend task-specific capabilities and keep privileged integrations disabled until they are actually required.
+**AI Kit treats agent configuration as engineering infrastructure.** It provides a small central policy layer that detects project needs, routes agents toward reusable skills, recommends task-specific capabilities and keeps privileged integrations disabled until required.
 
 ```text
                     ┌──────────────────────────┐
                     │         AI Kit           │
-                    │  central engineering     │
-                    │       policy layer       │
+                    │ central engineering      │
+                    │ policy + token policy    │
                     └────────────┬─────────────┘
                                  │
                  ┌───────────────┼───────────────┐
@@ -52,71 +43,74 @@ It provides a small central policy layer that can detect project needs, route ag
                      smallest useful profile
                                  │
            ┌──────────┬──────────┼──────────┬──────────┐
-           │          │          │          │          │
         frontend    backend    devops    security   fullstack
-           │          │          │          │          │
-           └──────────┴──────────┼──────────┴──────────┘
                                  │
                      relevant skills + tools
 ```
 
 ## Core ideas
 
-**Portable policy** — engineering rules live in reusable skills instead of being duplicated across agent-specific configuration.
+**Portable policy** — reusable engineering rules live in skills instead of being duplicated across agent configurations.
 
-**Progressive activation** — browser, database, infrastructure and security capabilities are activated only when relevant.
+**Progressive activation** — browser, database, infrastructure and security capabilities are loaded only when relevant.
 
-**Agent-native adapters** — Codex and Claude can share policy without forcing both platforms into an artificial lowest common denominator.
+**Token-aware by default** — small entry points, on-demand skills/tools, concise output and adaptive reasoning reduce wasted context without weakening verification.
 
-**Verification over confidence** — agents are instructed to discover and run the repository's own lint, typecheck, tests and other validation commands.
+**Agent-native adapters** — Codex and Claude share policy without forcing both into an artificial lowest common denominator.
+
+**Verification over confidence** — agents discover and run the repository's own lint, typecheck and tests.
 
 **Least privilege** — automatic detection recommends capabilities; it does not grant credentials or authorization.
 
-**Central governance without central friction** — teams can evolve policy centrally while projects pin compatible versions and retain local instructions.
-
 ## Quick start
-
-Clone the repository and inspect the environment:
 
 ```bash
 git clone https://github.com/leandroclf/ai-kit.git
 cd ai-kit
 bash scripts/doctor.sh .
-```
-
-Ask AI Kit which profile best matches a repository:
-
-```bash
 bash scripts/ai-kit /path/to/project
 ```
 
-Preview the bootstrap process without modifying your machine:
+Preview bootstrap without modifying your machine:
 
 ```bash
 bash scripts/bootstrap.sh
 ```
 
-The bootstrap is intentionally **plan-only by default**. Applying machine changes requires explicit opt-in:
+Applying machine changes requires explicit opt-in:
 
 ```bash
 AI_KIT_MODE=apply bash scripts/bootstrap.sh
 ```
 
-> Review commands and integrations before applying them in managed or production environments.
+## Token efficiency
+
+AI Kit includes `config/token-policy.yaml`, a portable policy derived from current official OpenAI and Anthropic guidance.
+
+The default strategy is deliberately simple:
+
+- keep `AGENTS.md` and `CLAUDE.md` short;
+- load skills and optional tools on demand;
+- use concise output for routine coding work;
+- start routine work at low reasoning/effort and escalate when complexity or failed verification justifies it;
+- compact long-running sessions at meaningful milestones;
+- prefer durable filesystem/git state over repeatedly injecting large summaries;
+- optimize for **tokens per successfully verified task**, not tokens per individual call.
+
+The last point matters: forcing minimum reasoning everywhere can create retries and consume *more* tokens. AI Kit uses adaptive escalation instead.
+
+See [Token-efficient agent configuration](docs/TOKEN_EFFICIENCY.md) for the Codex and Claude policies and links to the official platform guidance.
 
 ## How it works
 
-AI Kit separates concerns into five layers:
-
 | Layer | Responsibility |
 | --- | --- |
-| Agent entry points | `AGENTS.md` and `CLAUDE.md` tell each coding agent how to enter the policy system. |
-| Project manifest | `ai-kit.yaml` declares project preferences, compatible kit versions and capability policy. |
-| Skills | `skills/*/SKILL.md` contains reusable engineering, testing, UI and security guidance. |
-| Profiles | `profiles/*.md` groups capabilities by type of engineering task. |
-| Tool catalog | `config/tools.yaml` describes integrations and whether they are core, optional or privileged. |
-
-The project detector inspects common repository markers and recommends the smallest useful profile. This recommendation is context selection, **not permission escalation**.
+| Agent entry points | `AGENTS.md` and `CLAUDE.md` enter the policy system with minimal always-on context. |
+| Project manifest | `ai-kit.yaml` declares project preferences and capability policy. |
+| Token policy | `config/token-policy.yaml` defines portable efficiency defaults and escalation rules. |
+| Skills | `skills/*/SKILL.md` contains reusable guidance loaded when relevant. |
+| Profiles | `profiles/*.md` groups capabilities by engineering task. |
+| Tool catalog | `config/tools.yaml` describes core, optional and privileged integrations. |
 
 ## Profiles
 
@@ -126,139 +120,57 @@ The project detector inspects common repository markers and recommends the small
 | `frontend` | React, Next.js, Vue, Svelte, Angular | UI guidance, browser inspection, Playwright |
 | `backend` | APIs, services, persistence, messaging | contracts, integrations, data guidance |
 | `devops` | CI/CD, containers, Kubernetes, cloud | infrastructure guidance and validation |
-| `security` | security reviews and sensitive changes | security skill, Strix integration, browser verification where relevant |
-| `fullstack` | cross-boundary product work | frontend + backend capabilities with progressive activation |
+| `security` | security reviews and sensitive changes | security skill, Strix, browser verification where relevant |
+| `fullstack` | cross-boundary product work | frontend + backend with progressive activation |
 
-### Example project manifest
+## Security model
 
-```yaml
-version: 1
-kit:
-  channel: stable
-  update_policy: notify
-  pin: "^0.1"
+Capability selection and authorization are separate concerns. A profile may determine that database access would help; that does not authorize production database access. Loading security guidance does not authorize intrusive testing.
 
-project:
-  profile: auto
-  agents:
-    codex: true
-    claude: true
-
-capabilities:
-  github: auto
-  context7: auto
-  playwright: auto
-  strix: off
-  database: off
-  infrastructure: off
-```
-
-`auto` means *the task/profile may recommend this capability*. It does not mean an agent may silently obtain credentials or execute privileged operations.
-
-## Integrations
-
-AI Kit's catalog currently models capabilities around:
-
-- GitHub-aware engineering workflows;
-- Context7/current documentation;
-- Playwright browser and E2E verification;
-- Strix-assisted security analysis;
-- UI engineering guidance;
-- browser diagnostics;
-- project-specific database access;
-- Docker, Kubernetes and cloud infrastructure.
-
-Not every integration belongs in every repository. The point of AI Kit is to make **selective activation the default**.
+Baseline: no credentials in this repository, optional tools only when relevant, privileged operations require explicit intent, bootstrap previews changes, and production mutation is never implied by analysis.
 
 ## Repository structure
 
 ```text
 .
-├── AGENTS.md                 # Codex / generic agent entry point
-├── CLAUDE.md                 # Claude Code entry point
-├── ai-kit.yaml               # project policy contract
-├── adapters/                 # platform-specific adapter boundary
+├── AGENTS.md
+├── CLAUDE.md
+├── ai-kit.yaml
+├── adapters/
 ├── config/
-│   └── tools.yaml            # declarative capability registry
+│   ├── token-policy.yaml
+│   └── tools.yaml
 ├── docs/
 │   ├── ARCHITECTURE.md
 │   ├── DISTRIBUTION.md
-│   ├── SECURITY.md
-│   └── TOOLING.md
-├── profiles/                 # task-oriented capability profiles
+│   ├── GETTING_STARTED.md
+│   └── TOKEN_EFFICIENCY.md
+├── profiles/
 ├── scripts/
-│   ├── ai-kit                # project/profile detector
-│   ├── bootstrap.sh          # safe environment bootstrap
-│   └── doctor.sh             # environment diagnostics
 └── skills/
-    ├── engineering/SKILL.md
-    ├── security/SKILL.md
-    ├── testing/SKILL.md
-    └── ui/SKILL.md
 ```
-
-## Security model
-
-AI coding tools can interact with source code, browsers, credentials and infrastructure. AI Kit therefore assumes that **capability selection and authorization are different concerns**.
-
-A profile may determine that database access would help. That does not authorize an agent to connect to a production database. Likewise, loading security guidance does not authorize intrusive testing.
-
-The baseline is:
-
-- no credentials in this repository;
-- optional tools disabled until relevant;
-- privileged operations require explicit intent;
-- bootstrap previews changes before applying them;
-- security findings must be validated before code is changed;
-- production mutation is never implied by analysis.
-
-See [Security](docs/SECURITY.md).
 
 ## For teams
 
-The intended distribution model is a central AI Kit release consumed by many repositories:
-
-```text
-AI Kit release
-     │
-     ├── service-a  → backend profile
-     ├── web-app    → frontend profile
-     ├── platform   → devops profile
-     └── product-x  → fullstack profile
-```
-
-Projects can keep local business rules while inheriting common engineering policy. Updates should be versioned and reviewable instead of silently following `main`.
+The intended model is a versioned central AI Kit consumed by many repositories. Projects retain local business rules while inheriting common engineering and token-efficiency policy. Updates should be versioned and reviewable instead of silently following `main`.
 
 See [Team distribution](docs/DISTRIBUTION.md).
 
 ## What AI Kit is not
 
-AI Kit is **not** another coding agent, an autonomous production deployment system, or a reason to enable every MCP/tool globally.
-
-It is the policy and capability-routing layer around coding agents: a way to make their behavior more predictable, portable and maintainable across real engineering teams.
+AI Kit is not another coding agent, an autonomous production deployment system, or a reason to enable every MCP/tool globally. It is the policy and capability-routing layer around coding agents.
 
 ## Roadmap
 
-Near-term priorities include:
-
-- native configuration generators for Codex and Claude Code;
-- idempotent project initialization and updates;
-- manifest schema validation;
-- release/version pinning and update diffing;
-- richer stack detection;
-- reusable profile packs;
-- project-local overrides without policy duplication;
-- examples for frontend, backend and platform repositories.
+Near-term priorities include native configuration generators for Codex and Claude Code, idempotent project initialization/update, manifest schema validation, release pinning, richer stack detection and example projects.
 
 See [ROADMAP.md](ROADMAP.md).
 
 ## Contributing
 
-Contributions are welcome — especially new profiles, portable engineering skills, stack detectors, documentation improvements and safe agent integrations.
+Contributions are welcome, especially portable skills, profiles, stack detectors, token-efficiency improvements and safe integrations. Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request.
 
-Please read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request.
-
-If AI Kit solves a problem in your workflow, consider starring the repository. It helps other engineers discover the project and gives the project a useful signal about community interest.
+If AI Kit solves a problem in your workflow, consider starring the repository — it helps other engineers discover the project.
 
 ## License
 
