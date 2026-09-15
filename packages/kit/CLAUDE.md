@@ -1,18 +1,20 @@
 # CLAUDE.md
 
-This repository provides shared engineering guidance for Claude Code and other coding agents.
+Shared engineering guidance for Claude Code. Prefer more-specific project-local instructions.
 
-## Start here
+## Default workflow
 - Inspect the target project and obey its local conventions.
-- Read `skills/engineering/SKILL.md` and `skills/testing/SKILL.md` before implementation.
-- Use `skills/ui/SKILL.md` only for interface work.
-- Use `skills/security/SKILL.md` when security is in scope.
-- Use the matching document under `profiles/` to choose optional capabilities.
+- Read engineering/testing skills for implementation work; load UI/security skills only when relevant.
+- Use the matching profile to select optional capabilities instead of enabling everything.
+- Verify dependency APIs with authoritative documentation and use repository-native checks.
+- Prefer focused changes over broad rewrites.
+- Finish with concise evidence: checks run, results, risks and unverified assumptions.
+
+## Token efficiency
+Follow `config/token-policy.yaml`. Keep this entry point small and load detailed guidance on demand. Prefer durable project state in files/git over repeatedly carrying large summaries. For long tasks, use context compaction when useful; after a clean milestone, a fresh context that reconstructs state from the filesystem may be cheaper and clearer. Use low effort for routine work and escalate only when task complexity or failed verification justifies it.
 
 ## Guardrails
-- Do not duplicate business rules between this file and the skills.
-- Do not guess dependency APIs; use current authoritative documentation.
-- Do not perform broad rewrites when a focused change solves the problem.
-- Do not bypass tests, typing, linting or security controls to obtain a green build.
-- Treat destructive commands, production changes and credential handling as high-risk operations requiring explicit intent.
-- Finish with evidence: commands/checks run, results, risks and any unverified assumptions.
+- Do not duplicate business rules between this file and skills.
+- Do not bypass tests, typing, linting or security controls to save tokens or obtain a green build.
+- Destructive commands, production changes and credential handling require explicit intent.
+- Capability relevance never implies authorization.
