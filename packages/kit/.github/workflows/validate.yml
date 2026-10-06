@@ -49,3 +49,6 @@ jobs:
           assert set(fixture) <= set(schema["properties"])
           print("Product Harness contract fixture is conformant")
           PY
+
+      - name: Validate architecture ownership and versioned contracts
+        run: node scripts/validate-architecture.cjs
