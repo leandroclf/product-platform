@@ -1,0 +1,1 @@
+{"name":"@leandroclf/ai-kit-harness","version":"1.0.0","description":"Shared Product Harness contracts and TypeScript runtime core","type":"module","main":"dist/product-events.js","types":"dist/product-events.d.ts","files":["dist"],"scripts":{"build":"tsc -p tsconfig.json","test":"node --test"},"devDependencies":{"typescript":"^5.7.0"},"engines":{"node":">=20"}}
