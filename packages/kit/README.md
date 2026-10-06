@@ -2,9 +2,9 @@
 
 # AI Kit
 
-### A portable control plane for AI-assisted software engineering
+### Portable policies and skills for AI-assisted software engineering
 
-**One engineering policy. Multiple coding agents. The right capabilities, only when your project needs them.**
+**Reusable engineering policy. Multiple coding agents. Capabilities loaded only when projects need them.**
 
 [![CI](https://github.com/leandroclf/ai-kit/actions/workflows/validate.yml/badge.svg)](https://github.com/leandroclf/ai-kit/actions/workflows/validate.yml)
 [![GitHub stars](https://img.shields.io/github/stars/leandroclf/ai-kit?style=flat)](https://github.com/leandroclf/ai-kit/stargazers)
@@ -18,6 +18,14 @@ Built for **OpenAI Codex**, **Claude Code**, and agent-driven engineering workfl
 </div>
 
 ---
+
+## Scope
+
+AI Kit is the reusable **policy, skills, profiles and agent-adapter layer** for AI-assisted engineering. It is intentionally not an execution orchestrator, dynamic model router, model gateway or autonomous engineering runtime.
+
+For bounded plan → implement → validate → review execution, the canonical runtime in this portfolio is [ai-engineering-team](https://github.com/leandroclf/ai-engineering-team). AI Kit may supply reusable policy and capabilities to that runtime or to standalone coding agents without owning their lifecycle.
+
+This boundary prevents policy reuse from growing into a second orchestration stack.
 
 ## Why AI Kit?
 
