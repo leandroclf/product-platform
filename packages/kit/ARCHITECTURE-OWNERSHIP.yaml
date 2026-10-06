@@ -18,8 +18,8 @@ capabilities:
   product_event_conformance: { owner: ai-kit, kind: test-kit }
   payment_gateway_contract: { owner: ai-kit, kind: contract }
   vehicle_tracking_domain: { owner: vehicle-tracking, kind: product }
-  stripe_adapter: { owner: vehicle-tracking, kind: product-adapter, extraction: rule-of-three }
-  mercado_pago_adapter: { owner: vehicle-tracking, kind: product-adapter, extraction: rule-of-three }
+  stripe_adapter: { owner: product-harness, kind: platform-adapter }
+  mercado_pago_adapter: { owner: product-harness, kind: platform-adapter }
   document_processing_domain: { owner: ai-docs, kind: product }
   financial_insights_domain: { owner: bussola-financeira, kind: product }
   teltonika_legacy_reference: { owner: vehicle-tracking-v2, kind: reference }
