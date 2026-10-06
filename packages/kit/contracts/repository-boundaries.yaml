@@ -2,7 +2,8 @@ version: 1
 allowed_dependencies:
   OmniCLI: [ai-kit]
   ai-engineering-team: [ai-kit]
-  vehicle-tracking: [ai-kit]
+  product-harness: [ai-kit]
+  vehicle-tracking: [ai-kit, product-harness]
   ai-docs: [ai-kit]
   bussola-financeira: [ai-kit]
   ai-kit: []
