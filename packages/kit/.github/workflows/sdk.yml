@@ -1,0 +1,22 @@
+name: sdk
+on:
+  pull_request:
+    paths: ['packages/**','contracts/**','.github/workflows/sdk.yml']
+  push:
+    branches: [main]
+    paths: ['packages/**','contracts/**','.github/workflows/sdk.yml']
+permissions:
+  contents: read
+jobs:
+  sdk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - run: cd packages/harness-ts && npm install && npm run build
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - run: pip install ./packages/harness-python pytest
+      - run: PYTHONPATH=packages/harness-python python packages/harness-python/tests/test_product_events.py
+      - run: node scripts/validate-architecture.cjs
