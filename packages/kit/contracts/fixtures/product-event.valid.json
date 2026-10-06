@@ -9,5 +9,6 @@
   "plan_id": null,
   "session_id": "corr-123",
   "feature": "contract_validation",
-  "outcome": "success"
+  "outcome": "success",
+  "schema_version": "1.0"
 }
