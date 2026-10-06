@@ -34,3 +34,18 @@ jobs:
 
       - name: Smoke-test bootstrap without machine changes
         run: bash scripts/bootstrap.sh core
+
+      - name: Validate canonical Product Harness schema
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          schema = json.loads(Path("contracts/product-event.schema.json").read_text())
+          fixture = json.loads(Path("contracts/fixtures/product-event.valid.json").read_text())
+          required = set(schema["required"])
+          assert required <= fixture.keys()
+          assert schema["additionalProperties"] is False
+          assert fixture["event"] in schema["properties"]["event"]["enum"]
+          assert set(fixture) <= set(schema["properties"])
+          print("Product Harness contract fixture is conformant")
+          PY
