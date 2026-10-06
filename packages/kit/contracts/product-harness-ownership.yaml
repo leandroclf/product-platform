@@ -1,0 +1,27 @@
+version: 1
+repository: product-harness
+kind: reusable-product-platform
+depends_on: [ai-kit]
+runtime:
+  mandatory_services: 0
+  embedded_in_product: true
+  optional_worker: true
+  database_strategy: product_owned_postgresql
+  async_strategy: transactional_outbox_inbox
+modules:
+  core:
+    owns: [product_identity, tenant_context, plans, entitlements, usage_metering]
+  growth:
+    owns: [analytics, sales_signals, crm_adapters, outbox_delivery]
+  commerce:
+    owns: [subscriptions, payments, gateways, webhook_inbox, idempotency, payment_ledger]
+  economics:
+    owns: [finops, cost_attribution, unit_economics]
+  observability:
+    owns: [otel_instrumentation, safe_telemetry_attributes]
+forbidden:
+  - product_specific_domain_logic
+  - central_product_database
+  - mandatory_control_plane
+  - dynamic_model_router
+  - duplicate_product_event_contract
