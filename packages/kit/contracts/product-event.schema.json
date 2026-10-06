@@ -4,6 +4,7 @@
   "type": "object",
   "additionalProperties": false,
   "required": [
+    "schema_version",
     "event",
     "product_id",
     "environment",
@@ -73,6 +74,10 @@
         "string",
         "null"
       ]
+    },
+    "schema_version": {
+      "type": "string",
+      "const": "1.0"
     }
   }
 }
