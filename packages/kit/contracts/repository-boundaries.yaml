@@ -1,0 +1,17 @@
+version: 1
+allowed_dependencies:
+  OmniCLI: [ai-kit]
+  ai-engineering-team: [ai-kit]
+  product-harness: [ai-kit]
+  vehicle-tracking: [ai-kit, product-harness]
+  ai-docs: [ai-kit]
+  bussola-financeira: [ai-kit]
+  ai-kit: []
+forbidden:
+  - from: ai-kit
+    to: [OmniCLI, ai-engineering-team, vehicle-tracking, ai-docs, bussola-financeira]
+  - from: products
+    to: products
+notes:
+  - This graph governs source/package dependencies, not GitHub links or documentation references.
+  - Runtime integrations require a domain reason and explicit contract; repository separation alone is not a reason.

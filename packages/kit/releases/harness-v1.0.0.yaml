@@ -1,0 +1,13 @@
+schema_version: 1
+release: harness-v1.0.0
+contracts:
+  product_event: "1.0"
+  payment_event: "1.0"
+packages:
+  typescript:
+    name: "@leandroclf/ai-kit-harness"
+    version: "1.0.0"
+  python:
+    name: "ai-kit-harness"
+    version: "1.0.0"
+source_commit: "5dde21bdb0f0e2ac6b6a7334a6fa747af40fd619"

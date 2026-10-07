@@ -1,0 +1,59 @@
+version: 1
+policy:
+  default_decision_order: [reuse, extend, create]
+  create_requires:
+    - no_existing_owner
+    - no_compatible_capability
+    - explicit_owner_assignment
+capabilities:
+  proposal_generation:
+    owner: OmniCLI
+    surface: workflow
+    reuse: proposal-handoff
+  engineering_delivery:
+    owner: ai-engineering-team
+    surface: workflow
+    lifecycle: [plan, implement, validate, review]
+  shared_engineering_contracts:
+    owner: ai-kit
+    surface: package
+  product_platform:
+    owner: product-harness
+    surface: packages
+    modules: [core, growth, commerce, economics, observability]
+    status: bootstrap
+  product_events:
+    owner: ai-kit
+    implementation_owner: product-harness
+    contract: product-event/v1
+  payments:
+    owner: product-harness
+    module: commerce
+    capabilities: [checkout, subscriptions, webhook_inbox, idempotency, payment_ledger, stripe, mercado_pago]
+  entitlements:
+    owner: product-harness
+    module: core
+    capabilities: [plans, limits, access_resolution, usage_metering]
+  growth:
+    owner: product-harness
+    module: growth
+    capabilities: [analytics, sales_signals, crm, outbox]
+  finops:
+    owner: product-harness
+    module: economics
+    capabilities: [cost_attribution, payment_economics, unit_economics]
+  vehicle_tracking:
+    owner: vehicle-tracking
+    surface: product-domain
+    capabilities: [vehicles, trips, geofences, alerts, commands, teltonika]
+  document_processing:
+    owner: ai-docs
+    surface: product-domain
+    capabilities: [ocr, document_extraction, document_classification, async_processing, callbacks]
+  financial_insights:
+    owner: bussola-financeira
+    surface: product-domain
+    capabilities: [financial_analysis, investment_agents, compliance]
+references:
+  vehicle-tracking-v2: teltonika_legacy
+  ai-engineering-control-plane: control_plane_experiments

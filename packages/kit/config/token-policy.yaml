@@ -1,0 +1,41 @@
+version: 1
+
+# Portable defaults. Adapters map these policies only to settings supported by
+# the installed platform/version. Correctness and verification take precedence
+# over minimizing an individual model call.
+shared:
+  optimize_for: verified_task
+  entry_instructions: minimal
+  skills: on_demand
+  optional_tools: on_demand
+  final_response: concise
+  duplicate_context: avoid
+  reasoning_escalation: adaptive
+
+platforms:
+  codex:
+    reasoning:
+      default: low
+      escalate: medium
+      high: complex_or_eval_justified
+    output:
+      verbosity: low
+    context:
+      compact_at_milestones: true
+      preserve_stable_instruction_prefix: true
+      load_skills_on_demand: true
+
+  claude:
+    effort:
+      default: low
+      escalate: task_complexity_requires
+    context:
+      prefer_filesystem_state: true
+      compact_long_sessions: true
+      fresh_context_after_clean_milestone: preferred
+      load_skills_on_demand: true
+
+guardrails:
+  never_reduce_verification_to_save_tokens: true
+  escalate_after_failed_low_effort_attempt: true
+  privileged_tools_remain_explicit: true

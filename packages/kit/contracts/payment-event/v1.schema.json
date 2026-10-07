@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ai-kit/contracts/payment-event/v1.schema.json",
+  "title": "NormalizedPaymentEvent",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version","idempotency_key","gateway","external_event_id","external_resource_id","type","action","status","occurred_at"],
+  "properties": {
+    "schema_version":{"const":"1.0"},
+    "idempotency_key":{"type":"string","minLength":1},
+    "gateway":{"enum":["stripe","mercado_pago"]},
+    "external_event_id":{"type":"string","minLength":1},
+    "external_resource_id":{"type":"string","minLength":1},
+    "type":{"enum":["payment","subscription"]},
+    "action":{"type":"string","minLength":1},
+    "status":{"type":"string","minLength":1},
+    "amount_minor":{"type":"integer","minimum":0},
+    "currency":{"enum":["BRL","USD","EUR"]},
+    "tenant_id":{"type":"string"},
+    "occurred_at":{"type":"string","format":"date-time"},
+    "raw_type":{"type":"string"}
+  }
+}
