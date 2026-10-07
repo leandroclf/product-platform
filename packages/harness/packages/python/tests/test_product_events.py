@@ -9,7 +9,7 @@ from product_platform_harness import ProductEvents, validate_product_event
 
 class ProductEventTests(unittest.TestCase):
     def test_canonical_compatibility_corpus(self):
-        fixtures = Path(os.getenv("PRODUCT_EVENT_CASES", "tests/fixtures/product-event-cases.json"))
+        fixtures = Path(os.getenv("PRODUCT_EVENT_CASES", "../kit/contracts/product-event/fixtures/compatibility-cases.json"))
         for case in json.loads(fixtures.read_text()):
             with self.subTest(case=case["name"]):
                 if case["valid"]:

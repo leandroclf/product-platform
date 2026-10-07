@@ -26,8 +26,7 @@ durable usage metering, webhook inbox or outbox delivery.
 Python ProductEvent runtime is now maintained in `packages/python`, using the
 `product_platform_harness` import. Previous kit packages remain frozen compatibility
 snapshots until consumers migrate. `npm run validate` runs build, TypeScript tests
-and Python standard-library tests. `tests/fixtures/product-event-cases.json` is a
-conformance snapshot from the kit, not a second authoritative schema. Set
-`PRODUCT_EVENT_CASES` to the canonical kit fixture to validate cross-repository
-compatibility explicitly. Runtime validators reject unknown fields and invalid
+and Python standard-library tests against the canonical kit corpus
+(`../kit/contracts/product-event/fixtures/compatibility-cases.json`); there is no local copy.
+`PRODUCT_EVENT_CASES` overrides the path. Runtime validators reject unknown fields and invalid
 metadata; typed callers alone do not provide this boundary.

@@ -5,7 +5,7 @@ import path from 'node:path';
 import * as events from './events.js';
 
 test('matches the canonical kit compatibility corpus', () => {
-  const fixtures = process.env.PRODUCT_EVENT_CASES ?? path.resolve('tests/fixtures/product-event-cases.json');
+  const fixtures = process.env.PRODUCT_EVENT_CASES ?? path.resolve('../kit/contracts/product-event/fixtures/compatibility-cases.json');
   const cases = JSON.parse(fs.readFileSync(fixtures, 'utf8'));
   const validate = events.validateProductEvent;
   for (const item of cases) {

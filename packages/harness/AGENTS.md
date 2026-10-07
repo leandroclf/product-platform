@@ -9,7 +9,7 @@
 - Depende somente do kit.
 
 ## Regras de mudança
-- O schema do ProductEvent é do kit. Alterações de vocabulário ou campos começam no kit; aqui só se espelha. A fixture `tests/fixtures/product-event-cases.json` é snapshot; valide contra o fixture canônico do kit via `PRODUCT_EVENT_CASES`.
+- O schema do ProductEvent é do kit. Alterações de vocabulário ou campos começam em `packages/kit/contracts/product-event/`; o harness valida sempre contra `../kit/contracts/product-event/fixtures/compatibility-cases.json` e não mantém cópia do fixture.
 - Falha de sink nunca derruba a requisição; entitlements decididos no servidor; eventos sem PII, GPS, IMEI, documentos ou credenciais.
 - Consumidores fixam SHA completo ou artefato com checksum (`docs/CONSUMING.md`); nunca publique mudança que quebre adapters pinados sem nova versão.
 - Não declare como implementado o que o registry do kit lista como `planned` (inbox durável, outbox, ledger persistido, reserva atômica de uso, OTEL).
