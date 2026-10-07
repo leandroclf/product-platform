@@ -4,11 +4,11 @@ A new product starts from capabilities, not copied repositories.
 
 ## 1. Conceive
 
-Provide the idea plus `contracts/capability-registry.yaml` to OmniCLI.
+Provide the idea plus `contracts/capability-registry.yaml` to product-platform-cli.
 
 ```bash
 omnicli conceive "<idea>" --refine --loops 3 \
-  --portfolio-context /path/to/ai-kit/contracts/capability-registry.yaml
+  --portfolio-context /path/to/product-platform-kit/contracts/capability-registry.yaml
 ```
 
 The proposal must produce a REUSE / EXTEND / CREATE resolution.
@@ -37,12 +37,12 @@ Expected reusable composition:
 
 ```
 new-product
-  -> ai-kit contracts/policies
-  -> product-harness/core
-  -> product-harness/growth (optional)
-  -> product-harness/commerce (optional)
-  -> product-harness/economics (optional)
-  -> product-harness/observability
+  -> product-platform-kit contracts/policies
+  -> product-platform-harness/core
+  -> product-platform-harness/growth (optional)
+  -> product-platform-harness/commerce (optional)
+  -> product-platform-harness/economics (optional)
+  -> product-platform-harness/observability
   -> product-specific domain
 ```
 
