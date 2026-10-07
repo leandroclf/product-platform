@@ -1,0 +1,54 @@
+name: validate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate shell syntax
+        run: |
+          bash -n scripts/ai-kit
+          bash -n scripts/bootstrap.sh
+
+      - name: Validate required structure
+        run: |
+          test -f AGENTS.md
+          test -f CLAUDE.md
+          test -f config/tools.yaml
+          test -f skills/engineering/SKILL.md
+          test -f skills/testing/SKILL.md
+          test -f skills/ui/SKILL.md
+          test -f skills/security/SKILL.md
+
+      - name: Smoke-test profile detection
+        run: bash scripts/ai-kit .
+
+      - name: Smoke-test bootstrap without machine changes
+        run: bash scripts/bootstrap.sh core
+
+      - name: Validate canonical Product Harness schema
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          schema = json.loads(Path("contracts/product-event.schema.json").read_text())
+          fixture = json.loads(Path("contracts/fixtures/product-event.valid.json").read_text())
+          required = set(schema["required"])
+          assert required <= fixture.keys()
+          assert schema["additionalProperties"] is False
+          assert fixture["event"] in schema["properties"]["event"]["enum"]
+          assert set(fixture) <= set(schema["properties"])
+          print("Product Harness contract fixture is conformant")
+          PY
+
+      - name: Validate architecture ownership and versioned contracts
+        run: node scripts/validate-architecture.cjs
