@@ -120,6 +120,9 @@ def conceive(
     skip_latest_check: bool = typer.Option(
         False, "--skip-latest-check", help="Pula a consulta às fontes oficiais de versão; mantém a validação local."
     ),
+    portfolio_context: Path | None = typer.Option(
+        None, "--portfolio-context", help="Capability Registry/contexto canônico do portfólio."
+    ),
 ) -> None:
     """Transforma uma ideia em uma proposta arquitetural consolidada."""
     try:
