@@ -26,11 +26,14 @@ jobs:
       - name: Build commit-addressed package artifact
         run: |
           npm pack
-          sha256sum *.tgz > SHA256SUMS
+          python3 -m pip wheel --no-deps ./packages/python --wheel-dir wheel
+          cp wheel/*.whl .
+          sha256sum *.tgz *.whl > SHA256SUMS
       - uses: actions/upload-artifact@v7
         with:
           name: product-platform-harness-${{ github.sha }}
           path: |
             packages/harness/*.tgz
+            packages/harness/*.whl
             packages/harness/SHA256SUMS
           retention-days: 30

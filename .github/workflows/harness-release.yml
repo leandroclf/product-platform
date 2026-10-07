@@ -30,7 +30,11 @@ jobs:
       - run: npm install
       - run: npm run validate
       - run: npm pack
-      - run: sha256sum *.tgz > SHA256SUMS
+      - name: Build the Python wheel (pip only, no extra tooling)
+        run: |
+          python3 -m pip wheel --no-deps ./packages/python --wheel-dir wheel
+          cp wheel/*.whl .
+      - run: sha256sum *.tgz *.whl > SHA256SUMS
       - env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "${GITHUB_REF_NAME}" *.tgz SHA256SUMS --repo "${GITHUB_REPOSITORY}" --generate-notes --verify-tag
+        run: gh release create "${GITHUB_REF_NAME}" *.tgz *.whl SHA256SUMS --repo "${GITHUB_REPOSITORY}" --generate-notes --verify-tag

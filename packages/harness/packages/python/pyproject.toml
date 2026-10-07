@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "product-platform-harness"
-version = "0.2.0"
+version = "0.2.1"
 description = "Provider-neutral ProductEvent runtime for the product-platform portfolio"
 requires-python = ">=3.10"
 

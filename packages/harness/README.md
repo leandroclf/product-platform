@@ -14,7 +14,7 @@ Products keep domain logic and product-specific adapters/configuration. Shared b
 
 ## Initial adoption
 
-Local candidate: `0.2.0` (TypeScript and Python), not yet published. The stricter
+Latest release: `harness-v0.2.0` (TypeScript). `0.2.1` is the first release that also publishes the Python wheel. The stricter
 event validator rejects previously accepted unknown fields; validate adapters
 before upgrading from the `0.1.0` pilot artifact.
 

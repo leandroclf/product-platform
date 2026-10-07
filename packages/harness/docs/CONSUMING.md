@@ -19,12 +19,13 @@ Migration rule: introduce the pinned dependency, switch imports, run product CI/
 
 ## Python
 
-The Python package lives in `packages/python` (`product_platform_harness`, events only: no payments or usage persistence). The release workflow does **not** publish a wheel yet. Until it does, validate a local wheel built from the tag and verify its SHA-256 before adoption:
+The Python package (`product_platform_harness`, events only: no payments or usage persistence) is published from `harness-v0.2.1` on, as `product_platform_harness-<version>-py3-none-any.whl`, listed in the same `SHA256SUMS` as the TypeScript tarball.
 
 ```bash
-git clone --branch harness-v0.2.0 https://github.com/leandroclf/product-platform.git
-python -m pip wheel --no-deps ./product-platform/packages/harness/packages/python --wheel-dir /tmp/harness-wheels
-sha256sum /tmp/harness-wheels/*.whl
+gh release download harness-v0.2.1 -R leandroclf/product-platform
+sha256sum -c SHA256SUMS
 ```
 
-Canonical import: `from product_platform_harness import ProductEvents`. Adding the wheel to the release assets is an open follow-up.
+Vendor the verified wheel in the product (`vendor/`), install it from `requirements.txt` with its relative path, and record the release tag, the commit of the tag and the SHA-256 in a manifest that the product CI verifies. Reference implementation: the `ai-docs` repository (`vendor/harness-artifact.json` and `scripts/validate_harness_artifact.py`). Wheels are not byte-reproducible (the build embeds file times), so always pin the checksum of the published asset, never a local rebuild.
+
+Canonical import: `from product_platform_harness import ProductEvents`. `harness-v0.2.0` has no wheel; do not use it for Python.
