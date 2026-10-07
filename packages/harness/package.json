@@ -1,6 +1,6 @@
 {
   "name": "@leandroclf/product-platform-harness",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": false,
   "type": "module",
   "engines": {
@@ -9,7 +9,8 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "test": "node --test dist/**/*.test.js",
-    "validate": "npm run build && npm test",
+    "validate": "npm run build && npm test && npm run test:python",
+    "test:python": "PYTHONPATH=packages/python python3 -m unittest discover -s packages/python/tests -v",
     "prepare": "npm run build"
   },
   "devDependencies": {
