@@ -1,7 +1,7 @@
 version: 1
-repository: product-harness
+repository: product-platform-harness
 kind: reusable-product-platform
-depends_on: [ai-kit]
+depends_on: [product-platform-kit]
 runtime:
   mandatory_services: 0
   embedded_in_product: true
