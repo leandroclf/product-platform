@@ -31,9 +31,11 @@ def test_extracts_last_block_and_takes_fingerprint_from_the_cli() -> None:
         "sem bloco",
         "```capability-handoff\nnão é json\n```",
         '```capability-handoff\n{"product": "x", "capabilities": []}\n```',
-        '```capability-handoff\n{"product": "x", "capabilities": [{"name": "a", "decision": "COPY", "owner": "o"}]}\n```',
+        '```capability-handoff\n{"product": "x", "capabilities": '
+        '[{"name": "a", "decision": "COPY", "owner": "o"}]}\n```',
         '```capability-handoff\n{"product": "x", "capabilities": [{"name": "a", "decision": "REUSE"}]}\n```',
-        '```capability-handoff\n{"product": "x", "registry_fingerprint": "b", "capabilities": [{"name": "a", "decision": "REUSE", "owner": "o"}]}\n```',
+        '```capability-handoff\n{"product": "x", "registry_fingerprint": "b", "capabilities": '
+        '[{"name": "a", "decision": "REUSE", "owner": "o"}]}\n```',
         '```capability-handoff\n{"product": "x", "capabilities": ['
         '{"name": "a", "decision": "REUSE", "owner": "o"}, {"name": "a", "decision": "CREATE", "owner": "o"}]}\n```',
     ],

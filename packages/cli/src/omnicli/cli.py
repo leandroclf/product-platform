@@ -14,10 +14,10 @@ from omnicli.codebase import CodebaseContext, inspect_local, inspect_remote
 from omnicli.config import load_config, write_example_config
 from omnicli.diagnostics import diagnose
 from omnicli.exceptions import OmniCLIError
+from omnicli.handoff import extract_capability_handoff
 from omnicli.lab import LabResult, run_provider_contract_lab, run_synthetic_evaluation
 from omnicli.pipeline import PipelineRunner
 from omnicli.planning import build_execution_plan
-from omnicli.handoff import extract_capability_handoff
 from omnicli.portfolio import PortfolioContext
 from omnicli.provider_freshness import check_provider_freshness
 
@@ -132,7 +132,8 @@ def conceive(
     handoff_out: Path | None = typer.Option(
         None,
         "--handoff-out",
-        help="Grava o JSON de capacidades (REUSE/EXTEND/CREATE) para 'ai-team run --handoff'; exige --portfolio-context.",
+        help="Grava o JSON de capacidades (REUSE/EXTEND/CREATE) para 'ai-team run --handoff'; "
+        "exige --portfolio-context.",
     ),
 ) -> None:
     """Transforma uma ideia em uma proposta arquitetural consolidada."""
