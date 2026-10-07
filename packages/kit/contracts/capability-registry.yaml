@@ -21,7 +21,7 @@ capabilities:
     owner: product-platform-harness
     surface: packages
     modules: [core, growth, commerce, economics, observability]
-    status: bootstrap
+    status: active
   product_events:
     owner: product-platform-kit
     implementation_owner: product-platform-harness
