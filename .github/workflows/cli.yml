@@ -1,6 +1,7 @@
 name: cli
 
 on:
+  workflow_dispatch:
   push:
     branches: [main]
     paths: ['packages/cli/**', 'packages/kit/contracts/**', '.github/workflows/cli.yml']

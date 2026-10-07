@@ -1,5 +1,6 @@
 name: engineering-team
 on:
+  workflow_dispatch:
   push:
     paths: ['packages/engineering-team/**', 'packages/kit/contracts/**', '.github/workflows/engineering-team.yml']
   pull_request:

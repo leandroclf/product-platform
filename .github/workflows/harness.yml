@@ -1,5 +1,6 @@
 name: harness
 on:
+  workflow_dispatch:
   pull_request:
     paths: ['packages/harness/**', 'packages/kit/contracts/product-event/**', '.github/workflows/harness.yml']
   push:
