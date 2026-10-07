@@ -1,0 +1,2 @@
+export function formBody(values:Record<string,unknown>):string { const body=new URLSearchParams(); for(const [k,v] of Object.entries(values)) if(v!==undefined&&v!==null) body.set(k,String(v)); return body.toString(); }
+export async function gatewayFetch<T=unknown>(url:string,init:RequestInit={}):Promise<T>{const r=await fetch(url,init);if(!r.ok)throw new Error(`payment gateway request failed (${r.status})`);if(r.status===204)return undefined as T;return await r.json() as T;}
