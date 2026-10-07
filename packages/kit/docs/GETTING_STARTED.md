@@ -9,8 +9,8 @@ At minimum, use a Unix-like shell with Git and Bash. Node.js/npm are required fo
 ## 1. Clone AI Kit
 
 ```bash
-git clone https://github.com/leandroclf/product-platform-kit.git
-cd product-platform-kit
+git clone https://github.com/leandroclf/product-platform.git
+cd product-platform/packages/kit
 ```
 
 ## 2. Diagnose your environment

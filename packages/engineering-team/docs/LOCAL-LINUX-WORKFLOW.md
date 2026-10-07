@@ -7,8 +7,8 @@ Versão atual: 0.2.0, com [quatro etapas isoladas](ISOLATED-AGENT-STAGES.md). CL
 Pré-requisitos: Linux, Git, Python 3.10+ com venv/ensurepip e Docker Engine acessível ao usuário; `gh` é necessário somente para PR. Docker Compose é usado pelo harness histórico, não pelo CLI local. Acesso ao daemon Docker é uma autoridade ampla do host: não entregar socket ao agente. O instalador não usa sudo, não muda grupos e não instala pacotes do sistema.
 
 ```bash
-git clone --branch main https://github.com/leandroclf/product-platform-engineering-team.git
-cd product-platform-engineering-team
+git clone --branch main https://github.com/leandroclf/product-platform.git
+cd product-platform/packages/engineering-team
 bash scripts/install-local.sh --check
 bash scripts/install-local.sh
 export PATH="$HOME/.local/bin:$PATH"

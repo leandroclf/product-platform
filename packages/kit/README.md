@@ -6,10 +6,10 @@
 
 **Reusable engineering policy. Multiple coding agents. Capabilities loaded only when projects need them.**
 
-[![CI](https://github.com/leandroclf/product-platform-kit/actions/workflows/validate.yml/badge.svg)](https://github.com/leandroclf/product-platform-kit/actions/workflows/validate.yml)
-[![GitHub stars](https://img.shields.io/github/stars/leandroclf/product-platform-kit?style=flat)](https://github.com/leandroclf/product-platform-kit/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/leandroclf/product-platform-kit?style=flat)](https://github.com/leandroclf/product-platform-kit/network/members)
-[![Issues](https://img.shields.io/github/issues/leandroclf/product-platform-kit)](https://github.com/leandroclf/product-platform-kit/issues)
+[![CI](https://github.com/leandroclf/product-platform/actions/workflows/kit.yml/badge.svg)](https://github.com/leandroclf/product-platform/actions/workflows/kit.yml)
+[![GitHub stars](https://img.shields.io/github/stars/leandroclf/product-platform?style=flat)](https://github.com/leandroclf/product-platform/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/leandroclf/product-platform?style=flat)](https://github.com/leandroclf/product-platform/network/members)
+[![Issues](https://img.shields.io/github/issues/leandroclf/product-platform)](https://github.com/leandroclf/product-platform/issues)
 
 Built for **OpenAI Codex**, **Claude Code**, and agent-driven engineering workflows.
 
@@ -23,7 +23,7 @@ Built for **OpenAI Codex**, **Claude Code**, and agent-driven engineering workfl
 
 Product Platform Kit is the reusable **policy, skills, profiles and agent-adapter layer** for AI-assisted engineering. It is intentionally not an execution orchestrator, dynamic model router, model gateway or autonomous engineering runtime.
 
-For bounded plan → implement → validate → review execution, the canonical runtime in this portfolio is [product-platform-engineering-team](https://github.com/leandroclf/product-platform-engineering-team). Product Platform Kit may supply reusable policy and capabilities to that runtime or to standalone coding agents without owning their lifecycle.
+For bounded plan → implement → validate → review execution, the canonical runtime in this portfolio is [product-platform-engineering-team](https://github.com/leandroclf/product-platform/tree/main/packages/engineering-team). Product Platform Kit may supply reusable policy and capabilities to that runtime or to standalone coding agents without owning their lifecycle.
 
 This boundary prevents policy reuse from growing into a second orchestration stack.
 
@@ -73,8 +73,8 @@ Coding agents are becoming part of the engineering toolchain, but teams quickly 
 ## Quick start
 
 ```bash
-git clone https://github.com/leandroclf/product-platform-kit.git
-cd product-platform-kit
+git clone https://github.com/leandroclf/product-platform.git
+cd product-platform/packages/kit
 bash scripts/doctor.sh .
 bash scripts/ai-kit /path/to/project
 ```
