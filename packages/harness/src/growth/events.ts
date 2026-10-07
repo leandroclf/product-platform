@@ -1,0 +1,5 @@
+export type ProductEventName='signup_completed'|'activation_completed'|'feature_used'|'limit_reached'|'upgrade_intent'|'subscription_changed'|'feedback_submitted';
+export interface ProductEvent { schema_version:'1.0'; event:ProductEventName; product_id:string; environment:string; release_sha:string; occurred_at:string; user_id?:string|null; account_id?:string|null; plan_id?:string|null; session_id?:string|null; feature?:string|null; outcome?:string|null; }
+export interface ProductEventContext { productId:string; environment:string; releaseSha:string; now?:()=>Date; }
+type Fields=Partial<Omit<ProductEvent,'schema_version'|'event'|'product_id'|'environment'|'release_sha'|'occurred_at'>>;
+export function createProductEvent(context:ProductEventContext,event:ProductEventName,fields:Fields={}):ProductEvent{return {...fields,schema_version:'1.0',event,product_id:context.productId,environment:context.environment,release_sha:context.releaseSha,occurred_at:(context.now?.()??new Date()).toISOString()};}

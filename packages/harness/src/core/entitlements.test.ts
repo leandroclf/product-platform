@@ -1,0 +1,1 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {checkEntitlement} from './entitlements.js';test('blocks at limit',()=>assert.equal(checkEntitlement({plan:'starter',capability:'vehicles',usage:3,limits:{vehicles:3}}).allowed,false));
