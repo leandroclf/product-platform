@@ -1,10 +1,10 @@
-# Contributing to AI Kit
+# Contributing to Product Platform Kit
 
 Thanks for helping make AI-assisted engineering more portable, predictable and safe.
 
 ## Good contributions
 
-AI Kit especially welcomes:
+Product Platform Kit especially welcomes:
 
 - reusable engineering skills that are not tied to one private codebase;
 - improvements to stack/profile detection;

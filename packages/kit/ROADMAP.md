@@ -1,6 +1,6 @@
-# AI Kit Roadmap
+# Product Platform Kit Roadmap
 
-AI Kit is evolving from a portable policy repository into a lightweight control plane for AI-assisted engineering teams.
+Product Platform Kit is evolving from a portable policy repository into a lightweight control plane for AI-assisted engineering teams.
 
 This roadmap communicates direction, not guaranteed dates.
 
@@ -19,7 +19,7 @@ This roadmap communicates direction, not guaranteed dates.
 ## Next — distribution and automation
 
 - Manifest JSON Schema and CI validation
-- `init` workflow for adopting AI Kit in an existing repository
+- `init` workflow for adopting Product Platform Kit in an existing repository
 - Idempotent adapter generation
 - Safe `update` workflow with policy diff before changes
 - Release pinning and compatibility checks
@@ -49,4 +49,4 @@ Features should not trade away the principles that make the project useful:
 
 ## Proposing roadmap items
 
-Open an issue describing the user problem first. Solutions that apply to multiple repositories and agents are more likely to belong in AI Kit than highly project-specific behavior.
+Open an issue describing the user problem first. Solutions that apply to multiple repositories and agents are more likely to belong in Product Platform Kit than highly project-specific behavior.

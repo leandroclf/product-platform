@@ -1,15 +1,15 @@
 <div align="center">
 
-# AI Kit
+# Product Platform Kit
 
 ### Portable policies and skills for AI-assisted software engineering
 
 **Reusable engineering policy. Multiple coding agents. Capabilities loaded only when projects need them.**
 
-[![CI](https://github.com/leandroclf/ai-kit/actions/workflows/validate.yml/badge.svg)](https://github.com/leandroclf/ai-kit/actions/workflows/validate.yml)
-[![GitHub stars](https://img.shields.io/github/stars/leandroclf/ai-kit?style=flat)](https://github.com/leandroclf/ai-kit/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/leandroclf/ai-kit?style=flat)](https://github.com/leandroclf/ai-kit/network/members)
-[![Issues](https://img.shields.io/github/issues/leandroclf/ai-kit)](https://github.com/leandroclf/ai-kit/issues)
+[![CI](https://github.com/leandroclf/product-platform-kit/actions/workflows/validate.yml/badge.svg)](https://github.com/leandroclf/product-platform-kit/actions/workflows/validate.yml)
+[![GitHub stars](https://img.shields.io/github/stars/leandroclf/product-platform-kit?style=flat)](https://github.com/leandroclf/product-platform-kit/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/leandroclf/product-platform-kit?style=flat)](https://github.com/leandroclf/product-platform-kit/network/members)
+[![Issues](https://img.shields.io/github/issues/leandroclf/product-platform-kit)](https://github.com/leandroclf/product-platform-kit/issues)
 
 Built for **OpenAI Codex**, **Claude Code**, and agent-driven engineering workflows.
 
@@ -21,21 +21,21 @@ Built for **OpenAI Codex**, **Claude Code**, and agent-driven engineering workfl
 
 ## Scope
 
-AI Kit is the reusable **policy, skills, profiles and agent-adapter layer** for AI-assisted engineering. It is intentionally not an execution orchestrator, dynamic model router, model gateway or autonomous engineering runtime.
+Product Platform Kit is the reusable **policy, skills, profiles and agent-adapter layer** for AI-assisted engineering. It is intentionally not an execution orchestrator, dynamic model router, model gateway or autonomous engineering runtime.
 
-For bounded plan → implement → validate → review execution, the canonical runtime in this portfolio is [ai-engineering-team](https://github.com/leandroclf/ai-engineering-team). AI Kit may supply reusable policy and capabilities to that runtime or to standalone coding agents without owning their lifecycle.
+For bounded plan → implement → validate → review execution, the canonical runtime in this portfolio is [product-platform-engineering-team](https://github.com/leandroclf/product-platform-engineering-team). Product Platform Kit may supply reusable policy and capabilities to that runtime or to standalone coding agents without owning their lifecycle.
 
 This boundary prevents policy reuse from growing into a second orchestration stack.
 
-## Why AI Kit?
+## Why Product Platform Kit?
 
 Coding agents are becoming part of the engineering toolchain, but teams quickly hit a new class of problems: instructions drift between repositories, every agent receives different context, always-on tools increase context/permissions, developers must remember which skills to activate, and shared standards turn into giant prompt files.
 
-**AI Kit treats agent configuration as engineering infrastructure.** It provides a small central policy layer that detects project needs, routes agents toward reusable skills, recommends task-specific capabilities and keeps privileged integrations disabled until required.
+**Product Platform Kit treats agent configuration as engineering infrastructure.** It provides a small central policy layer that detects project needs, routes agents toward reusable skills, recommends task-specific capabilities and keeps privileged integrations disabled until required.
 
 ```text
                     ┌──────────────────────────┐
-                    │         AI Kit           │
+                    │         Product Platform Kit           │
                     │ central engineering      │
                     │ policy + token policy    │
                     └────────────┬─────────────┘
@@ -73,8 +73,8 @@ Coding agents are becoming part of the engineering toolchain, but teams quickly 
 ## Quick start
 
 ```bash
-git clone https://github.com/leandroclf/ai-kit.git
-cd ai-kit
+git clone https://github.com/leandroclf/product-platform-kit.git
+cd product-platform-kit
 bash scripts/doctor.sh .
 bash scripts/ai-kit /path/to/project
 ```
@@ -93,7 +93,7 @@ AI_KIT_MODE=apply bash scripts/bootstrap.sh
 
 ## Token efficiency
 
-AI Kit includes `config/token-policy.yaml`, a portable policy derived from current official OpenAI and Anthropic guidance.
+Product Platform Kit includes `config/token-policy.yaml`, a portable policy derived from current official OpenAI and Anthropic guidance.
 
 The default strategy is deliberately simple:
 
@@ -105,7 +105,7 @@ The default strategy is deliberately simple:
 - prefer durable filesystem/git state over repeatedly injecting large summaries;
 - optimize for **tokens per successfully verified task**, not tokens per individual call.
 
-The last point matters: forcing minimum reasoning everywhere can create retries and consume *more* tokens. AI Kit uses adaptive escalation instead.
+The last point matters: forcing minimum reasoning everywhere can create retries and consume *more* tokens. Product Platform Kit uses adaptive escalation instead.
 
 See [Token-efficient agent configuration](docs/TOKEN_EFFICIENCY.md) for the Codex and Claude policies and links to the official platform guidance.
 
@@ -160,13 +160,13 @@ Baseline: no credentials in this repository, optional tools only when relevant, 
 
 ## For teams
 
-The intended model is a versioned central AI Kit consumed by many repositories. Projects retain local business rules while inheriting common engineering and token-efficiency policy. Updates should be versioned and reviewable instead of silently following `main`.
+The intended model is a versioned central Product Platform Kit consumed by many repositories. Projects retain local business rules while inheriting common engineering and token-efficiency policy. Updates should be versioned and reviewable instead of silently following `main`.
 
 See [Team distribution](docs/DISTRIBUTION.md).
 
-## What AI Kit is not
+## What Product Platform Kit is not
 
-AI Kit is not another coding agent, an autonomous production deployment system, or a reason to enable every MCP/tool globally. It is the policy and capability-routing layer around coding agents.
+Product Platform Kit is not another coding agent, an autonomous production deployment system, or a reason to enable every MCP/tool globally. It is the policy and capability-routing layer around coding agents.
 
 ## Roadmap
 
@@ -178,7 +178,7 @@ See [ROADMAP.md](ROADMAP.md).
 
 Contributions are welcome, especially portable skills, profiles, stack detectors, token-efficiency improvements and safe integrations. Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request.
 
-If AI Kit solves a problem in your workflow, consider starring the repository — it helps other engineers discover the project.
+If Product Platform Kit solves a problem in your workflow, consider starring the repository — it helps other engineers discover the project.
 
 ## License
 

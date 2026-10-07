@@ -40,8 +40,8 @@ jobs:
           python - <<'PY'
           import json
           from pathlib import Path
-          schema = json.loads(Path("contracts/product-event.schema.json").read_text())
-          fixture = json.loads(Path("contracts/fixtures/product-event.valid.json").read_text())
+          schema = json.loads(Path("contracts/product-event/v1.schema.json").read_text())
+          fixture = json.loads(Path("contracts/product-event/fixtures/valid.json").read_text())
           required = set(schema["required"])
           assert required <= fixture.keys()
           assert schema["additionalProperties"] is False

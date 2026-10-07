@@ -1,6 +1,6 @@
 # Agent adapters
 
-Adapters are the platform-specific edge of AI Kit. Shared engineering policy stays in `skills/` and must not be duplicated here.
+Adapters are the platform-specific edge of Product Platform Kit. Shared engineering policy stays in `skills/` and must not be duplicated here.
 
 ## Codex
 `AGENTS.md` is the repository entry point. It should remain small and route Codex toward the manifest, selected profile and relevant skills.
