@@ -1,6 +1,6 @@
 # Portfolio capability resolution gate
 
-Before PLAN for a new product or cross-cutting capability, resolve requested capabilities against the canonical ai-kit capability registry.
+Before PLAN for a new product or cross-cutting capability, resolve requested capabilities against the canonical product-platform-kit capability registry.
 
 Decision order:
 1. REUSE canonical capability.
@@ -23,4 +23,4 @@ A bounded change may require multiple repositories. Treat each repository mutati
 
 Typical sequence:
 
-ai-kit contract (if needed) -> product-harness capability -> immutable release -> product consumer -> remove superseded local copy.
+product-platform-kit contract (if needed) -> product-platform-harness capability -> immutable release -> product consumer -> remove superseded local copy.
