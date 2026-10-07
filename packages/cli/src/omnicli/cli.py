@@ -17,6 +17,7 @@ from omnicli.exceptions import OmniCLIError
 from omnicli.lab import LabResult, run_provider_contract_lab, run_synthetic_evaluation
 from omnicli.pipeline import PipelineRunner
 from omnicli.planning import build_execution_plan
+from omnicli.handoff import extract_capability_handoff
 from omnicli.portfolio import PortfolioContext
 from omnicli.provider_freshness import check_provider_freshness
 
@@ -128,11 +129,18 @@ def conceive(
     portfolio_context: Path | None = typer.Option(
         None, "--portfolio-context", help="Capability Registry/contexto canônico do portfólio."
     ),
+    handoff_out: Path | None = typer.Option(
+        None,
+        "--handoff-out",
+        help="Grava o JSON de capacidades (REUSE/EXTEND/CREATE) para 'ai-team run --handoff'; exige --portfolio-context.",
+    ),
 ) -> None:
     """Transforma uma ideia em uma proposta arquitetural consolidada."""
     try:
         codebase_context = _context(project, repo, ref, idea)
         portfolio = PortfolioContext.from_file(portfolio_context) if portfolio_context else None
+        if handoff_out and not portfolio:
+            raise ValueError("--handoff-out exige --portfolio-context")
         if context_preview:
             if codebase_context is None:
                 raise ValueError("--context-preview exige --project ou --repo")
@@ -174,6 +182,14 @@ def conceive(
         raise typer.Exit(code=1) from exc
     console.print(f"[green]Concluído:[/green] {final_path}")
     console.print(f"Workspace: {run_workspace.path}")
+    if handoff_out and portfolio:
+        try:
+            handoff = extract_capability_handoff(final_path.read_text(encoding="utf-8"), portfolio.fingerprint)
+            handoff_out.write_text(json.dumps(handoff, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        except (OSError, ValueError) as exc:
+            console.print(f"[red]Erro no handoff:[/red] {exc} (a proposta foi salva em {final_path})")
+            raise typer.Exit(code=1) from exc
+        console.print(f"Handoff: {handoff_out}")
     console.print(f"Qualidade preliminar: {report.score}/100")
     manifest = run_workspace.load_manifest()
     if manifest.termination_reason:

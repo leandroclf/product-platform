@@ -26,7 +26,11 @@ def build_stage_prompt(
         "Catálogo canônico de capacidades fornecido como contexto arquitetural. "
         "Para cada capacidade pedida, decida REUSE, EXTEND ou CREATE. "
         "REUSE é preferido; EXTEND altera o owner canônico; CREATE exige ausência de capacidade compatível. "
-        "Nunca recomende copiar implementação entre produtos.\n"
+        "Nunca recomende copiar implementação entre produtos. "
+        "O documento final deve terminar com exatamente um bloco de código marcado como capability-handoff, "
+        "com JSON {\"product\": \"<nome>\", \"capabilities\": [{\"name\": \"...\", \"decision\": \"REUSE|EXTEND|CREATE\", "
+        "\"owner\": \"...\", \"version\": \"...\" ou null, \"reason\": \"...\" ou null}]}, "
+        "uma entrada por capacidade pedida, usando os nomes e owners do catálogo.\n"
         f"{portfolio_context}\n</omnicli_portfolio_context>\n"
         if portfolio_context else ""
     )
