@@ -79,7 +79,7 @@ Contrato, harness, cli e engineering-team são pacotes de um mesmo repositório.
 O `ai-team run` aceita `--handoff` e `--rules` (ver `product-platform-engineering-team/docs/LOCAL-LINUX-WORKFLOW.md`), o que cobre a entrega das regras e do handoff aos agentes. Ainda por tarefa, manualmente:
 
 1. No alvo, commitar um `AGENTS.md` que referencie este documento e fixe a versão do kit/harness (modelo em `templates/TARGET-AGENTS.md`).
-2. Gerar o JSON de capacidades (`registry_fingerprint` da proposta e decisões REUSE/EXTEND/CREATE) e passá-lo com `--handoff` (e o registry com `--registry`); passar este documento e o `AGENTS.md` do harness com `--rules`.
+2. Gerar o envelope com `omnicli conceive --envelope-out` (ou só as capacidades com `--handoff-out`), validá-lo com `scripts/validate-platform-handoff.py` e passá-lo com `--handoff` (e o registry com `--registry`); passar este documento e o `AGENTS.md` do harness com `--rules`.
 3. Configurar em `ai-team init --check` os checks de G3 (conformance de ProductEvent, validação do artefato do harness).
 4. Conferir manualmente G1 no plano do Atlas antes de aceitar a implementação.
 
@@ -89,8 +89,8 @@ Em ordem de dependência. Itens com código exigem tarefa própria por repositó
 
 | # | Repositório | Mudança | Resultado |
 | --- | --- | --- | --- |
-| 1 | cli | **Feito para capacidades**: `conceive --handoff-out` emite o `PortfolioCapabilityHandoff`. **Pendente**: o CLI emitir o envelope completo (escopo, risco, evidências, `rules_refs`). A conferência de nomes contra o registry passou a existir no kit (item 2) | G0 parcialmente verificável |
-| 2 | kit | **Feito**: envelope `PlatformHandoff` v1 e `scripts/validate-platform-handoff.py` (fingerprint e G1 contra o registry). **Pendente**: executar no CI do kit (exige instalar PyYAML e jsonschema) e fazer o CLI e o `ai-team` aceitarem o envelope | contrato único |
+| 1 | cli | **Feito**: `conceive --handoff-out` emite o `PortfolioCapabilityHandoff` e `--envelope-out` emite o envelope `PlatformHandoff` completo (proposta, capacidades e `rules_refs`); o fingerprint, o `proposal_id`, o repositório e as versões de regras vêm do CLI e do operador, nunca do modelo | G0 verificável |
+| 2 | kit | **Feito**: envelope `PlatformHandoff` v1, `scripts/validate-platform-handoff.py` (fingerprint e G1 contra o registry) e, na raiz do repositório, `scripts/test_handoff_contract.py` (cli → kit → ai-team, executado no workflow `platform`); o CLI e o `ai-team` aceitam o envelope | contrato único |
 | 3 | engineering-team | **Feito**: `run --handoff`, `--rules` e `--registry` validados e congelados com hash; `capability_decisions` no plano verificado pelo host | G1 e G2 automáticos |
 | 4 | engineering-team | Check de conformidade como fase própria do host | G3 padronizado |
 | 5 | kit | Substituir conformance por substring por validação JSON Schema; fixtures e runner para `payment-event/v1`; remover cópias legadas do ProductEvent | G3 confiável |
