@@ -47,7 +47,7 @@ Requirements: Linux, Python 3.10+, and the provider CLIs required by your pipeli
 
 ```bash
 git clone https://github.com/leandroclf/product-platform-cli.git
-cd OmniCLI
+cd product-platform-cli
 bash scripts/bootstrap.sh --apply --check
 source .venv/bin/activate
 omnicli doctor --capabilities
