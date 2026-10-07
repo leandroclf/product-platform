@@ -174,6 +174,8 @@ class RunManifest(BaseModel):
     input_file: str | None = None
     input_sha256: str | None = None
     context_fingerprint: str | None = None
+    portfolio_fingerprint: str | None = None
+    portfolio_source: str | None = None
     context_source_kind: str | None = None
     context_commit: str | None = None
     context_dirty: bool | None = None
