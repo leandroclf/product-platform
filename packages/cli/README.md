@@ -1,6 +1,6 @@
 # OmniCLI
 
-[![CI](https://github.com/leandroclf/OmniCLI/actions/workflows/ci.yml/badge.svg)](https://github.com/leandroclf/OmniCLI/actions/workflows/ci.yml)
+[![CI](https://github.com/leandroclf/product-platform-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/leandroclf/product-platform-cli/actions/workflows/ci.yml)
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-3776AB.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Status: Controlled Beta](https://img.shields.io/badge/status-controlled%20beta-blue.svg)](docs/production-readiness.md)
@@ -24,7 +24,7 @@ to preview selected source excerpts before generating a grounded proposal.
 
 ## Portfolio boundary
 
-OmniCLI owns the **pre-implementation proposal stage**: ambiguous intent → challenged, traceable engineering proposal. It does not own code implementation or repository mutation. When a proposal becomes a bounded engineering task, it can be handed to an execution runtime such as [ai-engineering-team](https://github.com/leandroclf/ai-engineering-team); that integration is a workflow boundary, not a runtime dependency.
+OmniCLI owns the **pre-implementation proposal stage**: ambiguous intent → challenged, traceable engineering proposal. It does not own code implementation or repository mutation. When a proposal becomes a bounded engineering task, it can be handed to an execution runtime such as [product-platform-engineering-team](https://github.com/leandroclf/product-platform-engineering-team); that integration is a workflow boundary, not a runtime dependency.
 
 ## Why OmniCLI?
 
@@ -46,7 +46,7 @@ does not execute generated code or mutate repositories.
 Requirements: Linux, Python 3.10+, and the provider CLIs required by your pipeline.
 
 ```bash
-git clone https://github.com/leandroclf/OmniCLI.git
+git clone https://github.com/leandroclf/product-platform-cli.git
 cd OmniCLI
 bash scripts/bootstrap.sh --apply --check
 source .venv/bin/activate
