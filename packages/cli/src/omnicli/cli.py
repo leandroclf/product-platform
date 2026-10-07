@@ -17,6 +17,7 @@ from omnicli.exceptions import OmniCLIError
 from omnicli.lab import LabResult, run_provider_contract_lab, run_synthetic_evaluation
 from omnicli.pipeline import PipelineRunner
 from omnicli.planning import build_execution_plan
+from omnicli.portfolio import PortfolioContext
 from omnicli.provider_freshness import check_provider_freshness
 
 app = typer.Typer(help="Orquestrador local de ferramentas de IA via CLI.")
@@ -41,14 +42,14 @@ def _context(project: Path | None, repo: str | None, ref: str | None, idea: str)
     return None
 
 
-def _runner(config_path: Path | None, verbose: bool, context: CodebaseContext | None = None) -> PipelineRunner:
+def _runner(config_path: Path | None, verbose: bool, context: CodebaseContext | None = None, portfolio: PortfolioContext | None = None) -> PipelineRunner:
     config = load_config(config_path)
     adapters = {
         name: SubprocessAdapter(name, provider_config, isolated_cwd=context is not None)
         for name, provider_config in config.providers.items()
     }
     logger = console.print if verbose else None
-    return PipelineRunner(config, adapters, logger=logger, codebase_context=context)
+    return PipelineRunner(config, adapters, logger=logger, codebase_context=context, portfolio_context=portfolio)
 
 
 def _provider_preflight(config_path: Path | None, require_latest: bool, skip_latest_check: bool) -> None:
@@ -123,6 +124,7 @@ def conceive(
     """Transforma uma ideia em uma proposta arquitetural consolidada."""
     try:
         codebase_context = _context(project, repo, ref, idea)
+        portfolio = PortfolioContext.from_file(portfolio_context) if portfolio_context else None
         if context_preview:
             if codebase_context is None:
                 raise ValueError("--context-preview exige --project ou --repo")
@@ -139,6 +141,8 @@ def conceive(
                     "fingerprint": codebase_context.fingerprint,
                     "selected_files": len(codebase_context.files),
                 }
+            if portfolio:
+                plan["portfolio"] = {"source": portfolio.source, "fingerprint": portfolio.fingerprint}
             if output_json:
                 console.print_json(json.dumps(plan, ensure_ascii=False))
             else:
@@ -149,7 +153,7 @@ def conceive(
                 console.print(table)
             return
         _provider_preflight(config, require_latest, skip_latest_check)
-        runner = _runner(config, verbose, codebase_context)
+        runner = _runner(config, verbose, codebase_context, portfolio)
         final_path, run_workspace, report = runner.run(
             idea=idea,
             loops=loops,
