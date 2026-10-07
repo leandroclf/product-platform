@@ -7,7 +7,7 @@ Before the first tagged release, consumers may pin an exact Git commit:
 ```json
 {
   "dependencies": {
-    "@leandroclf/product-harness": "github:leandroclf/product-harness#<full-commit-sha>"
+    "@leandroclf/product-platform-harness": "github:leandroclf/product-platform-harness#<full-commit-sha>"
   }
 }
 ```
