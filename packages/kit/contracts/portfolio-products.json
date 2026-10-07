@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "platform_repositories": ["product-platform-kit", "product-platform-cli", "product-platform-engineering-team", "product-platform-harness"],
+  "products": [
+    {"repository": "vehicle-tracking", "domain": "vehicle_tracking", "runtime": "typescript-server", "wave": 1},
+    {"repository": "bussola-financeira", "domain": "financial_insights", "runtime": "python-server", "wave": 1},
+    {"repository": "lf-worldbank-risk-pricing", "domain": "country_risk_pricing", "runtime": "python-server", "wave": 2},
+    {"repository": "lf-openalex-enrichment-mvp", "domain": "b2b_enrichment", "runtime": "python-server", "wave": 2},
+    {"repository": "lf-wikidata-entity-graph", "domain": "entity_resolution", "runtime": "python-server", "wave": 2},
+    {"repository": "agentic-travel-engine", "domain": "travel_search", "runtime": "python-server", "wave": 3},
+    {"repository": "fivem-server-monitor-pro", "domain": "fivem_monitoring", "runtime": "self-hosted-fxserver", "wave": 3},
+    {"repository": "professional-english-coach", "domain": "english_learning", "runtime": "local-first-browser", "wave": 3}
+  ],
+  "historical_products": ["ai-docs"],
+  "policy": {"product_source_dependencies": false, "external_telemetry_default": "off", "adoption": "capability-by-capability"}
+}

@@ -20,8 +20,14 @@ capabilities:
   vehicle_tracking_domain: { owner: vehicle-tracking, kind: product }
   stripe_adapter: { owner: product-platform-harness, kind: platform-adapter }
   mercado_pago_adapter: { owner: product-platform-harness, kind: platform-adapter }
-  document_processing_domain: { owner: ai-docs, kind: product }
+  document_processing_domain: { owner: ai-docs, kind: historical-product }
   financial_insights_domain: { owner: bussola-financeira, kind: product }
+  country_risk_pricing_domain: { owner: lf-worldbank-risk-pricing, kind: product }
+  b2b_enrichment_domain: { owner: lf-openalex-enrichment-mvp, kind: product }
+  entity_resolution_domain: { owner: lf-wikidata-entity-graph, kind: product }
+  travel_search_domain: { owner: agentic-travel-engine, kind: product }
+  fivem_monitoring_domain: { owner: fivem-server-monitor-pro, kind: product }
+  english_learning_domain: { owner: professional-english-coach, kind: product }
   teltonika_legacy_reference: { owner: vehicle-tracking-v2, kind: reference }
   control_plane_experiments: { owner: ai-engineering-control-plane, kind: reference }
 repositories:
@@ -30,8 +36,14 @@ repositories:
   product-platform-kit: PLATFORM
   product-platform-harness: PLATFORM
   vehicle-tracking: ACTIVE
-  ai-docs: ACTIVE
+  ai-docs: HISTORICAL_OUT_OF_SCOPE
   bussola-financeira: ACTIVE
+  lf-worldbank-risk-pricing: ACTIVE
+  lf-openalex-enrichment-mvp: ACTIVE
+  lf-wikidata-entity-graph: ACTIVE
+  agentic-travel-engine: ACTIVE
+  fivem-server-monitor-pro: ACTIVE
+  professional-english-coach: ACTIVE
   vehicle-tracking-v2: REFERENCE
   ai-engineering-control-plane: REFERENCE
   agents-workspace: ARCHIVE_CANDIDATE

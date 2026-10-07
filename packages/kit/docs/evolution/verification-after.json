@@ -1,0 +1,134 @@
+{
+  "schema_version": 1,
+  "observed_at": "2026-10-07T02:03:26.485644+00:00",
+  "scope": "local automated checks; not live-provider or production acceptance",
+  "repositories": [
+    {
+      "repository": "product-platform-kit",
+      "base_sha": "622320d4a8327e43d8853870cacdd3a083971c80",
+      "branch": "main",
+      "working_tree": "M ARCHITECTURE-OWNERSHIP.yaml\n M contracts/capability-registry.yaml\n M contracts/portfolio-context.md\n M contracts/repository-boundaries.yaml\n M docs/SDK-DISTRIBUTION.md\n M scripts/validate-architecture.cjs\n M scripts/validate-capability-registry.cjs\n M scripts/validate-retired-platform-names.cjs\n?? contracts/portfolio-products.json\n?? contracts/product-event/fixtures/compatibility-cases.json\n?? docs/evolution/\n?? scripts/collect-portfolio-baseline.py",
+      "checks": [
+        {
+          "command": [
+            "node",
+            "scripts/validate-architecture.cjs"
+          ],
+          "status": "PASS",
+          "exit_code": 0,
+          "duration_seconds": 0.02,
+          "output_sha256": "9dee77d0e3da5aebd4524ba69bbb122dc083f718eeeea462145c72c53f2f6b9a",
+          "output_tail": "Portfolio capability registry conformance: OK\narchitecture and contract conformance: OK\n"
+        },
+        {
+          "command": [
+            "node",
+            "scripts/validate-capability-registry.cjs"
+          ],
+          "status": "PASS",
+          "exit_code": 0,
+          "duration_seconds": 0.02,
+          "output_sha256": "8ab1e1477e6ba22700fdcebdda3a658e9d76fb74bd0d50e5419cab075be8701f",
+          "output_tail": "Portfolio capability registry conformance: OK\n"
+        },
+        {
+          "command": [
+            "node",
+            "scripts/validate-retired-platform-names.cjs"
+          ],
+          "status": "FAIL",
+          "exit_code": 1,
+          "duration_seconds": 0.02,
+          "output_sha256": "8d04a20fdf527f75a84676477f81a552b46a456b6535be363a2903f7ccf2ef4d",
+          "output_tail": "Retired platform repository references found:\ncontracts/payment-event/v1.schema.json: ai-kit\ncontracts/portfolio-context.md: ai-engineering-team\ncontracts/portfolio-context.md: OmniCLI\ndocs/ARCHITECTURE.md: ai-kit\ndocs/CONFORMANCE.md: ai-kit\ndocs/DISTRIBUTION.md: ai-kit\ndocs/DUPLICATION-REGISTER.md: ai-kit\ndocs/DUPLICATION-REGISTER.md: ai-engineering-team\ndocs/DUPLICATION-REGISTER.md: OmniCLI\ndocs/GETTING_STARTED.md: ai-kit\ndocs/LEGACY-CUTOVER-GATE.md: ai-kit\ndocs/LEGACY-CUTOVER-GATE.md: ai-engineering-team\ndocs/LEGACY-CUTOVER-GATE.md: OmniCLI\ndocs/LEGACY-CUTOVER-GATE.md: product-harness\ndocs/PRODUCT-HARNESS.md: ai-kit\ndocs/SKILL-PROMOTION-BACKLOG.md: ai-kit\ndocs/adr/001-repository-ownership.md: ai-kit\ndocs/adr/001-repository-ownership.md: ai-engineering-team\ndocs/adr/001-repository-ownership.md: OmniCLI\ndocs/adr/002-acyclic-dependency-graph.md: ai-kit\ndocs/adr/002-acyclic-dependency-graph.md: ai-engineering-team\ndocs/adr/002-acyclic-dependency-graph.md: OmniCLI\n"
+        },
+        {
+          "command": [
+            "/tmp/product-platform-validation-20261006/bin/python",
+            "scripts/conformance-product-event.py"
+          ],
+          "status": "PASS",
+          "exit_code": 0,
+          "duration_seconds": 0.02,
+          "output_sha256": "855d6a4b6ca9f2ee1e13b5de16ab07ed18fe4b7ba84c43bc9cf60123c13aa6b7",
+          "output_tail": "ProductEvent v1 conformance: OK\n"
+        }
+      ]
+    },
+    {
+      "repository": "product-platform-harness",
+      "base_sha": "ffb68c07dfbe491b804e3b59ad1e0ad791872e9e",
+      "branch": "main",
+      "working_tree": "M README.md\n M docs/CONSUMING.md\n M package.json\n M src/growth/events.ts\n?? .gitignore\n?? package-lock.json\n?? packages/\n?? src/growth/events.test.ts\n?? tests/",
+      "checks": [
+        {
+          "command": [
+            "npm",
+            "run",
+            "validate"
+          ],
+          "status": "PASS",
+          "exit_code": 0,
+          "duration_seconds": 1.17,
+          "output_sha256": "311d4db20bf153b7462f378f85381e1750dc89727b06dc53469e7288954b1121",
+          "output_tail": "npm notice run @leandroclf/product-platform-harness@0.1.0 validate\nnpm notice run npm run build && npm test && npm run test:python\nnpm notice run @leandroclf/product-platform-harness@0.1.0 build\nnpm notice run tsc -p tsconfig.json\nnpm notice run @leandroclf/product-platform-harness@0.1.0 test\nnpm notice run node --test dist/**/*.test.js\nTAP version 13\n# Subtest: blocks at limit\nok 1 - blocks at limit\n  ---\n  duration_ms: 0.674482\n  type: 'test'\n  ...\n# Subtest: validates economics identity\nok 2 - validates economics identity\n  ---\n  duration_ms: 0.583383\n  type: 'test'\n  ...\n# Subtest: matches the canonical kit compatibility corpus\nok 3 - matches the canonical kit compatibility corpus\n  ---\n  duration_ms: 1.558038\n  type: 'test'\n  ...\n# Subtest: rejects arbitrary analytics payload even from an untyped caller\nok 4 - rejects arbitrary analytics payload even from an untyped caller\n  ---\n  duration_ms: 0.226658\n  type: 'test'\n  ...\n1..4\n# tests 4\n# suites 0\n# pass 4\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 55.938668\nnpm notice run @leandroclf/product-platform-harness@0.1.0 test:python\nnpm notice run PYTHONPATH=packages/python python3 -m unittest discover -s packages/python/tests -v\ntest_canonical_compatibility_corpus (test_product_events.ProductEventTests.test_canonical_compatibility_corpus) ... ok\ntest_delivery_failure_is_non_fatal (test_product_events.ProductEventTests.test_delivery_failure_is_non_fatal) ... ok\ntest_emits_and_preserves_product_identity (test_product_events.ProductEventTests.test_emits_and_preserves_product_identity) ... ok\n\n----------------------------------------------------------------------\nRan 3 tests in 0.001s\n\nOK\n"
+        }
+      ]
+    },
+    {
+      "repository": "vehicle-tracking",
+      "base_sha": "f60a74daa160307693dfa5f11723d2f6892dcde2",
+      "branch": "main",
+      "working_tree": "M jest.config.js\n M package.json\n M pnpm-lock.yaml\n M src/lib/product-harness/entitlements.ts\n M src/lib/product-harness/events.ts\n M src/lib/product-harness/sales-signals.ts\n M tsconfig.jest.json\n?? scripts/validate-product-platform-artifact.cjs\n?? src/app/api/geofences/__tests__/\n?? vendor/",
+      "checks": [
+        {
+          "command": [
+            "npm",
+            "run",
+            "validate:product-contract"
+          ],
+          "status": "PASS",
+          "exit_code": 0,
+          "duration_seconds": 0.12,
+          "output_sha256": "b2a97b6aa0de2f646b18853450544d3254c35df9c1175b09d60b03d3850dd1b0",
+          "output_tail": "npm notice run yukz-app@0.1.0 validate:product-contract\nnpm notice run node scripts/validate-product-event-contract.cjs && node scripts/validate-product-platform-artifact.cjs\nProduct Harness contract conformance passed\nHarness artifact verified: ffb68c07dfbe491b804e3b59ad1e0ad791872e9e\n"
+        },
+        {
+          "command": [
+            "npm",
+            "test"
+          ],
+          "status": "PASS",
+          "exit_code": 0,
+          "duration_seconds": 1.1,
+          "output_sha256": "92720e31ed7bc968ad34476fca35735f0d5570753844feb40d53d95d89b795f1",
+          "output_tail": "npm notice run yukz-app@0.1.0 test\nnpm notice run jest --runInBand\n\nTest Suites: 12 passed, 12 total\nTests:       27 passed, 27 total\nSnapshots:   0 total\nTime:        0.688 s, estimated 1 s\nRan all test suites.\n"
+        },
+        {
+          "command": [
+            "npm",
+            "run",
+            "typecheck"
+          ],
+          "status": "PASS",
+          "exit_code": 0,
+          "duration_seconds": 1.85,
+          "output_sha256": "18a46286d61542298a3c22ef8963e0dccb4b2685070b498ee22d2273e4be23e8",
+          "output_tail": "npm notice run yukz-app@0.1.0 typecheck\nnpm notice run tsc --noEmit\n"
+        },
+        {
+          "command": [
+            "npm",
+            "run",
+            "build"
+          ],
+          "status": "PASS",
+          "exit_code": 0,
+          "duration_seconds": 28.87,
+          "output_sha256": "78e6fc69600e72df002a044142e87fcbb6c110f904d6bed319c5d339415a2baa",
+          "output_tail": "npm notice run yukz-app@0.1.0 build\nnpm notice run next build\n   ▲ Next.js 15.1.4\n\n   Creating an optimized production build ...\nBrowserslist: browsers data (caniuse-lite) is 18 months old. Please run:\n  npx update-browserslist-db@latest\n  Why you should do it regularly: https://github.com/browserslist/update-db#readme\n ✓ Compiled successfully\n   Linting and checking validity of types ...\n   Collecting page data ...\n   Generating static pages (0/60) ...\n   Generating static pages (15/60) \r\n   Generating static pages (30/60) \r\n   Generating static pages (45/60) \r\n ✓ Generating static pages (60/60)\n   Finalizing page optimization ...\n   Collecting build traces ...\n\nRoute (app)                              Size     First Load JS\n┌ ○ /                                    6.14 kB         157 kB\n├ ○ /_not-found                          251 B           106 kB\n├ ƒ /api                                 251 B           106 kB\n├ ƒ /api/alerts                          251 B           106 kB\n├ ƒ /api/alerts/read-all                 251 B           106 kB\n├ ƒ /api/analytics/dashboard/config      251 B           106 kB\n├ ƒ /api/analytics/export                251 B           106 kB\n├ ƒ /api/analytics/metrics               251 B           106 kB\n├ ƒ /api/auth/login                      251 B           106 kB\n├ ƒ /api/auth/logout                     251 B           106 kB\n├ ƒ /api/auth/me                         251 B           106 kB\n├ ƒ /api/auth/phone                      251 B           106 kB\n├ ƒ /api/auth/register                   251 B           106 kB\n├ ƒ /api/auth/reset-password             251 B           106 kB\n├ ƒ /api/auth/update-password            251 B           106 kB\n├ ƒ /api/commands                        251 B           106 kB\n├ ƒ /api/commands/confirm                251 B           106 kB\n├ ƒ /api/dashboard/statistics            251 B           106 kB\n├ ƒ /api/drivers                         251 B           106 kB\n├ ƒ /api/drivers/assign                  251 B           106 kB\n├ ƒ /api/geofences                       251 B           106 kB\n├ ƒ /api/geofences/check                 251 B           106 kB\n├ ƒ /api/health                          251 B           106 kB\n├ ƒ /api/mfa                             251 B           106 kB\n├ ƒ /api/monitoring/events               251 B           106 kB\n├ ƒ /api/monitoring/export               251 B           106 kB\n├ ƒ /api/notifications                   251 B           106 kB\n├ ƒ /api/profile                         251 B           106 kB\n├ ƒ /api/reports                         251 B           106 kB\n├ ƒ /api/reports/[id]/download           251 B           106 kB\n├ ƒ /api/reports/custom                  251 B           106 kB\n├ ƒ /api/reports/generate                251 B           106 kB\n├ ƒ /api/roles                           251 B           106 kB\n├ ƒ /api/settings                        251 B           106 kB\n├ ƒ /api/settings/notifications          251 B           106 kB\n├ ƒ /api/settings/preferences            251 B           106 kB\n├ ƒ /api/users                           251 B           106 kB\n├ ƒ /api/users/[id]/role                 251 B           106 kB\n├ ƒ /api/vehicles                        251 B           106 kB\n├ ƒ /api/vehicles/commands               251 B           106 kB\n├ ƒ /api/vehicles/positions              251 B           106 kB\n├ ƒ /api/vehicles/status                 251 B           106 kB\n├ ƒ /api/webhooks/payments               251 B           106 kB\n├ ○ /commands                            6.96 kB         120 kB\n├ ○ /dashboard                           11.3 kB         141 kB\n├ ○ /dashboard/alerts                    6.22 kB         131 kB\n├ ○ /dashboard/analytics                 33.1 kB         295 kB\n├ ○ /dashboard/drivers                   6.71 kB         131 kB\n├ ○ /dashboard/geofences                 4.71 kB         139 kB\n├ ○ /dashboard/map                       42 kB           182 kB\n├ ○ /dashboard/profile                   8.97 kB         145 kB\n├ ○ /dashboard/reports                   10.4 kB         280 kB\n├ ○ /dashboard/settings                  3.43 kB         121 kB\n├ ○ /dashboard/users                     1.6 kB          119 kB\n├ ○ /dashboard/vehicles                  36.7 kB         201 kB\n├ ƒ /dashboard/vehicles/[id]             7.1 kB          208 kB\n├ ○ /forgot-password                     4.45 kB         121 kB\n├ ○ /login                               1.44 kB         135 kB\n├ ○ /profile                             5.43 kB         130 kB\n├ ○ /register                            1.37 kB         134 kB\n└ ○ /tracking                            7.86 kB         132 kB\n+ First Load JS shared by all            106 kB\n  ├ chunks/5883-de89f2622f66e1cb.js      50.6 kB\n  ├ chunks/9c0a6c3f-15ba2e1ddaffcc2d.js  53 kB\n  └ other shared chunks (total)          2.27 kB\n\n\n○  (Static)   prerendered as static content\nƒ  (Dynamic)  server-rendered on demand\n\n"
+        }
+      ]
+    }
+  ]
+}

@@ -1,17 +1,25 @@
-version: 1
+version: 2
+portfolio_scope: contracts/portfolio-products.json
 allowed_dependencies:
   product-platform-cli: [product-platform-kit]
   product-platform-engineering-team: [product-platform-kit]
   product-platform-harness: [product-platform-kit]
   vehicle-tracking: [product-platform-kit, product-platform-harness]
-  ai-docs: [product-platform-kit]
-  bussola-financeira: [product-platform-kit]
+  bussola-financeira: [product-platform-kit, product-platform-harness]
+  lf-worldbank-risk-pricing: [product-platform-kit, product-platform-harness]
+  lf-openalex-enrichment-mvp: [product-platform-kit, product-platform-harness]
+  lf-wikidata-entity-graph: [product-platform-kit, product-platform-harness]
+  agentic-travel-engine: [product-platform-kit, product-platform-harness]
+  fivem-server-monitor-pro: [product-platform-kit, product-platform-harness]
+  professional-english-coach: [product-platform-kit, product-platform-harness]
   product-platform-kit: []
 forbidden:
   - from: product-platform-kit
-    to: [product-platform-cli, product-platform-engineering-team, vehicle-tracking, ai-docs, bussola-financeira]
+    to: [product-platform-cli, product-platform-engineering-team, product-platform-harness, vehicle-tracking, bussola-financeira, lf-worldbank-risk-pricing, lf-openalex-enrichment-mvp, lf-wikidata-entity-graph, agentic-travel-engine, fivem-server-monitor-pro, professional-english-coach]
   - from: products
     to: products
 notes:
   - This graph governs source/package dependencies, not GitHub links or documentation references.
   - Runtime integrations require a domain reason and explicit contract; repository separation alone is not a reason.
+  - Allowed dependency is permission to compose, not a mandatory runtime dependency.
+  - Browser and FXServer consumers adopt only compatible capabilities; telemetry is off by default.

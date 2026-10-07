@@ -4,7 +4,7 @@ Source under evaluation: codex-kit-skills.
 
 Promotion is demand-driven, not bulk migration.
 
-| Candidate | Existing ai-kit overlap | Decision |
+| Candidate | Existing product-platform-kit overlap | Decision |
 |---|---|---|
 | systematic-debugging | engineering/testing | evaluate when debugging workload benchmark is added |
 | database-design | backend | evaluate as specialization |
