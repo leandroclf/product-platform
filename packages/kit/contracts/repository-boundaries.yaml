@@ -1,15 +1,15 @@
 version: 1
 allowed_dependencies:
-  OmniCLI: [ai-kit]
-  ai-engineering-team: [ai-kit]
-  product-harness: [ai-kit]
-  vehicle-tracking: [ai-kit, product-harness]
-  ai-docs: [ai-kit]
-  bussola-financeira: [ai-kit]
-  ai-kit: []
+  product-platform-cli: [product-platform-kit]
+  product-platform-engineering-team: [product-platform-kit]
+  product-platform-harness: [product-platform-kit]
+  vehicle-tracking: [product-platform-kit, product-platform-harness]
+  ai-docs: [product-platform-kit]
+  bussola-financeira: [product-platform-kit]
+  product-platform-kit: []
 forbidden:
-  - from: ai-kit
-    to: [OmniCLI, ai-engineering-team, vehicle-tracking, ai-docs, bussola-financeira]
+  - from: product-platform-kit
+    to: [product-platform-cli, product-platform-engineering-team, vehicle-tracking, ai-docs, bussola-financeira]
   - from: products
     to: products
 notes:
