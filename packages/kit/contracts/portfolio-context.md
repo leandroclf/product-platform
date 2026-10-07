@@ -2,6 +2,12 @@
 
 Every new-product proposal and implementation must resolve capabilities before code generation.
 
+Current evolution scope is `contracts/portfolio-products.json`: four platform
+repositories and eight product candidates. Historical products are not new
+adoption targets. `implementation_status`, `implemented` and `planned` in the
+registry distinguish existing behavior from roadmap capabilities. An allowed
+dependency does not require a product to install every runtime module.
+
 ## Resolution
 
 For each requested capability:
@@ -24,7 +30,7 @@ The proposal handoff must carry:
 - migration/deployment implications;
 - unresolved decisions.
 
-OmniCLI reasons over the packet. ai-engineering-team treats it as planning input and revalidates mutable repository state before writes.
+product-platform-cli reasons over the packet. product-platform-engineering-team treats it as planning input and revalidates mutable repository state before writes.
 
 ## Anti-duplication gate
 

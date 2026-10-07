@@ -4,7 +4,7 @@ This contract was extracted only after equivalent provider-neutral event envelop
 
 ## Reuse boundary
 
-`ai-kit` owns the cross-product schema and policy. It does **not** own a network service, analytics gateway or shared language runtime.
+`product-platform-kit` owns the cross-product schema and policy. It does **not** own a network service, analytics gateway or shared language runtime.
 
 Each product implements a small idiomatic adapter for its stack and may connect that adapter to PostHog, another analytics provider, or structured logs.
 

@@ -1,0 +1,360 @@
+{
+  "schema_version": 1,
+  "observed_at": "2026-10-07T01:52:27.411922+00:00",
+  "scope": "local automated checks; not live-provider or production acceptance",
+  "repositories": [
+    {
+      "repository": "product-platform-kit",
+      "base_sha": "622320d4a8327e43d8853870cacdd3a083971c80",
+      "branch": "main",
+      "working_tree": "?? contracts/portfolio-products.json\n?? scripts/collect-portfolio-baseline.py",
+      "checks": [
+        {
+          "command": [
+            "node",
+            "scripts/validate-architecture.cjs"
+          ],
+          "status": "PASS",
+          "exit_code": 0,
+          "duration_seconds": 0.02,
+          "output_sha256": "859a7bae90b171268413332851825462325b193b88cfee9541bddf9cf1cfbb5e",
+          "output_tail": "architecture and contract conformance: OK\n"
+        },
+        {
+          "command": [
+            "node",
+            "scripts/validate-capability-registry.cjs"
+          ],
+          "status": "PASS",
+          "exit_code": 0,
+          "duration_seconds": 0.02,
+          "output_sha256": "8ab1e1477e6ba22700fdcebdda3a658e9d76fb74bd0d50e5419cab075be8701f",
+          "output_tail": "Portfolio capability registry conformance: OK\n"
+        },
+        {
+          "command": [
+            "node",
+            "scripts/validate-retired-platform-names.cjs"
+          ],
+          "status": "FAIL",
+          "exit_code": 1,
+          "duration_seconds": 0.02,
+          "output_sha256": "f650280624057248928bfd84fb0a146593d95c9f8b7f8159c71c5ae0ff72d094",
+          "output_tail": "Retired platform repository references found:\ncontracts/payment-event/v1.schema.json: ai-kit\ncontracts/portfolio-context.md: ai-engineering-team\ncontracts/portfolio-context.md: OmniCLI\ndocs/ARCHITECTURE.md: ai-kit\ndocs/CONFORMANCE.md: ai-kit\ndocs/DISTRIBUTION.md: ai-kit\ndocs/DUPLICATION-REGISTER.md: ai-kit\ndocs/DUPLICATION-REGISTER.md: ai-engineering-team\ndocs/DUPLICATION-REGISTER.md: OmniCLI\ndocs/GETTING_STARTED.md: ai-kit\ndocs/LEGACY-CUTOVER-GATE.md: ai-kit\ndocs/LEGACY-CUTOVER-GATE.md: ai-engineering-team\ndocs/LEGACY-CUTOVER-GATE.md: OmniCLI\ndocs/LEGACY-CUTOVER-GATE.md: product-harness\ndocs/PRODUCT-HARNESS.md: ai-kit\ndocs/SDK-DISTRIBUTION.md: ai-kit\ndocs/SKILL-PROMOTION-BACKLOG.md: ai-kit\ndocs/adr/001-repository-ownership.md: ai-kit\ndocs/adr/001-repository-ownership.md: ai-engineering-team\ndocs/adr/001-repository-ownership.md: OmniCLI\ndocs/adr/002-acyclic-dependency-graph.md: ai-kit\ndocs/adr/002-acyclic-dependency-graph.md: ai-engineering-team\ndocs/adr/002-acyclic-dependency-graph.md: OmniCLI\n"
+        },
+        {
+          "command": [
+            "/tmp/product-platform-validation-20261006/bin/python",
+            "scripts/conformance-product-event.py"
+          ],
+          "status": "PASS",
+          "exit_code": 0,
+          "duration_seconds": 0.02,
+          "output_sha256": "855d6a4b6ca9f2ee1e13b5de16ab07ed18fe4b7ba84c43bc9cf60123c13aa6b7",
+          "output_tail": "ProductEvent v1 conformance: OK\n"
+        }
+      ]
+    },
+    {
+      "repository": "product-platform-cli",
+      "base_sha": "000e479ed34bb4ec7b49aea0044b10dea29ba862",
+      "branch": "main",
+      "working_tree": "",
+      "checks": [
+        {
+          "command": [
+            "/tmp/product-platform-validation-20261006/bin/python",
+            "-m",
+            "pytest"
+          ],
+          "status": "PASS",
+          "exit_code": 0,
+          "duration_seconds": 1.87,
+          "output_sha256": "95965214082cefcd5799a073feeb74dfb92145000c04f660c65d026393a760de",
+          "output_tail": "........................................................................ [100%]\n72 passed in 1.70s\n"
+        },
+        {
+          "command": [
+            "/tmp/product-platform-validation-20261006/bin/python",
+            "-m",
+            "omnicli",
+            "lab",
+            "verify",
+            "--json"
+          ],
+          "status": "PASS",
+          "exit_code": 0,
+          "duration_seconds": 0.35,
+          "output_sha256": "cb63c9493c480aeaa8aecfebd4fada02dac24bc45ee22c1602a19ed0c48fce16",
+          "output_tail": "{\n  \"provider_contracts\": [\n    {\n      \"name\": \"version-and-capability-probe\",\n      \"passed\": true,\n      \"detail\": \"ok\"\n    },\n    {\n      \"name\": \"argv-transport\",\n      \"passed\": true,\n      \"detail\": \"ok\"\n    },\n    {\n      \"name\": \"stdin-transport\",\n      \"passed\": true,\n      \"detail\": \"ok\"\n    },\n    {\n      \"name\": \"nonzero-exit\",\n      \"passed\": true,\n      \"detail\": \"ok\"\n    },\n    {\n      \"name\": \"timeout-cleanup\",\n      \"passed\": true,\n      \"detail\": \"ok\"\n    },\n    {\n      \"name\": \"output-limit\",\n      \"passed\": true,\n      \"detail\": \"ok\"\n    }\n  ],\n  \"synthetic_evaluation\": [\n    {\n      \"name\": \"complete-proposal\",\n      \"passed\": true,\n      \"detail\": \"ok\"\n    },\n    {\n      \"name\": \"incomplete-proposal\",\n      \"passed\": true,\n      \"detail\": \"ok\"\n    },\n    {\n      \"name\": \"unsafe-instruction\",\n      \"passed\": true,\n      \"detail\": \"ok\"\n    },\n    {\n      \"name\": \"critical-contradiction\",\n      \"passed\": true,\n      \"detail\": \"ok\"\n    }\n  ],\n  \"passed\": true,\n  \"authenticated_provider_compatibility\": \"not-tested\",\n  \"human_quality_benchmark\": \"not-tested\"\n}\n"
+        }
+      ]
+    },
+    {
+      "repository": "product-platform-engineering-team",
+      "base_sha": "26fcf6426ce329eaee2a1abe63b8640c9bf22048",
+      "branch": "main",
+      "working_tree": "",
+      "checks": [
+        {
+          "command": [
+            "/tmp/product-platform-validation-20261006/bin/python",
+            "scripts/validate.py"
+          ],
+          "status": "PASS",
+          "exit_code": 0,
+          "duration_seconds": 0.03,
+          "output_sha256": "067ad460ba64b042463161c63e3265d5505deadad7ab8963136f9b489bf18a8d",
+          "output_tail": "OK: framework, Dot-native and hardening structure validated (76 required artifacts)\n"
+        },
+        {
+          "command": [
+            "/tmp/product-platform-validation-20261006/bin/python",
+            "scripts/validate_hardening.py"
+          ],
+          "status": "PASS",
+          "exit_code": 0,
+          "duration_seconds": 0.03,
+          "output_sha256": "973c7e2eb6f32ebe5e75d1d3cadd94b5169800cf3ae67a0920636c91d71fd0ab",
+          "output_tail": "OK: executable hardening contract checks passed (H01-H10 specified)\n"
+        },
+        {
+          "command": [
+            "/tmp/product-platform-validation-20261006/bin/python",
+            "-m",
+            "unittest",
+            "discover",
+            "-s",
+            "tests/unit",
+            "-q"
+          ],
+          "status": "PASS",
+          "exit_code": 0,
+          "duration_seconds": 17.8,
+          "output_sha256": "3cc83779f9ed6293194aac30f6436e3d692ecd854b32a13547dad4c241624e15",
+          "output_tail": "one: unknown dependency missing\ndependency cycle includes two\n----------------------------------------------------------------------\nRan 114 tests in 17.621s\n\nOK\n{\"task\": \"cccccccccccccccccccccccccccccccc\", \"status\": \"REVIEWED\", \"head_sha\": \"c688b1ae0d7a0b64d763483b59234390d9471d04\", \"workspace\": \"/tmp/tmp89khdt4x/state/ai-team/runs/cccccccccccccccccccccccccccccccc/workspace\"}\n{\"task\": \"cccccccccccccccccccccccccccccccc\", \"status\": \"REVIEWED\", \"head_sha\": \"99359d2a96bcd54abff57b956b380e2151b16889\", \"workspace\": \"/tmp/tmpi8nsrd7u/state/ai-team/runs/cccccccccccccccccccccccccccccccc/workspace\"}\n{\"task\": \"cccccccccccccccccccccccccccccccc\", \"status\": \"REVIEWED\", \"head_sha\": \"e5f6131d0b3b1a6072d9c5dd122f48671f0667c1\", \"workspace\": \"/tmp/tmpjx6kjy6t/state/ai-team/runs/cccccccccccccccccccccccccccccccc/workspace\"}\n{\"task\": \"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\", \"status\": \"REVIEWED\", \"head_sha\": \"0fc747f91da03e202e6f31da16f27f3326833e48\", \"workspace\": \"/tmp/tmpdxa64o9c/state/ai-team/runs/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb/workspace\"}\n{\"task\": \"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\", \"status\": \"REVIEWED\", \"head_sha\": \"0fc747f91da03e202e6f31da16f27f3326833e48\", \"workspace\": \"/tmp/tmp1oec7pso/state/ai-team/runs/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb/workspace\"}\n{\"task\": \"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\", \"status\": \"REVIEWED\", \"head_sha\": \"fb71f5623291a9ff7940844410304ecc24aaecec\", \"workspace\": \"/tmp/tmpx0ckg6xk/state/ai-team/runs/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb/workspace\"}\n{\"task\": \"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\", \"status\": \"REVIEWED\", \"head_sha\": \"a6491c75a608c946237b4a5cc39b984af985ae02\", \"workspace\": \"/tmp/tmp28zh0s01/state/ai-team/runs/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb/workspace\"}\n/tmp/tmptm1njtq0/state/ai-team/projects/f51333a77b2025071d0bbe1a/config.json\n{\"task\": \"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\", \"status\": \"REVIEWED\", \"head_sha\": \"acb5a3b8e6ee17e783c327a85c0fc0762d44b492\", \"workspace\": \"/tmp/tmp99euoaot/state/ai-team/runs/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb/workspace\"}\n{\"task\": \"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\", \"status\": \"REVIEWED\", \"head_sha\": \"ae91975509f861211e58ee9e5af2cf3ddadf7d4d\", \"workspace\": \"/tmp/tmpp4gxmae7/state/ai-team/runs/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb/workspace\"}\n{\"task\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", \"branch\": \"ai-team/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", \"status\": \"REVIEWED\", \"pr_url\": null}\n{\"task\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", \"branch\": \"ai-team/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", \"status\": \"REVIEWED\", \"pr_url\": null}\nOK: 6 benchmarks, 8 metrics and 1 task suites validated\nOK: 13 publishable skills; metadata, contracts, dependencies and cycles validated\n"
+        }
+      ]
+    },
+    {
+      "repository": "product-platform-harness",
+      "base_sha": "ffb68c07dfbe491b804e3b59ad1e0ad791872e9e",
+      "branch": "main",
+      "working_tree": "?? .gitignore\n?? package-lock.json",
+      "checks": [
+        {
+          "command": [
+            "npm",
+            "run",
+            "validate"
+          ],
+          "status": "PASS",
+          "exit_code": 0,
+          "duration_seconds": 0.97,
+          "output_sha256": "7f619a19a29164451b6b85b04986217f0d54a708c2a03dded99013736acff129",
+          "output_tail": "npm notice run @leandroclf/product-platform-harness@0.1.0 validate\nnpm notice run npm run build && npm test\nnpm notice run @leandroclf/product-platform-harness@0.1.0 build\nnpm notice run tsc -p tsconfig.json\nnpm notice run @leandroclf/product-platform-harness@0.1.0 test\nnpm notice run node --test dist/**/*.test.js\nTAP version 13\n# Subtest: blocks at limit\nok 1 - blocks at limit\n  ---\n  duration_ms: 0.533578\n  type: 'test'\n  ...\n# Subtest: validates economics identity\nok 2 - validates economics identity\n  ---\n  duration_ms: 0.524309\n  type: 'test'\n  ...\n1..2\n# tests 2\n# suites 0\n# pass 2\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 46.242292\n"
+        }
+      ]
+    },
+    {
+      "repository": "vehicle-tracking",
+      "base_sha": "f60a74daa160307693dfa5f11723d2f6892dcde2",
+      "branch": "main",
+      "working_tree": "",
+      "checks": [
+        {
+          "command": [
+            "npm",
+            "run",
+            "validate:product-contract"
+          ],
+          "status": "PASS",
+          "exit_code": 0,
+          "duration_seconds": 0.1,
+          "output_sha256": "fa6d72f8064acb1993fd7ff5234162721239d416257fed22ecf8e5e214fe0124",
+          "output_tail": "npm notice run yukz-app@0.1.0 validate:product-contract\nnpm notice run node scripts/validate-product-event-contract.cjs\nProduct Harness contract conformance passed\n"
+        },
+        {
+          "command": [
+            "npm",
+            "test"
+          ],
+          "status": "PASS",
+          "exit_code": 0,
+          "duration_seconds": 1.09,
+          "output_sha256": "5f7589acbdc085e244128b644ace6dd42b3cfd86a003638dc35216239e314e6d",
+          "output_tail": "npm notice run yukz-app@0.1.0 test\nnpm notice run jest --runInBand\n\nTest Suites: 11 passed, 11 total\nTests:       24 passed, 24 total\nSnapshots:   0 total\nTime:        0.661 s, estimated 1 s\nRan all test suites.\n"
+        },
+        {
+          "command": [
+            "npm",
+            "run",
+            "typecheck"
+          ],
+          "status": "PASS",
+          "exit_code": 0,
+          "duration_seconds": 7.36,
+          "output_sha256": "18a46286d61542298a3c22ef8963e0dccb4b2685070b498ee22d2273e4be23e8",
+          "output_tail": "npm notice run yukz-app@0.1.0 typecheck\nnpm notice run tsc --noEmit\n"
+        },
+        {
+          "command": [
+            "npm",
+            "run",
+            "build"
+          ],
+          "status": "PASS",
+          "exit_code": 0,
+          "duration_seconds": 35.42,
+          "output_sha256": "78e6fc69600e72df002a044142e87fcbb6c110f904d6bed319c5d339415a2baa",
+          "output_tail": "npm notice run yukz-app@0.1.0 build\nnpm notice run next build\n   ▲ Next.js 15.1.4\n\n   Creating an optimized production build ...\nBrowserslist: browsers data (caniuse-lite) is 18 months old. Please run:\n  npx update-browserslist-db@latest\n  Why you should do it regularly: https://github.com/browserslist/update-db#readme\n ✓ Compiled successfully\n   Linting and checking validity of types ...\n   Collecting page data ...\n   Generating static pages (0/60) ...\n   Generating static pages (15/60) \r\n   Generating static pages (30/60) \r\n   Generating static pages (45/60) \r\n ✓ Generating static pages (60/60)\n   Finalizing page optimization ...\n   Collecting build traces ...\n\nRoute (app)                              Size     First Load JS\n┌ ○ /                                    6.14 kB         157 kB\n├ ○ /_not-found                          251 B           106 kB\n├ ƒ /api                                 251 B           106 kB\n├ ƒ /api/alerts                          251 B           106 kB\n├ ƒ /api/alerts/read-all                 251 B           106 kB\n├ ƒ /api/analytics/dashboard/config      251 B           106 kB\n├ ƒ /api/analytics/export                251 B           106 kB\n├ ƒ /api/analytics/metrics               251 B           106 kB\n├ ƒ /api/auth/login                      251 B           106 kB\n├ ƒ /api/auth/logout                     251 B           106 kB\n├ ƒ /api/auth/me                         251 B           106 kB\n├ ƒ /api/auth/phone                      251 B           106 kB\n├ ƒ /api/auth/register                   251 B           106 kB\n├ ƒ /api/auth/reset-password             251 B           106 kB\n├ ƒ /api/auth/update-password            251 B           106 kB\n├ ƒ /api/commands                        251 B           106 kB\n├ ƒ /api/commands/confirm                251 B           106 kB\n├ ƒ /api/dashboard/statistics            251 B           106 kB\n├ ƒ /api/drivers                         251 B           106 kB\n├ ƒ /api/drivers/assign                  251 B           106 kB\n├ ƒ /api/geofences                       251 B           106 kB\n├ ƒ /api/geofences/check                 251 B           106 kB\n├ ƒ /api/health                          251 B           106 kB\n├ ƒ /api/mfa                             251 B           106 kB\n├ ƒ /api/monitoring/events               251 B           106 kB\n├ ƒ /api/monitoring/export               251 B           106 kB\n├ ƒ /api/notifications                   251 B           106 kB\n├ ƒ /api/profile                         251 B           106 kB\n├ ƒ /api/reports                         251 B           106 kB\n├ ƒ /api/reports/[id]/download           251 B           106 kB\n├ ƒ /api/reports/custom                  251 B           106 kB\n├ ƒ /api/reports/generate                251 B           106 kB\n├ ƒ /api/roles                           251 B           106 kB\n├ ƒ /api/settings                        251 B           106 kB\n├ ƒ /api/settings/notifications          251 B           106 kB\n├ ƒ /api/settings/preferences            251 B           106 kB\n├ ƒ /api/users                           251 B           106 kB\n├ ƒ /api/users/[id]/role                 251 B           106 kB\n├ ƒ /api/vehicles                        251 B           106 kB\n├ ƒ /api/vehicles/commands               251 B           106 kB\n├ ƒ /api/vehicles/positions              251 B           106 kB\n├ ƒ /api/vehicles/status                 251 B           106 kB\n├ ƒ /api/webhooks/payments               251 B           106 kB\n├ ○ /commands                            6.96 kB         120 kB\n├ ○ /dashboard                           11.3 kB         141 kB\n├ ○ /dashboard/alerts                    6.22 kB         131 kB\n├ ○ /dashboard/analytics                 33.1 kB         295 kB\n├ ○ /dashboard/drivers                   6.71 kB         131 kB\n├ ○ /dashboard/geofences                 4.71 kB         139 kB\n├ ○ /dashboard/map                       42 kB           182 kB\n├ ○ /dashboard/profile                   8.97 kB         145 kB\n├ ○ /dashboard/reports                   10.4 kB         280 kB\n├ ○ /dashboard/settings                  3.43 kB         121 kB\n├ ○ /dashboard/users                     1.6 kB          119 kB\n├ ○ /dashboard/vehicles                  36.7 kB         201 kB\n├ ƒ /dashboard/vehicles/[id]             7.1 kB          208 kB\n├ ○ /forgot-password                     4.45 kB         121 kB\n├ ○ /login                               1.44 kB         135 kB\n├ ○ /profile                             5.43 kB         130 kB\n├ ○ /register                            1.37 kB         134 kB\n└ ○ /tracking                            7.86 kB         132 kB\n+ First Load JS shared by all            106 kB\n  ├ chunks/5883-de89f2622f66e1cb.js      50.6 kB\n  ├ chunks/9c0a6c3f-15ba2e1ddaffcc2d.js  53 kB\n  └ other shared chunks (total)          2.27 kB\n\n\n○  (Static)   prerendered as static content\nƒ  (Dynamic)  server-rendered on demand\n\n"
+        }
+      ]
+    },
+    {
+      "repository": "bussola-financeira",
+      "base_sha": "1a0f1cece9ca7baeabb11717b2dec671eb8db3d9",
+      "branch": "main",
+      "working_tree": "",
+      "checks": [
+        {
+          "command": [
+            "/tmp/product-platform-bussola-20261006/bin/python",
+            "-m",
+            "pytest",
+            "-q"
+          ],
+          "status": "FAIL",
+          "exit_code": 1,
+          "duration_seconds": 4.21,
+          "output_sha256": "3995684679168d4a112117b213e3d009ba7ea2c698b659d31a1a5600187369b6",
+          "output_tail": "deaProjects/lfsolucoes/product-platform/bussola-financeira/src/bussola_financeira/insights.py:168: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).\n    generated_at = datetime.utcnow()\n\ntests/test_api.py::test_chat\n  /home/leandro/IdeaProjects/lfsolucoes/product-platform/bussola-financeira/src/bussola_financeira/agentic/chat_orchestrator.py:43: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).\n    created_at=datetime.utcnow(),\n\ntests/test_compliance_agent.py::test_compliance_removes_imperatives\ntests/test_compliance_agent.py::test_compliance_removes_imperatives\n  /tmp/product-platform-bussola-20261006/lib/python3.12/site-packages/pydantic/main.py:212: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).\n    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)\n\ntests/test_ingestion_integrity.py::test_market_ingestion_preserves_provenance_lineage_invalid_count_and_idempotency\ntests/test_ingestion_integrity.py::test_market_ingestion_preserves_provenance_lineage_invalid_count_and_idempotency\ntests/test_ingestion_integrity.py::test_market_ingestion_preserves_provenance_lineage_invalid_count_and_idempotency\ntests/test_ingestion_integrity.py::test_market_ingestion_preserves_provenance_lineage_invalid_count_and_idempotency\ntests/test_ingestion_integrity.py::test_market_ingestion_preserves_provenance_lineage_invalid_count_and_idempotency\ntests/test_ingestion_integrity.py::test_provider_failure_is_not_silently_reported_as_success\ntests/test_ingestion_integrity.py::test_provider_failure_is_not_silently_reported_as_success\ntests/test_ingestion_integrity.py::test_provider_failure_is_not_silently_reported_as_success\ntests/test_ingestion_integrity.py::test_provider_failure_is_not_silently_reported_as_success\n  /tmp/product-platform-bussola-20261006/lib/python3.12/site-packages/sqlalchemy/sql/schema.py:3596: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).\n    return util.wrap_callable(lambda ctx: fn(), fn)  # type: ignore\n\ntests/test_ingestion_integrity.py::test_market_ingestion_preserves_provenance_lineage_invalid_count_and_idempotency\ntests/test_ingestion_integrity.py::test_market_ingestion_preserves_provenance_lineage_invalid_count_and_idempotency\ntests/test_ingestion_integrity.py::test_market_ingestion_preserves_provenance_lineage_invalid_count_and_idempotency\ntests/test_ingestion_integrity.py::test_market_ingestion_preserves_provenance_lineage_invalid_count_and_idempotency\ntests/test_ingestion_integrity.py::test_market_ingestion_preserves_provenance_lineage_invalid_count_and_idempotency\ntests/test_ingestion_integrity.py::test_market_ingestion_preserves_provenance_lineage_invalid_count_and_idempotency\ntests/test_ingestion_integrity.py::test_provider_failure_is_not_silently_reported_as_success\ntests/test_ingestion_integrity.py::test_provider_failure_is_not_silently_reported_as_success\ntests/test_ingestion_integrity.py::test_provider_failure_is_not_silently_reported_as_success\n  /home/leandro/IdeaProjects/lfsolucoes/product-platform/bussola-financeira/src/bussola_financeira/ingestion.py:87: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).\n    started_at=datetime.utcnow(),\n\ntests/test_ingestion_integrity.py::test_market_ingestion_preserves_provenance_lineage_invalid_count_and_idempotency\ntests/test_ingestion_integrity.py::test_market_ingestion_preserves_provenance_lineage_invalid_count_and_idempotency\ntests/test_ingestion_integrity.py::test_market_ingestion_preserves_provenance_lineage_invalid_count_and_idempotency\ntests/test_ingestion_integrity.py::test_market_ingestion_preserves_provenance_lineage_invalid_count_and_idempotency\ntests/test_ingestion_integrity.py::test_market_ingestion_preserves_provenance_lineage_invalid_count_and_idempotency\ntests/test_ingestion_integrity.py::test_market_ingestion_preserves_provenance_lineage_invalid_count_and_idempotency\ntests/test_ingestion_integrity.py::test_provider_failure_is_not_silently_reported_as_success\ntests/test_ingestion_integrity.py::test_provider_failure_is_not_silently_reported_as_success\n  /home/leandro/IdeaProjects/lfsolucoes/product-platform/bussola-financeira/src/bussola_financeira/ingestion.py:97: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).\n    run.finished_at = datetime.utcnow()\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n=========================== short test summary info ============================\nFAILED tests/test_api.py::test_assets_list - sqlalchemy.exc.OperationalError:...\nFAILED tests/test_api.py::test_benchmarks - sqlalchemy.exc.OperationalError: ...\nFAILED tests/test_api.py::test_compare - sqlalchemy.exc.OperationalError: (sq...\nFAILED tests/test_api.py::test_ingestion_runs - sqlalchemy.exc.OperationalErr...\nFAILED tests/test_api.py::test_insights - sqlalchemy.exc.OperationalError: (s...\nFAILED tests/test_api.py::test_insight_preferences_and_feedback - sqlalchemy....\nFAILED tests/test_api.py::test_analyze - sqlalchemy.exc.OperationalError: (sq...\nFAILED tests/test_api.py::test_chat - sqlalchemy.exc.OperationalError: (sqlit...\n8 failed, 7 passed, 34 warnings in 3.77s\n"
+        }
+      ]
+    },
+    {
+      "repository": "lf-worldbank-risk-pricing",
+      "base_sha": "33b5edaedd87e17344332828e29196e7f788e6b4",
+      "branch": "main",
+      "working_tree": "",
+      "checks": [
+        {
+          "command": [
+            "/tmp/product-platform-validation-20261006/bin/python",
+            "-m",
+            "pytest",
+            "-q"
+          ],
+          "status": "PASS",
+          "exit_code": 0,
+          "duration_seconds": 4.85,
+          "output_sha256": "b6a3c7a00afd49ee8844e33bb32d342b278bca4bcb20dde78b66d8f300442c53",
+          "output_tail": "............s........................................................... [ 91%]\n.......                                                                  [100%]\n78 passed, 1 skipped in 4.73s\n"
+        }
+      ]
+    },
+    {
+      "repository": "lf-openalex-enrichment-mvp",
+      "base_sha": "7d3d7731acd297f8150591712d1c916582d14206",
+      "branch": "main",
+      "working_tree": "",
+      "checks": [
+        {
+          "command": [
+            "/tmp/product-platform-validation-20261006/bin/python",
+            "-m",
+            "pytest",
+            "-q"
+          ],
+          "status": "PASS",
+          "exit_code": 0,
+          "duration_seconds": 0.16,
+          "output_sha256": "b125586067f701939a6f4639767a7da89df0861f9bb43c5ccbdc8f216410a6c8",
+          "output_tail": "...........................................\n43 passed in 0.04s\n"
+        }
+      ]
+    },
+    {
+      "repository": "lf-wikidata-entity-graph",
+      "base_sha": "cb6994c973343c45d4476e06a8f4aa520f0fbdd1",
+      "branch": "main",
+      "working_tree": "",
+      "checks": [
+        {
+          "command": [
+            "/tmp/product-platform-validation-20261006/bin/python",
+            "-m",
+            "pytest",
+            "-q"
+          ],
+          "status": "PASS",
+          "exit_code": 0,
+          "duration_seconds": 0.17,
+          "output_sha256": "34b7a7256ea92f07b47c543c21f79544959660e1ecc19dccd06e90afb1399ad2",
+          "output_tail": "...........................................                              [100%]\n43 passed in 0.06s\n"
+        }
+      ]
+    },
+    {
+      "repository": "agentic-travel-engine",
+      "base_sha": "3c31dd52783aeaf528ae9bef3582fdf162c749a2",
+      "branch": "main",
+      "working_tree": "",
+      "checks": [
+        {
+          "command": [
+            "/tmp/product-platform-travel-20261006/bin/python",
+            "-m",
+            "pytest",
+            "-q"
+          ],
+          "status": "PASS",
+          "exit_code": 0,
+          "duration_seconds": 1.77,
+          "output_sha256": "acaf1603afbf1ad190abf1368ecd6d8c0086fc05ef695e3d76adfe4afe12bb4b",
+          "output_tail": "...........................                                              [100%]\n=============================== warnings summary ===============================\ntests/test_features_full.py::test_export_pdf_generation\n  /tmp/product-platform-travel-20261006/lib/python3.12/site-packages/_pytest/python.py:166: RuntimeWarning: coroutine 'ExportService.generate_pdf' was never awaited\n    result = testfunction(**testargs)\n  Enable tracemalloc to get traceback where the object was allocated.\n  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n27 passed, 1 warning in 0.20s\n"
+        }
+      ]
+    },
+    {
+      "repository": "fivem-server-monitor-pro",
+      "base_sha": "2b50e05a25b5c142b94d6a0842294bf136e43396",
+      "branch": "main",
+      "working_tree": "",
+      "checks": [
+        {
+          "command": [
+            "npm",
+            "run",
+            "verify"
+          ],
+          "status": "PASS",
+          "exit_code": 0,
+          "duration_seconds": 0.44,
+          "output_sha256": "fda7c14f6aad2cc7818aa66f7457610481b81c481fabb6c3db011d6562e24a0e",
+          "output_tail": "npm notice run fivem-server-monitor-pro@0.1.0 verify\nnpm notice run npm run check && npm test\nnpm notice run fivem-server-monitor-pro@0.1.0 check\nnpm notice run node scripts/validate.mjs\nValidation passed: 77 files, 14 manifest references.\nnpm notice run fivem-server-monitor-pro@0.1.0 test\nnpm notice run node --test tests/*.test.mjs\nTAP version 13\n# Subtest: dashboard contains required accessible controls\nok 1 - dashboard contains required accessible controls\n  ---\n  duration_ms: 4.078423\n  type: 'test'\n  ...\n# Subtest: server payload does not collect player identifiers\nok 2 - server payload does not collect player identifiers\n  ---\n  duration_ms: 0.834988\n  type: 'test'\n  ...\n# Subtest: network access checks happen before snapshots are emitted\nok 3 - network access checks happen before snapshots are emitted\n  ---\n  duration_ms: 0.778129\n  type: 'test'\n  ...\n# Subtest: Docker profile keeps secrets external and exposes FiveM networking\nok 4 - Docker profile keeps secrets external and exposes FiveM networking\n  ---\n  duration_ms: 1.743537\n  type: 'test'\n  ...\n# Subtest: persistence exposes backup recovery diagnostics and pins server data\nok 5 - persistence exposes backup recovery diagnostics and pins server data\n  ---\n  duration_ms: 0.995386\n  type: 'test'\n  ...\n# Subtest: security contract keeps dashboard read-only and refresh server-authorized\nok 6 - security contract keeps dashboard read-only and refresh server-authorized\n  ---\n  duration_ms: 1.336984\n  type: 'test'\n  ...\n# Subtest: discord and privacy-sensitive features remain opt-in or redacted by contract\nok 7 - discord and privacy-sensitive features remain opt-in or redacted by contract\n  ---\n  duration_ms: 0.635874\n  type: 'test'\n  ...\n# Subtest: normalizes malformed input to safe defaults\nok 8 - normalizes malformed input to safe defaults\n  ---\n  duration_ms: 0.988593\n  type: 'test'\n  ...\n# Subtest: detects ping and capacity warnings\nok 9 - detects ping and capacity warnings\n  ---\n  duration_ms: 0.236516\n  type: 'test'\n  ...\n# Subtest: critical events override warning health\nok 10 - critical events override warning health\n  ---\n  duration_ms: 0.64443\n  type: 'test'\n  ...\n# Subtest: historical critical events do not keep a recovered server critical\nok 11 - historical critical events do not keep a recovered server critical\n  ---\n  duration_ms: 0.123618\n  type: 'test'\n  ...\n# Subtest: formats uptime predictably\nok 12 - formats uptime predictably\n  ---\n  duration_ms: 0.14537\n  type: 'test'\n  ...\n1..12\n# tests 12\n# suites 0\n# pass 12\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 49.815286\n"
+        }
+      ]
+    },
+    {
+      "repository": "professional-english-coach",
+      "base_sha": "717a1f5377b1741242133f9e93f6e7e313d4f01c",
+      "branch": "main",
+      "working_tree": "",
+      "checks": [
+        {
+          "command": [
+            "npm",
+            "run",
+            "check"
+          ],
+          "status": "PASS",
+          "exit_code": 0,
+          "duration_seconds": 0.47,
+          "output_sha256": "9ac8870d42d8ccd70b1d783b7981f278c47e371e80be56615f10030130908d5e",
+          "output_tail": "l listening can be skipped without recording a learner response\n  ---\n  duration_ms: 0.392275\n  type: 'test'\n  ...\n# Subtest: a generated follow-up prompt is preserved with the learner answer\nok 12 - a generated follow-up prompt is preserved with the learner answer\n  ---\n  duration_ms: 0.231466\n  type: 'test'\n  ...\n# Subtest: an opted-in AI follow-up opens one final conversation turn after open-ended practice\nok 13 - an opted-in AI follow-up opens one final conversation turn after open-ended practice\n  ---\n  duration_ms: 1.103395\n  type: 'test'\n  ...\n# Subtest: review recall advances spacing and a retry resets it\nok 14 - review recall advances spacing and a retry resets it\n  ---\n  duration_ms: 0.617238\n  type: 'test'\n  ...\n# Subtest: repeated corrections are grouped and scheduled for another retrieval attempt\nok 15 - repeated corrections are grouped and scheduled for another retrieval attempt\n  ---\n  duration_ms: 0.655402\n  type: 'test'\n  ...\n# Subtest: local state round trip and invalid version handling\nok 16 - local state round trip and invalid version handling\n  ---\n  duration_ms: 0.266693\n  type: 'test'\n  ...\n# Subtest: an unfinished response draft survives reload and clears after submission\nok 17 - an unfinished response draft survives reload and clears after submission\n  ---\n  duration_ms: 0.230153\n  type: 'test'\n  ...\n# Subtest: browser locale selects Portuguese on first visit while an explicit choice wins\nok 18 - browser locale selects Portuguese on first visit while an explicit choice wins\n  ---\n  duration_ms: 0.664079\n  type: 'test'\n  ...\n# Subtest: localized track copy and stage directions leave practice prompts in English\nok 19 - localized track copy and stage directions leave practice prompts in English\n  ---\n  duration_ms: 0.231836\n  type: 'test'\n  ...\n# Subtest: Portuguese interface copy is translated without modifying protected learner content\nok 20 - Portuguese interface copy is translated without modifying protected learner content\n  ---\n  duration_ms: 0.637538\n  type: 'test'\n  ...\n# Subtest: all eight lessons have bilingual instruction and valid progressive content\nok 21 - all eight lessons have bilingual instruction and valid progressive content\n  ---\n  duration_ms: 5.807362\n  type: 'test'\n  ...\n# Subtest: legacy state is unchanged and recognition completes without written answers\nok 22 - legacy state is unchanged and recognition completes without written answers\n  ---\n  duration_ms: 0.267586\n  type: 'test'\n  ...\n# Subtest: feedback must be acknowledged and malformed/double submission is rejected\nok 23 - feedback must be acknowledged and malformed/double submission is rejected\n  ---\n  duration_ms: 0.503309\n  type: 'test'\n  ...\n# Subtest: draft and help survive storage round trip and export\nok 24 - draft and help survive storage round trip and export\n  ---\n  duration_ms: 0.42578\n  type: 'test'\n  ...\n# Subtest: assistance and skips do not inflate unassisted accuracy; writing is ungraded\nok 25 - assistance and skips do not inflate unassisted accuracy; writing is ungraded\n  ---\n  duration_ms: 0.572452\n  type: 'test'\n  ...\n# Subtest: delayed retrieval advances spacing, same-day repetition does not, and errors reset it\nok 26 - delayed retrieval advances spacing, same-day repetition does not, and errors reset it\n  ---\n  duration_ms: 0.528638\n  type: 'test'\n  ...\n# Subtest: due review begins with retrieval; new lessons show instruction first\nok 27 - due review begins with retrieval; new lessons show instruction first\n  ---\n  duration_ms: 0.276232\n  type: 'test'\n  ...\n# Subtest: mixed retrieval combines studied units and weekly goals count unique local days\nok 28 - mixed retrieval combines studied units and weekly goals count unique local days\n  ---\n  duration_ms: 0.503059\n  type: 'test'\n  ...\n# Subtest: both interfaces expose beginner modes, media alternatives and explicit feedback\nok 29 - both interfaces expose beginner modes, media alternatives and explicit feedback\n  ---\n  duration_ms: 2.045969\n  type: 'test'\n  ...\n# Subtest: every curriculum media file exists with original script and captions\nok 30 - every curriculum media file exists with original script and captions\n  ---\n  duration_ms: 11.350755\n  type: 'test'\n  ...\n# Subtest: validated local restore accepts exported data and rejects malformed input without overwrite\nok 31 - validated local restore accepts exported data and rejects malformed input without overwrite\n  ---\n  duration_ms: 0.636696\n  type: 'test'\n  ...\n# Subtest: restore conflict is deterministic and never silently destroys current learner data\nok 32 - restore conflict is deterministic and never silently destroys current learner data\n  ---\n  duration_ms: 0.326619\n  type: 'test'\n  ...\n# Subtest: unsupported backup shape is rejected\nok 33 - unsupported backup shape is rejected\n  ---\n  duration_ms: 0.125682\n  type: 'test'\n  ...\n# Subtest: status does not expose secrets and identifies unavailable coaching\nok 34 - status does not expose secrets and identifies unavailable coaching\n  ---\n  duration_ms: 20.69127\n  type: 'test'\n  ...\n# Subtest: feedback endpoint does not call provider when keys are missing\nok 35 - feedback endpoint does not call provider when keys are missing\n  ---\n  duration_ms: 9.091155\n  type: 'test'\n  ...\n# Subtest: feedback endpoint returns structured provider suggestions without logging the response\nok 36 - feedback endpoint returns structured provider suggestions without logging the response\n  ---\n  duration_ms: 3.830526\n  type: 'test'\n  ...\n# Subtest: app serves its entry point and rejects unsupported methods\nok 37 - app serves its entry point and rejects unsupported methods\n  ---\n  duration_ms: 7.918546\n  type: 'test'\n  ...\n# Subtest: static server assigns browser media types for audio, video and captions\nok 38 - static server assigns browser media types for audio, video and captions\n  ---\n  duration_ms: 0.216317\n  type: 'test'\n  ...\n1..38\n# tests 38\n# suites 0\n# pass 38\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 166.517386\n"
+        }
+      ]
+    }
+  ]
+}

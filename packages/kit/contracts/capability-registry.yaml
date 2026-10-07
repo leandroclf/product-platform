@@ -1,4 +1,5 @@
-version: 1
+version: 2
+portfolio_scope: contracts/portfolio-products.json
 policy:
   default_decision_order: [reuse, extend, create]
   create_requires:
@@ -22,38 +23,83 @@ capabilities:
     surface: packages
     modules: [core, growth, commerce, economics, observability]
     status: active
+    implementation_status: partial
   product_events:
     owner: product-platform-kit
     implementation_owner: product-platform-harness
     contract: product-event/v1
+    implementation_status: partial
   payments:
     owner: product-platform-harness
     module: commerce
     capabilities: [checkout, subscriptions, webhook_inbox, idempotency, payment_ledger, stripe, mercado_pago]
+    implementation_status: partial
+    implemented: [gateway_interfaces, stripe_adapter, mercado_pago_adapter, charge_idempotency_key, webhook_signature_check, event_normalization]
+    planned: [durable_webhook_inbox, replay_protection, payment_ledger_persistence, checkout_lifecycle]
   entitlements:
     owner: product-platform-harness
     module: core
     capabilities: [plans, limits, access_resolution, usage_metering]
+    implementation_status: partial
+    implemented: [static_plan_catalog, limit_decision]
+    planned: [atomic_usage_reservation, durable_usage_metering, tenant_policy_resolution]
   growth:
     owner: product-platform-harness
     module: growth
     capabilities: [analytics, sales_signals, crm, outbox]
+    implementation_status: partial
+    implemented: [event_envelope, sales_signal_mapping, composite_sink]
+    planned: [durable_outbox, crm_adapters, retry_delivery]
   finops:
     owner: product-platform-harness
     module: economics
     capabilities: [cost_attribution, payment_economics, unit_economics]
+    implementation_status: partial
+    implemented: [ledger_economics_identity]
+    planned: [cost_attribution, durable_ledger, unit_economics_reports]
+  observability:
+    owner: product-platform-harness
+    module: observability
+    implementation_status: partial
+    implemented: [safe_correlation_attributes]
+    planned: [otel_instrumentation, metrics_export]
   vehicle_tracking:
     owner: vehicle-tracking
     surface: product-domain
     capabilities: [vehicles, trips, geofences, alerts, commands, teltonika]
-  document_processing:
-    owner: ai-docs
-    surface: product-domain
-    capabilities: [ocr, document_extraction, document_classification, async_processing, callbacks]
   financial_insights:
     owner: bussola-financeira
     surface: product-domain
     capabilities: [financial_analysis, investment_agents, compliance]
+  country_risk_pricing:
+    owner: lf-worldbank-risk-pricing
+    surface: product-domain
+    capabilities: [country_risk_score, portfolio_risk, regional_pricing]
+  b2b_enrichment:
+    owner: lf-openalex-enrichment-mvp
+    surface: product-domain
+    capabilities: [lead_enrichment, coverage, value_score, lead_prioritization]
+  entity_resolution:
+    owner: lf-wikidata-entity-graph
+    surface: product-domain
+    capabilities: [name_matching, entity_linking, deduplication, entity_graph]
+  travel_search:
+    owner: agentic-travel-engine
+    surface: product-domain
+    capabilities: [travel_search, itinerary_ranking, connector_resilience]
+  fivem_monitoring:
+    owner: fivem-server-monitor-pro
+    surface: product-domain
+    capabilities: [fxserver_monitoring, resource_health, local_history, nui_dashboard]
+  english_learning:
+    owner: professional-english-coach
+    surface: product-domain
+    capabilities: [text_practice, learning_path, local_progress, optional_ai_feedback]
+historical_capabilities:
+  document_processing:
+    owner: ai-docs
+    status: out_of_current_scope
+    capabilities: [ocr, document_extraction, document_classification, async_processing, callbacks]
 references:
   vehicle-tracking-v2: teltonika_legacy
   ai-engineering-control-plane: control_plane_experiments

@@ -2,15 +2,15 @@
 
 ## Decision
 
-Each reusable capability has exactly one canonical owner. Products own domain logic. ai-kit owns shared contracts, policies, skills and conformance assets. OmniCLI owns discovery/proposals. ai-engineering-team owns engineering orchestration.
+Each reusable capability has exactly one canonical owner. Products own domain logic. product-platform-kit owns shared contracts, policies, skills and conformance assets. product-platform-cli owns discovery/proposals. product-platform-engineering-team owns engineering orchestration.
 
 Allowed dependency direction:
 
-- OmniCLI -> ai-kit contracts
-- ai-engineering-team -> ai-kit
-- products -> ai-kit
-- ai-kit -/-> products
-- ai-kit -/-> ai-engineering-team
+- product-platform-cli -> product-platform-kit contracts
+- product-platform-engineering-team -> product-platform-kit
+- products -> product-platform-kit
+- product-platform-kit -/-> products
+- product-platform-kit -/-> product-platform-engineering-team
 - products -/-> other products
 
 The ai-engineering-control-plane is experimental/reference and is not a required runtime dependency.
