@@ -132,6 +132,18 @@ Sem flags, importa os commits para uma nova branch `ai-team/<task-id>` no alvo, 
 
 Se entrega ficar DELIVERY_PENDING, consulte o remoto/PR antes de qualquer novo efeito. A CLI bloqueia replay automático; preserve state.json, logs e SHAs. Uma nova revisão é necessária depois de alterar código ou base. REVIEWED não substitui CI/proteção de branch do GitHub.
 
+## Diagnóstico de falhas na primeira tarefa
+
+Sintomas observados na validação com provedores reais e a causa de cada um:
+
+| Sintoma | Causa | Ação |
+| --- | --- | --- |
+| Tarefa `FAILED` em segundos, com `unauthorized (401)` na etapa `plan` ou `validate`; no `*.stderr`, `refresh_token_invalidated` | Login do Codex vencido. O `doctor` só confere se existe credencial salva, não se ela ainda vale | Refazer `ai-team login atlas --stage plan` e `ai-team login sentinel` (e os do Claude se necessário) e abrir um novo pedido; uma tarefa `FAILED` não é retomada |
+| Plano `BLOCKED` dizendo que `bwrap` não criou namespace, sem conseguir ler o repositório nem `/handoff` | O sandbox do Codex não cria namespaces dentro do container neste host | `ai-team init --upgrade ... --codex-sandbox danger-full-access` (o container continua sendo a fronteira) |
+| Plano `BLOCKED` pedindo ampliação de escopo para gravar OpenSpec | O OpenSpec é gravado pelo host em `openspec/changes/ai-team-*`, fora do escopo do agente; o prompt da plataforma já informa isso | Nada a fazer; se aparecer, o motivo real vem na mensagem de bloqueio (as primeiras suposições do plano) |
+
+Uma tarefa de ponta a ponta (plan, implement, checks offline, validate e review, sem ciclos de reparo) levou cerca de 2,5 minutos com `gpt-6.1-sol` e `claude-sonnet-5-5` em esforço médio.
+
 ## Fronteiras e operação
 
 Os agentes têm rede para autenticar/usar modelos e podem ler as próprias credenciais no respectivo container. Tests não recebem volumes de contas, GitHub token/SSH agent, Docker socket nem rede. Rootfs dos containers é read-only, usuário não-root, recursos e processos limitados; workspace de testes é temporário. O host e daemon Docker são confiáveis. Use imagens próprias confiáveis e repositórios conhecidos; não alegar isolamento de kernel ou DLP completo.

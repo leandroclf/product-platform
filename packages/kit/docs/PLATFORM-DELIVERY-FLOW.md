@@ -103,3 +103,14 @@ Em ordem de dependência. Itens com código exigem tarefa própria por repositó
 - O host confere a decisão declarada no plano, não o código produzido; a ausência de duplicação de capacidade na implementação depende de Sentinel e da revisão.
 - O harness está `partial` no registry (sem inbox durável, outbox, ledger persistido, reserva atômica de uso) e a 0.2.0 ainda é candidata local.
 - O manifesto do kit no alvo (`pin: ^0.1`) não é validado nem aplicado por nenhum script.
+
+## Validação com provedores reais (2026-10-07)
+
+Um pedido real passou por Codex e Claude em um repositório de teste, usando o envelope gerado pelo código do CLI, `--registry` e `--rules`:
+
+- O envelope foi aceito, dividido e congelado com SHA-256; as quatro etapas ficaram presas ao mesmo fingerprint de plataforma.
+- O Atlas declarou `capability_decisions` idênticas ao handoff, citou os SHAs do kit e do harness e o perfil, e **bloqueou** quando o pedido saía do `allowed_paths`.
+- Plan, implement, checks offline, validate e review fecharam sem ciclos de reparo; Sentinel e revisor aprovaram os cinco critérios com evidência e o mesmo `head_sha`; a entrega criou a branch `ai-team/<task>` sem tocar no checkout do alvo.
+- Limites: repositório de brinquedo, modelos intermediários e envelope montado sem executar os provedores do `product-platform-cli`. Um pedido em produto real e o `omnicli conceive` com provedores reais ainda não foram exercitados.
+- Defeitos encontrados e corrigidos: o gate de capacidades mascarava um plano `BLOCKED` com uma mensagem enganosa, e o prompt não dizia que o host grava o OpenSpec fora do escopo do agente.
+- Limitação conhecida: o `doctor` não detecta token de login vencido (ver `LOCAL-LINUX-WORKFLOW.md`, diagnóstico de falhas).
