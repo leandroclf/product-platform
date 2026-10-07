@@ -19,7 +19,7 @@ jobs:
       PRODUCT_EVENT_CASES: ${{ github.workspace }}/packages/kit/contracts/product-event/fixtures/compatibility-cases.json
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with: { node-version: 20 }
       - run: npm install
       - run: npm run validate

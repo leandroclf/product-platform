@@ -33,7 +33,7 @@ jobs:
         run: bash scripts/ai-kit .
       - name: Smoke-test bootstrap without machine changes
         run: bash scripts/bootstrap.sh core
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with: { node-version: '20' }
       - name: Validate architecture ownership and versioned contracts
         run: node scripts/validate-architecture.cjs
