@@ -6,9 +6,9 @@ The portfolio deliberately separates four concerns.
 
 | Repository | Canonical responsibility | Must not become |
 | --- | --- | --- |
-| `ai-engineering-team` | Execute bounded software-engineering work through isolated plan, implement, validate and review stages and preserve evidence | Dynamic model gateway, general-purpose idea discovery tool, central policy repository |
-| `OmniCLI` | Turn ambiguous product/engineering intent into a challenged, reviewable proposal before implementation | Code-execution runtime |
-| `ai-kit` | Reusable engineering policies, skills, profiles and agent-native adapters | Competing orchestration/control plane |
+| `product-platform-engineering-team` | Execute bounded software-engineering work through isolated plan, implement, validate and review stages and preserve evidence | Dynamic model gateway, general-purpose idea discovery tool, central policy repository |
+| `product-platform-cli` | Turn ambiguous product/engineering intent into a challenged, reviewable proposal before implementation | Code-execution runtime |
+| `product-platform-kit` | Reusable engineering policies, skills, profiles and agent-native adapters | Competing orchestration/control plane |
 | `ai-engineering-control-plane` | Architectural laboratory/reference for governance concepts not yet justified in the local runtime | Default runtime or mandatory dependency |
 
 ## Preferred flow
@@ -17,21 +17,21 @@ The portfolio deliberately separates four concerns.
 rough intent
    |
    v
-OmniCLI (optional)
+product-platform-cli (optional)
    |
    v
 reviewed proposal / bounded task
    |
    v
-ai-engineering-team
+product-platform-engineering-team
    |
-   +--> ai-kit policies / skills when useful
+   +--> product-platform-kit policies / skills when useful
    |
    v
 verified branch / PR + evidence
 ```
 
-A project may enter directly at `ai-engineering-team` when the task is already bounded. No repository above is allowed to add a gateway, router, database, graph, service or agent merely to make this diagram more uniform.
+A project may enter directly at `product-platform-engineering-team` when the task is already bounded. No repository above is allowed to add a gateway, router, database, graph, service or agent merely to make this diagram more uniform.
 
 ## Decision rule for consolidation
 
@@ -41,8 +41,8 @@ The default for overlapping infrastructure is therefore **do not merge code yet*
 
 ## Current portfolio policy
 
-1. New orchestration work belongs in `ai-engineering-team`.
-2. Reusable policy/skill content belongs in `ai-kit` or the team's versioned skill catalog, with one canonical source chosen before duplication.
-3. Proposal-generation work remains in `OmniCLI`.
+1. New orchestration work belongs in `product-platform-engineering-team`.
+2. Reusable policy/skill content belongs in `product-platform-kit` or the team's versioned skill catalog, with one canonical source chosen before duplication.
+3. Proposal-generation work remains in `product-platform-cli`.
 4. New control-plane infrastructure is frozen unless an end-to-end benchmark exposes a concrete requirement that cannot be solved more simply.
 5. Product repositories are preferred as real workloads for evaluation.
