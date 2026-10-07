@@ -14,7 +14,7 @@ from omnicli.codebase import CodebaseContext, inspect_local, inspect_remote
 from omnicli.config import load_config, write_example_config
 from omnicli.diagnostics import diagnose
 from omnicli.exceptions import OmniCLIError
-from omnicli.handoff import extract_capability_handoff
+from omnicli.handoff import build_platform_handoff, extract_capability_handoff, validate_envelope_options
 from omnicli.lab import LabResult, run_provider_contract_lab, run_synthetic_evaluation
 from omnicli.pipeline import PipelineRunner
 from omnicli.planning import build_execution_plan
@@ -135,6 +135,21 @@ def conceive(
         help="Grava o JSON de capacidades (REUSE/EXTEND/CREATE) para 'ai-team run --handoff'; "
         "exige --portfolio-context.",
     ),
+    envelope_out: Path | None = typer.Option(
+        None,
+        "--envelope-out",
+        help="Grava o envelope PlatformHandoff v1 (proposta, capacidades e regras), validável por "
+        "packages/kit/scripts/validate-platform-handoff.py; exige --portfolio-context, "
+        "--repository-url, --kit-ref, --harness-ref e --profile.",
+    ),
+    repository_url: str | None = typer.Option(None, "--repository-url", help="URL do repositório alvo (envelope)."),
+    base_ref: str = typer.Option("main", "--base-ref", help="Branch ou ref base do repositório alvo (envelope)."),
+    base_sha: str | None = typer.Option(None, "--base-sha", help="SHA completo da base; o ai-team recusa se divergir."),
+    kit_ref: str | None = typer.Option(None, "--kit-ref", help="SHA completo do commit das regras do kit (envelope)."),
+    harness_ref: str | None = typer.Option(None, "--harness-ref", help="SHA completo do commit do harness (envelope)."),
+    profile: str | None = typer.Option(
+        None, "--profile", help="Perfil do kit: core, backend, frontend, devops ou security."
+    ),
 ) -> None:
     """Transforma uma ideia em uma proposta arquitetural consolidada."""
     try:
@@ -142,6 +157,11 @@ def conceive(
         portfolio = PortfolioContext.from_file(portfolio_context) if portfolio_context else None
         if handoff_out and not portfolio:
             raise ValueError("--handoff-out exige --portfolio-context")
+        if envelope_out:
+            if not portfolio:
+                raise ValueError("--envelope-out exige --portfolio-context")
+            validate_envelope_options(repository_url=repository_url, base_ref=base_ref, base_sha=base_sha,
+                                      kit_ref=kit_ref, harness_ref=harness_ref, profile=profile)
         if context_preview:
             if codebase_context is None:
                 raise ValueError("--context-preview exige --project ou --repo")
@@ -191,6 +211,17 @@ def conceive(
             console.print(f"[red]Erro no handoff:[/red] {exc} (a proposta foi salva em {final_path})")
             raise typer.Exit(code=1) from exc
         console.print(f"Handoff: {handoff_out}")
+    if envelope_out and portfolio and repository_url and kit_ref and harness_ref and profile:
+        try:
+            envelope = build_platform_handoff(
+                final_path.read_text(encoding="utf-8"), portfolio.fingerprint, proposal_id=run_workspace.run_id,
+                repository_url=repository_url, base_ref=base_ref, base_sha=base_sha, kit_ref=kit_ref,
+                harness_ref=harness_ref, profile=profile)
+            envelope_out.write_text(json.dumps(envelope, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        except (OSError, ValueError) as exc:
+            console.print(f"[red]Erro no envelope:[/red] {exc} (a proposta foi salva em {final_path})")
+            raise typer.Exit(code=1) from exc
+        console.print(f"Envelope: {envelope_out}")
     console.print(f"Qualidade preliminar: {report.score}/100")
     manifest = run_workspace.load_manifest()
     if manifest.termination_reason:
