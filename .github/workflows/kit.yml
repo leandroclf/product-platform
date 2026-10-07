@@ -1,24 +1,24 @@
-name: validate
-
+name: kit
 on:
   pull_request:
+    paths: ['packages/kit/**', 'platform-packages.json', 'requirements-validation.txt', '.github/workflows/kit.yml']
   push:
     branches: [main]
-
+    paths: ['packages/kit/**', 'platform-packages.json', 'requirements-validation.txt', '.github/workflows/kit.yml']
 permissions:
   contents: read
-
+defaults:
+  run:
+    working-directory: packages/kit
 jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - name: Validate shell syntax
         run: |
           bash -n scripts/ai-kit
           bash -n scripts/bootstrap.sh
-
       - name: Validate required structure
         run: |
           test -f AGENTS.md
@@ -28,27 +28,19 @@ jobs:
           test -f skills/testing/SKILL.md
           test -f skills/ui/SKILL.md
           test -f skills/security/SKILL.md
-
       - name: Smoke-test profile detection
         run: bash scripts/ai-kit .
-
       - name: Smoke-test bootstrap without machine changes
         run: bash scripts/bootstrap.sh core
-
-      - name: Validate canonical Product Harness schema
-        run: |
-          python - <<'PY'
-          import json
-          from pathlib import Path
-          schema = json.loads(Path("contracts/product-event/v1.schema.json").read_text())
-          fixture = json.loads(Path("contracts/product-event/fixtures/valid.json").read_text())
-          required = set(schema["required"])
-          assert required <= fixture.keys()
-          assert schema["additionalProperties"] is False
-          assert fixture["event"] in schema["properties"]["event"]["enum"]
-          assert set(fixture) <= set(schema["properties"])
-          print("Product Harness contract fixture is conformant")
-          PY
-
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
       - name: Validate architecture ownership and versioned contracts
         run: node scripts/validate-architecture.cjs
+      - name: ProductEvent v1 conformance
+        run: python3 scripts/conformance-product-event.py
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - name: Install validation tooling (versions pinned at the repository root)
+        run: python -m pip install -r ../../requirements-validation.txt
+      - name: PlatformHandoff contract and registry validator
+        run: python scripts/validate-platform-handoff.test.py

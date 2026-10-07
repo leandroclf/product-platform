@@ -1,0 +1,35 @@
+name: harness
+on:
+  pull_request:
+    paths: ['packages/harness/**', 'packages/kit/contracts/product-event/**', '.github/workflows/harness.yml']
+  push:
+    branches: [main]
+    paths: ['packages/harness/**', 'packages/kit/contracts/product-event/**', '.github/workflows/harness.yml']
+permissions:
+  contents: read
+defaults:
+  run:
+    working-directory: packages/harness
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    env:
+      # O harness valida contra o fixture canônico do kit, não só contra o snapshot local.
+      PRODUCT_EVENT_CASES: ${{ github.workspace }}/packages/kit/contracts/product-event/fixtures/compatibility-cases.json
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: npm install
+      - run: npm run validate
+      - name: Build commit-addressed package artifact
+        run: |
+          npm pack
+          sha256sum *.tgz > SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-platform-harness-${{ github.sha }}
+          path: |
+            packages/harness/*.tgz
+            packages/harness/SHA256SUMS
+          retention-days: 30

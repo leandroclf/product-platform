@@ -6,7 +6,14 @@ updates:
       interval: weekly
     open-pull-requests-limit: 3
   - package-ecosystem: pip
-    directory: /
+    directory: /packages/cli
+    schedule:
+      interval: weekly
+    groups:
+      python-dependencies:
+        patterns: ["*"]
+  - package-ecosystem: pip
+    directory: /packages/engineering-team
     schedule:
       interval: weekly
     open-pull-requests-limit: 3

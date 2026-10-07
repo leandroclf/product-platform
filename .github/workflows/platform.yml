@@ -1,0 +1,14 @@
+name: platform
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  boundaries:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 scripts/test_check_package_boundaries.py
+      - run: python3 scripts/check-package-boundaries.py

@@ -1,11 +1,16 @@
-name: validate
+name: engineering-team
 on:
   push:
+    paths: ['packages/engineering-team/**', 'packages/kit/contracts/**', '.github/workflows/engineering-team.yml']
   pull_request:
+    paths: ['packages/engineering-team/**', 'packages/kit/contracts/**', '.github/workflows/engineering-team.yml']
 permissions:
   contents: read
+defaults:
+  run:
+    working-directory: packages/engineering-team
 concurrency:
-  group: validate-${{ github.workflow }}-${{ github.ref }}
+  group: engineering-team-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 jobs:
   framework:

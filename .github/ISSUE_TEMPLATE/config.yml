@@ -1,8 +1,8 @@
 blank_issues_enabled: false
 contact_links:
   - name: Private security report
-    url: https://github.com/leandroclf/OmniCLI/security/advisories/new
+    url: https://github.com/leandroclf/product-platform/security/advisories/new
     about: Report vulnerabilities without exposing details publicly.
   - name: Project roadmap
-    url: https://github.com/leandroclf/OmniCLI/blob/main/ROADMAP.md
+    url: https://github.com/leandroclf/product-platform/blob/main/packages/cli/ROADMAP.md
     about: Check planned work before opening a feature request.

@@ -1,4 +1,4 @@
-name: Provider compatibility sources
+name: cli-provider-compatibility
 
 on:
   workflow_dispatch:
@@ -6,15 +6,19 @@ on:
     - cron: "17 6 * * 1"
   pull_request:
     paths:
-      - "docs/provider-sources.txt"
-      - "docs/provider-compatibility.md"
-      - "scripts/check-official-docs.sh"
-      - "src/omnicli/config.py"
-      - "src/omnicli/models.py"
-      - "tests/test_config.py"
+      - "packages/cli/docs/provider-sources.txt"
+      - "packages/cli/docs/provider-compatibility.md"
+      - "packages/cli/scripts/check-official-docs.sh"
+      - "packages/cli/src/omnicli/config.py"
+      - "packages/cli/src/omnicli/models.py"
+      - "packages/cli/tests/test_config.py"
 
 permissions:
   contents: read
+
+defaults:
+  run:
+    working-directory: packages/cli
 
 jobs:
   sources:
@@ -27,6 +31,7 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
+          cache-dependency-path: packages/cli/pyproject.toml
       - run: python -m pip install -e '.[dev]'
       - name: Check the provider registry
         run: pytest tests/test_config.py tests/test_subprocess_adapter.py
