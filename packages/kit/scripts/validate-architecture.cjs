@@ -6,5 +6,5 @@ for(const k of ['schema_version','event','product_id','environment','release_sha
 if(schema.additionalProperties!==false) throw new Error('additionalProperties must be false');
 for(const k of ['email','phone','name','gps','imei','plate','vin','token','cpf','cnpj']) if(schema.properties[k]) throw new Error('forbidden PII '+k);
 const ownership=fs.readFileSync(path.join(root,'ARCHITECTURE-OWNERSHIP.yaml'),'utf8');
-for(const rule of ['shared_contracts: { owner: ai-kit','engineering_orchestration: { owner: ai-engineering-team','proposal_generation: { owner: OmniCLI']) if(!ownership.includes(rule)) throw new Error('ownership drift: '+rule);
+for(const rule of ['shared_contracts: { owner: product-platform-kit','engineering_orchestration: { owner: product-platform-engineering-team','proposal_generation: { owner: product-platform-cli']) if(!ownership.includes(rule)) throw new Error('ownership drift: '+rule);
 console.log('architecture and contract conformance: OK');
