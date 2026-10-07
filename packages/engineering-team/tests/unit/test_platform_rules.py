@@ -46,6 +46,13 @@ class PlatformRulesTest(unittest.TestCase):
         with self.assertRaises(lt.Blocked):
             lt.platform_artifacts(self.run_dir, state)
 
+    def test_prompt_says_the_host_records_openspec_outside_the_agent_scope(self):
+        state = {'platform': self.freeze()}
+        out = lt.with_platform('Request: x', state)
+        # O host grava o OpenSpec; sem esta frase o agente trata o pedido "registre no OpenSpec" como ampliação de escopo.
+        self.assertIn('openspec/changes/ai-team-', out)
+        self.assertIn('never requires', out)
+
     def test_prompt_cites_platform_rules_once_before_the_request(self):
         state = {'platform': self.freeze()}
         for marker in ('Original request: ', 'Request: '):

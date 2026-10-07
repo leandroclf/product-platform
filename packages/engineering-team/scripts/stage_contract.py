@@ -26,7 +26,7 @@ def validate_plan(value, sha, handoff=None):
     Draft202012Validator(json.loads(PLAN_SCHEMA.read_text())).validate(value)
     if value['base_sha'] != sha:
         raise ValueError('plan does not match planning HEAD')
-    if handoff:
+    if handoff and value['status'] == 'READY':  # um plano BLOCKED não precisa declarar capacidades: o motivo do bloqueio prevalece
         want = {c['name']: (c['decision'], c['owner']) for c in handoff['capabilities']}
         got = {c['name']: (c['decision'], c['owner']) for c in value['capability_decisions']}
         if len(got) != len(value['capability_decisions']) or got != want:

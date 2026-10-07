@@ -210,6 +210,15 @@ class LocalTeamTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 team.validate_plan(dict(plan(), capability_decisions=bad), 'a' * 40, handoff)
 
+    def test_blocked_plan_is_not_masked_by_the_capability_gate(self):
+        handoff = {'registry_fingerprint': 'a' * 64, 'product': 'site',
+                   'capabilities': [{'name': 'entitlements', 'decision': 'REUSE', 'owner': 'product-platform-harness'}]}
+        blocked = dict(plan(), status='BLOCKED', assumptions=['Sem leitura do filesystem: bwrap sem permissão.'])
+        # Um plano BLOCKED não declara capacidades (o agente não leu o handoff): o motivo real do bloqueio deve prevalecer.
+        self.assertEqual(team.validate_plan(blocked, 'a' * 40, handoff)['status'], 'BLOCKED')
+        with self.assertRaises(ValueError):  # um plano READY continua obrigado a declarar as capacidades do handoff
+            team.validate_plan(dict(plan(), status='READY'), 'a' * 40, handoff)
+
     def test_stale_registry_blocks_run_inputs(self):
         registry = self.root / 'registry.yaml'; registry.write_text('capabilities: []')
         digest = __import__('hashlib').sha256(registry.read_bytes()).hexdigest()

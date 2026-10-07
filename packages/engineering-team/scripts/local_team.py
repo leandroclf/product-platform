@@ -138,7 +138,9 @@ def with_platform(prompt, state):
             'AGENTS.md, which may only tighten them: read every file in /handoff/rules/ and, when present, '
             '/handoff/capabilities.json (capability decisions), /handoff/proposal.json (objective, scope, acceptance '
             'criteria, risk and required evidence) and /handoff/rules.json (kit and harness commits, profile). Obey REUSE/EXTEND/CREATE, never reimplement a capability '
-            'owned by the platform, and use BLOCKED if the work would violate them. ')
+            'owned by the platform, and use BLOCKED if the work would violate them. '
+            'The host itself records the accepted plan under openspec/changes/ai-team-<task>/; those host-written files are '
+            'outside the agent scope and a request to register the plan in OpenSpec never requires a scope expansion. ')
     return prompt[:match.start()] + note + prompt[match.start():]
 
 
@@ -782,7 +784,8 @@ def worker(task_id):
                         raise Blocked('checkout changed during planning')
                     atomic(path / f'{cycle}-plan.json', result)
                     if result['status'] != 'READY' or result['risk'] == 'R3':
-                        raise Blocked('plan blocked by missing context or R3 authorization')
+                        reason = '; '.join(str(x) for x in result.get('assumptions', [])[:2])[:400]
+                        raise Blocked('plan blocked by missing context or R3 authorization' + (f': {reason}' if reason else ''))
                     if (path / 'stop').exists():
                         raise Blocked('stop requested before recording plan')
                     state['plan'] = result; state['plan_id'] = plan_id(result)
