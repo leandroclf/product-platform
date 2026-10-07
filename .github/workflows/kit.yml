@@ -38,7 +38,7 @@ jobs:
         run: node scripts/validate-architecture.cjs
       - name: ProductEvent v1 conformance
         run: python3 scripts/conformance-product-event.py
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with: { python-version: '3.12' }
       - name: Install validation tooling (versions pinned at the repository root)
         run: python -m pip install -r ../../requirements-validation.txt
