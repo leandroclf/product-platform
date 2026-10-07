@@ -1,0 +1,25 @@
+{
+  "schema_version": "1.0",
+  "proposal": {
+    "proposal_id": "prop-0001",
+    "repository": {"url": "https://github.com/leandroclf/vehicle-tracking.git", "base_ref": "main", "base_sha": "0123456789abcdef0123456789abcdef01234567"},
+    "objective": "Adicionar exportação de viagens com limite por plano",
+    "scope": {"allowed_paths": ["src/", "docs/"]},
+    "acceptance": {"criteria": ["Exporta viagens em CSV", "Respeita o limite do plano no servidor"]},
+    "risk": {"level": "medium"},
+    "evidence": {"required": ["tests", "build", "ci"]}
+  },
+  "portfolio": {
+    "registry_fingerprint": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+    "product": "vehicle-tracking",
+    "capabilities": [
+      {"name": "entitlements", "decision": "REUSE", "owner": "product-platform-harness", "version": null, "reason": "limite por plano"},
+      {"name": "trip_export", "decision": "CREATE", "owner": "vehicle-tracking", "reason": "domínio do produto"}
+    ]
+  },
+  "rules_refs": {
+    "kit": {"ref": "0246602000000000000000000000000000000000"},
+    "harness": {"ref": "a26110e000000000000000000000000000000000"},
+    "profile": "backend"
+  }
+}
