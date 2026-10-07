@@ -6,7 +6,7 @@ Estado em 2026-10-07, levantado nos repositórios locais. A adoção é capacida
 |---|---|---|---|---|
 | vehicle-tracking | TypeScript | 1 | Adotou `harness-v0.2.0` (tarball) | Migrar para a release com eventos e pagamentos conforme novas capacidades do harness saírem |
 | bussola-financeira | Python | 1 | Adotou `harness-v0.2.1` (wheel); adaptador de eventos | Aplicar migrações no ambiente de teste: 8 testes de `tests/test_api.py` já falhavam por banco SQLite não migrado, e o CI só executa os testes de eventos |
-| ai-docs | Python | 2 | Adotou `harness-v0.2.1` (wheel); adaptador de eventos | Remover o `docling` do caminho crítico do CI se o tempo incomodar; nenhum bloqueio de plataforma |
+| ai-docs | Python | 2 | Adotou `harness-v0.2.1` (wheel); adaptador de eventos | Nenhum bloqueio de plataforma; o CI instala os requisitos completos e passou com o wheel por caminho relativo |
 | lf-worldbank-risk-pricing | Python | 2 | Sem eventos; CI e testes existem | Adicionar `AGENTS.md` da plataforma; adotar eventos só quando houver sinal de produto a medir |
 | lf-openalex-enrichment-mvp | Python | 2 | Sem eventos; CI e testes existem | Idem |
 | lf-wikidata-entity-graph | Python | 2 | Sem eventos; CI e testes existem | Idem |
