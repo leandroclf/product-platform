@@ -1,0 +1,6 @@
+canonical_skill_repository: leandroclf/ai-kit
+mode: compatibility-snapshot
+rules:
+  - no-new-generic-skills
+  - upstream-changes-to-ai-kit-first
+  - remove-snapshots-after-versioned-distribution

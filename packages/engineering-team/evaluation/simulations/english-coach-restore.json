@@ -1,0 +1,57 @@
+{
+  "schema_version": "1.0.0",
+  "evidence_kind": "synthetic-simulation",
+  "provider_execution": false,
+  "purpose": "Exercise the comparison contract and portfolio decision process without authenticated provider execution.",
+  "workload": {
+    "id": "english-coach-real-task",
+    "repository": "leandroclf/professional-english-coach",
+    "pinned_sha": "2883d73b173b8fadefe38f8a3479409a9649d228",
+    "delivered_sha": "717a1f5377b1741242133f9e93f6e7e313d4f01c"
+  },
+  "assumptions": [
+    "Each simulated condition is assumed to produce the already verified accepted implementation.",
+    "Provider-specific token, cost and elapsed-time values are unknown and must remain null.",
+    "No superiority claim may be derived when deterministic acceptance outcomes tie."
+  ],
+  "conditions": [
+    {
+      "id": "single-openai",
+      "verified_pass": true,
+      "acceptance_coverage": 1,
+      "regression_count": 0,
+      "review_findings": null,
+      "repair_cycles": null,
+      "elapsed_seconds": null,
+      "tokens": null,
+      "cost_usd": null
+    },
+    {
+      "id": "single-claude",
+      "verified_pass": true,
+      "acceptance_coverage": 1,
+      "regression_count": 0,
+      "review_findings": null,
+      "repair_cycles": null,
+      "elapsed_seconds": null,
+      "tokens": null,
+      "cost_usd": null
+    },
+    {
+      "id": "team",
+      "verified_pass": true,
+      "acceptance_coverage": 1,
+      "regression_count": 0,
+      "review_findings": null,
+      "repair_cycles": null,
+      "elapsed_seconds": null,
+      "tokens": null,
+      "cost_usd": null
+    }
+  ],
+  "conclusion": {
+    "structural": "The benchmark/reporting contract can represent all three conditions without adding a model router or gateway.",
+    "performance": "undetermined",
+    "decision": "Keep the fixed isolated four-stage team architecture as the canonical runtime because the simulation reveals no evidence that additional routing complexity is needed."
+  }
+}

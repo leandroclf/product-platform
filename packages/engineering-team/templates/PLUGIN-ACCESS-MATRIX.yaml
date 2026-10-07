@@ -1,0 +1,24 @@
+schema_version: 1.0.0
+connections:
+  - id: github
+    purpose: repository discovery and engineering workflow
+    scope: approved-repositories
+    default_permissions:
+      read: true
+      write: false
+    elevated_write:
+      allowed: task-scoped
+      approval_required: true
+    environments:
+      production_write: false
+    approval:
+      required_for:
+        - merge
+        - protected-branch-mutation
+        - release
+        - deployment
+        - repository-settings
+        - permission-change
+    untrusted_content:
+      issues_and_pr_text_are_data: true
+    denial_behavior: blocked

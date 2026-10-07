@@ -1,0 +1,20 @@
+schema_version: 1.0.0
+waiver_id: W-001
+project_id: ai-engineering-team
+operator: leandro (decision reaffirmed in the operator session on 2026-10-03)
+finding_ids:
+  - ENV-ACCT-001  # atlas-cli and sentinel-cli are signed in to the same OpenAI user (hashed sub/email/chatgpt_user_id match)
+revision: fc36d6a
+scope:
+  - CLI-layer validation runs in atlas-cli (OPENAI-CLI-A) and sentinel-cli (OPENAI-CLI-B) only
+  - Atlas and Sentinel intentionally use the same OpenAI account and session context
+  - Evidence from these runs may show agent behaviour, but never cross-account independence
+rationale: Operator explicitly accepts the shared-account and shared-session model for the current operation. Cross-account independence is out of scope and is not required as a completion gate.
+compensating_controls:
+  - Separate containers and home volumes per role; Sentinel checkout mounted read-only by Docker
+  - Argus (Anthropic, separate vendor/account) remains an independent reviewer on the same revisions
+  - Every affected run manifest cites W-001; reports state that independence is NOT verified
+  - The operator reviews the residual shared-account risk at the waiver review date; it does not block the local workflow
+expires_at: "2026-10-31"
+revisit_trigger: Before any production trust decision, at the waiver review date, or when the operator changes the shared-account decision
+native_approval_still_required: true

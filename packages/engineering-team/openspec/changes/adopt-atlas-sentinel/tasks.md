@@ -1,0 +1,40 @@
+# Tasks
+
+## AS0 Architecture
+- [x] Define Atlas and Sentinel responsibilities.
+- [x] Define shared GitHub/OpenSpec/evidence substrate.
+- [x] Define independence and no-self-approval rule.
+- [x] Define future native multi-Dot compatibility.
+
+## AS1 Governance
+- [x] Add authority matrix.
+- [x] Add disagreement/waiver protocol.
+- [x] Add independent-review gate policy.
+- [x] Add asymmetric permissions.
+
+## AS2 Contracts
+- [x] Add Atlas -> Sentinel review request.
+- [x] Add Sentinel review result.
+- [x] Add risk-acceptance waiver.
+- [x] Add dual-Dot registry.
+
+## AS3 Bootstrap
+- [x] Add Atlas bootstrap.
+- [x] Add Sentinel bootstrap.
+- [x] Add primary-account runbook.
+- [x] Add secondary-account runbook.
+
+## AS4 Validation
+- [x] Add dual-Dot structural checks.
+- [x] Add behavioral scenarios.
+- [ ] Instantiate Atlas in the primary account.
+- [x] Keep Atlas and Sentinel on the operator's configured OpenAI account under W-001; cross-account identity is intentionally out of scope.
+- [ ] Execute live review scenarios with the shared-account model. PARTIAL 2026-10-01: Sentinel CLI layer (OPENAI-CLI-B) AS02/AS04/AS05/AS06 3/3 and AS08/AS09/AS10 PASS (`validation/SENTINEL-CLI-REPORT.md`); AS01/AS03 PASS 3/3 with real Atlas CLI (`validation/FINAL-REPORT.md`); AS07 and live Dots pending.
+- [ ] Confirm real permissions and native approvals for the configured account contexts.
+- [ ] Produce final dual-Dot validation report.
+
+## Completion
+Static implementation can be COMPLETE after CI. Operational status remains PARTIALLY_VALIDATED until AS4 live items have observable evidence.
+
+## Execution environment binding
+See `docs/EXECUTION-ENVIRONMENTS.md`. Atlas instantiation is **OPENAI-DOT-A + HUMAN**; Sentinel instantiation is **OPENAI-DOT-B + HUMAN**; AS01-AS10 are **CROSS-ENV** using both live accounts and the configured OpenAI/Codex CLI where repository execution is needed. **CHAT-GITHUB** owns immutable handoff artifacts, repository inspection and evidence compilation.
