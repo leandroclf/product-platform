@@ -40,7 +40,7 @@ Use stable task/idempotency identifiers for external mutations. Retry only retry
 ## Concurrency
 Parallel mutation requires non-overlapping scope or explicit reconciliation. Use logical leases for material changes and rebase/revalidate after another task changes the base.
 
-## Portfolio capability gate\nFor new-product or cross-cutting work, resolve requested capabilities against the canonical ai-kit capability registry before PLAN. Prefer REUSE, then EXTEND the canonical owner, and CREATE only when no compatible capability exists. Never copy reusable implementation between product repositories. See docs/CAPABILITY-RESOLUTION-GATE.md.\n\n## Engineering rules
+## Portfolio capability gate\nFor new-product or cross-cutting work, resolve requested capabilities against the canonical product-platform-kit capability registry before PLAN. Prefer REUSE, then EXTEND the canonical owner, and CREATE only when no compatible capability exists. Never copy reusable implementation between product repositories. See docs/CAPABILITY-RESOLUTION-GATE.md.\n\n## Engineering rules
 - Prefer the smallest correct change and preserve architecture unless justified.
 - Do not invent APIs, commands, test results, approvals or repository facts.
 - Do not hide failing/skipped checks.
