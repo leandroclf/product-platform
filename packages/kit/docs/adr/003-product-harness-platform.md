@@ -2,9 +2,9 @@
 
 ## Decision
 
-Reusable product infrastructure is owned by a single repository named `product-harness`.
+Reusable product infrastructure is owned by a single repository named `product-platform-harness`.
 
-ai-kit remains the shared contract/policy/skill kernel. Product repositories own domain logic only.
+product-platform-kit remains the shared contract/policy/skill kernel. Product repositories own domain logic only.
 
 ## Logical modules
 
@@ -18,9 +18,9 @@ Logical modules do not imply independent services. The default physical topology
 
 ## Dependency direction
 
-product -> product-harness -> ai-kit contracts
+product -> product-platform-harness -> product-platform-kit contracts
 
-ai-kit must not depend on product-harness. product-harness must not depend on any product.
+product-platform-kit must not depend on product-platform-harness. product-platform-harness must not depend on any product.
 
 ## Data
 
@@ -32,7 +32,7 @@ PostgreSQL transactional outbox/inbox is the default. Kafka/SQS/RabbitMQ are not
 
 ## Extraction
 
-vehicle-tracking is the reference implementation source. Generic code moves to product-harness only after product-specific assumptions are removed and tests cover the generic behavior. The product then consumes an immutable Harness release before its local copy is deleted.
+vehicle-tracking is the reference implementation source. Generic code moves to product-platform-harness only after product-specific assumptions are removed and tests cover the generic behavior. The product then consumes an immutable Harness release before its local copy is deleted.
 
 ## Deployment
 
