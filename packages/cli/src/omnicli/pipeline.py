@@ -19,6 +19,7 @@ from omnicli.models import (
     StageStatus,
     TerminationReason,
 )
+from omnicli.portfolio import PortfolioContext
 from omnicli.prompts import build_stage_prompt
 from omnicli.quality import QualityReport, assess_document
 from omnicli.workspace import Workspace
@@ -56,11 +57,13 @@ class PipelineRunner:
         adapters: Mapping[str, ProviderAdapter],
         logger: LogFn | None = None,
         codebase_context: CodebaseContext | None = None,
+        portfolio_context: PortfolioContext | None = None,
     ) -> None:
         self.config = config
         self.adapters = adapters
         self.log = logger or (lambda _message: None)
         self.codebase_context = codebase_context
+        self.portfolio_context = portfolio_context
 
     def _adapter(self, provider: str) -> ProviderAdapter:
         try:
@@ -84,10 +87,11 @@ class PipelineRunner:
         prompt = build_stage_prompt(
             stage, idea, previous_output, loop, total_loops,
             self.codebase_context.prompt_text() if self.codebase_context else None,
+            self.portfolio_context.prompt_text() if self.portfolio_context else None,
         )
         prompt_path = workspace.write_text(
             f"{loop:02d}-{stage_index + 1:02d}-{stage.name}.prompt.md",
-            prompt if self.config.pipeline.retain_prompt_content else "[prompt content disabled by configuration]\n",
+            prompt if self.config.pipeline.retain_prompt_content else "[prompt content disabled by configuration]\\n",
         )
         result = StageResult(
             stage=stage.name,
@@ -122,7 +126,7 @@ class PipelineRunner:
                 output = response.stdout.strip()
                 if not output:
                     raise ProviderError(f"{stage.provider} retornou uma saída vazia")
-                output_path = workspace.write_text(f"{loop:02d}-{stage_index + 1:02d}-{stage.name}.md", output + "\n")
+                output_path = workspace.write_text(f"{loop:02d}-{stage_index + 1:02d}-{stage.name}.md", output + "\\n")
                 result.status = StageStatus.COMPLETED
                 result.finished_at = datetime.now(timezone.utc)
                 result.exit_code = response.exit_code
@@ -185,7 +189,7 @@ class PipelineRunner:
         if not content.strip():
             raise PipelineError("O pipeline terminou sem produzir uma proposta")
         final_path = output or Path(manifest.output_target or self.config.pipeline.output)
-        Workspace.write_atomic(final_path, content.rstrip() + "\n")
+        Workspace.write_atomic(final_path, content.rstrip() + "\\n")
         manifest.final_output = str(final_path)
         manifest.quality_score = report.score
         manifest.quality_warnings = list(report.warnings)
@@ -309,7 +313,7 @@ class PipelineRunner:
         normalized_idea = idea.strip()
         input_sha256 = hashlib.sha256(normalized_idea.encode("utf-8")).hexdigest()
         input_path = (
-            workspace.write_text("input.md", normalized_idea + "\n")
+            workspace.write_text("input.md", normalized_idea + "\\n")
             if self.config.pipeline.input_retention.value == "local"
             else None
         )
@@ -318,6 +322,8 @@ class PipelineRunner:
             input_file=str(input_path.relative_to(workspace.path)) if input_path else None,
             input_sha256=input_sha256,
             context_fingerprint=self.codebase_context.fingerprint if self.codebase_context else None,
+            portfolio_fingerprint=self.portfolio_context.fingerprint if self.portfolio_context else None,
+            portfolio_source=self.portfolio_context.source if self.portfolio_context else None,
             context_source_kind=self.codebase_context.source_kind if self.codebase_context else None,
             context_commit=self.codebase_context.commit if self.codebase_context else None,
             context_dirty=self.codebase_context.dirty if self.codebase_context else None,
