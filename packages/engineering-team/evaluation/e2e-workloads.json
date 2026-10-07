@@ -1,0 +1,92 @@
+{
+  "contract_version": "1.0.0",
+  "status": "candidate-workloads",
+  "workloads": [
+    {
+      "id": "english-coach-real-task",
+      "class": "brownfield",
+      "repository": "leandroclf/professional-english-coach",
+      "pinned_sha": "2883d73b173b8fadefe38f8a3479409a9649d228",
+      "task_source": "openspec/changes/expand-family-learning-platform/tasks.md",
+      "acceptance_criteria": [
+        "Import accepts a valid exported learner-data payload and restores supported current data.",
+        "Malformed or unsupported input is rejected without overwriting existing learner data.",
+        "Conflict handling is explicit and deterministic; existing data is not silently destroyed.",
+        "Tests cover successful restore, invalid input, and at least one conflict case.",
+        "`npm run check` passes on the delivered SHA.",
+        "No accounts, cloud sync, hosted provider dependency, or unrelated roadmap feature is introduced."
+      ],
+      "verifier": {
+        "command": "npm run check"
+      },
+      "conditions": [
+        "single-openai",
+        "single-claude",
+        "team"
+      ],
+      "required_metrics": [
+        "verified_pass",
+        "acceptance_coverage",
+        "regression_count",
+        "review_findings",
+        "repair_cycles",
+        "elapsed_seconds"
+      ],
+      "task": "Implement validated import and conflict-safe restore for the existing local learner export format. Keep the change local-first; do not add accounts, cloud sync, provider services, or unrelated family-profile features."
+    },
+    {
+      "id": "bussola-real-task",
+      "class": "backend-api",
+      "repository": "leandroclf/bussola-financeira",
+      "pinned_sha": "PIN_BEFORE_RUN",
+      "task_source": "real-maintenance-task",
+      "acceptance_criteria": [
+        "Task-specific criteria must be frozen before any condition runs.",
+        "Repository deterministic checks pass on delivered SHA."
+      ],
+      "verifier": {
+        "command": "pytest"
+      },
+      "conditions": [
+        "single-openai",
+        "single-claude",
+        "team"
+      ],
+      "required_metrics": [
+        "verified_pass",
+        "acceptance_coverage",
+        "regression_count",
+        "review_findings",
+        "repair_cycles",
+        "elapsed_seconds"
+      ]
+    },
+    {
+      "id": "fivem-real-task",
+      "class": "security",
+      "repository": "leandroclf/fivem-server-monitor-pro",
+      "pinned_sha": "PIN_BEFORE_RUN",
+      "task_source": "real-maintenance-task",
+      "acceptance_criteria": [
+        "Task-specific criteria must be frozen before any condition runs.",
+        "Repository deterministic checks pass on delivered SHA."
+      ],
+      "verifier": {
+        "command": "npm run verify"
+      },
+      "conditions": [
+        "single-openai",
+        "single-claude",
+        "team"
+      ],
+      "required_metrics": [
+        "verified_pass",
+        "acceptance_coverage",
+        "regression_count",
+        "review_findings",
+        "repair_cycles",
+        "elapsed_seconds"
+      ]
+    }
+  ]
+}

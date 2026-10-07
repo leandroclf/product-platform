@@ -1,0 +1,50 @@
+# Validation Strategy
+The repository combines declarative governance with executable local coordination. Validate both document contracts and runtime behavior at their actual boundary.
+
+`python scripts/validate.py` checks mandatory artifacts, Skill frontmatter, core AGENTS contract markers, the provider-execution fixtures, and that every `validation/runs/*/manifest.yaml` carries exactly one allowed status (PASS, FAIL, BLOCKED or INCONCLUSIVE).
+
+`python scripts/validate_hardening.py` checks the hardening contracts: required policy tokens, YAML validity of the task envelope, lease, evidence record, policy manifest and project registry, required envelope and lease fields, native-safeguard precedence in the policy manifest, and the H01-H10 scenario list.
+
+GitHub Actions runs both validators on pushes and pull requests (`.github/workflows/validate.yml`, Python 3.12 with dependencies from `requirements-validation.txt`).
+
+## What structural validation proves
+Artifacts exist, parse and satisfy the checked constraints. It does not prove agent behavior, live Dot behavior, native approvals or independence between accounts. A green CI run must never be reported as behavioral validation.
+
+## Behavioral validation
+Scenario-level validation is defined in `tests/scenarios.md` and the scenario files under `validation/`. Runs execute through the provider CLIs with `scripts/provider_run.py` in disposable clones, normally inside the per-account containers described in `runbooks/CONTAINER-RUNTIMES.md`. Evidence is preserved under `validation/runs/<run-id>/`. `scripts/pr_chain.sh` exercises the Atlas -> Sentinel -> Argus chain over GitHub pull requests and CI. Results are summarized in `validation/FINAL-REPORT.md` and the per-agent reports.
+
+Behavioral benchmarking requires a live provider runtime and is reported separately from static validation; it must never be marked passing without execution evidence.
+
+## Executable operation contracts
+
+`python scripts/validate_native_operations.py` validates five JSON schemas and concrete examples. `python -m unittest discover -s tests/unit -v` exercises authorization/evidence/preflight failure boundaries. `python docs/anexos/build/verificar_docs.py` checks the consolidated documentation links and identifiers. Dependencies are pinned in `requirements-validation.txt`; CI installs this file and runs these checks in addition to the original validators.
+
+Unit tests validate repository functions with controlled executors. The separate CI runtime-smoke job builds the pinned CLIs, probes version/help without login, installs the real local command and executes the Docker isolation canary. Live adapter enforcement, native approvals and Dot behavior still require runtime evidence. See `DOT-NATIVE-OPERATION-GATES.md`.
+
+## Harness failure and transport gates
+
+`python -m unittest discover -s tests -p 'test_*.py' -v` tests launch failures, timeout, setup/check failures, background exits, bounded CI and exact-head review results. CI runs these tests and `bash -n scripts/pr_chain.sh`.
+
+`provider_run.py --timeout-seconds` defaults to 1800 per setup/provider/check command. Missing executable is BLOCKED (exit 127); provider timeout is INCONCLUSIVE (124); ordinary failures and failed required checks are FAIL. Successful execution stays INCONCLUSIVE pending evaluator review. The harness exits nonzero for unsuccessful provider/check execution and never launches a provider after failed setup.
+
+`pr_chain.sh` bounds CI polling with `CI_TIMEOUT_SECONDS` (default 600), requires successful CI and awaits each reviewer PID. `review_status.py` verifies the declared result SHA against manifest, expected head and successful exact-head check. The current chain requires JSON; the historical audit mode accepts one plain or fenced YAML result. Missing/malformed/stale evidence is error, not success. The strict gate validates the declared reviewer role and blocking finding fields, but cannot authenticate the account or establish that the review is correct. Earlier runs need the qualification in `validation/PROJECT-EVOLUTION-REVIEW.md`.
+
+CI failure/timeout after opening a PR can leave a draft PR for inspection and manual cleanup. A CLI timeout alone does not prove that a remote task was cancelled.
+
+## Provider guidance integration
+
+See `PROVIDER-GUIDANCE-REVIEW.md` and `openspec/changes/align-provider-official-guidance/`. New PR-chain reviewers receive `--structured-review` and must return `review.json`; historical YAML is supported only outside the strict chain. A JSON schema is not proof of correct review or account identity. Required quality/security gates and HIGH/CRITICAL findings are checked in addition to transport evidence.
+
+Run preflights with `python scripts/preflight.py --provider codex` and `--provider claude`. These do not run a model or install/update CLIs. Capability detection does not establish protocol compatibility; run the controlled chain before promotion.
+
+## Local bootstrap and documentation
+
+`python scripts/validate_documentation.py` checks local Markdown link targets and fences across README, AGENTS, docs, runbooks, templates and OpenSpec. Dated validation evidence is preserved separately; consolidated document anchors/identifiers are checked by `verificar_docs.py`. The link checker does not fetch external URLs or prove command semantics.
+
+`python scripts/validate_skill_evaluations.py` checks the benchmark matrix, metric units and internal task suites. It validates evaluation metadata only; it does not execute a provider or establish model performance. See [benchmarks de skills](SKILL-BENCHMARKS.md) and the [OpenSpec de avaliação](../openspec/changes/skill-evaluation-framework/tasks.md).
+
+`python -m unittest discover -s tests/unit -v` includes bootstrap collision, broken symlink, failed build, read-only preflight, reinstallation and missing-venv diagnostics, plus local state/isolation/review/delivery failure contracts. `bash -n scripts/install-local.sh bin/ai-team` checks syntax; `bash scripts/install-local.sh --help` and `python scripts/local_team.py --help` inspect actual command interfaces.
+
+On a Linux host with Docker, `bash scripts/install-local.sh --check` verifies prerequisites without installation. CI runs this before the real install. `.venv/bin/python scripts/local_isolation_smoke.py` then runs an offline container canary asserting non-root execution, absence of account/API/socket access, blocked external network and unchanged source. Do not substitute mocked unit results for this Docker canary.
+
+LIVE acceptance remains open: the configured authenticated account contexts, a small target task, failure/timeout/stop/revoke/recovery behavior and exact-head GitHub CI on the operator's Linux host. Atlas and Sentinel intentionally share the same OpenAI account and session context under W-001; this is an accepted limitation, not an account-independence gate. See [local tasks](../openspec/changes/local-linux-workflow/tasks.md). No test in this repository establishes per-tool native enforcement or autonomous production readiness.

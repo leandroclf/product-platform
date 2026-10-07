@@ -1,0 +1,8 @@
+registry_fingerprint: "<sha256 from OmniCLI run>"
+product: "<product repository>"
+capabilities:
+  - name: payments
+    decision: REUSE
+    owner: product-harness
+    version: "<immutable release>"
+    reason: "Existing canonical commerce capability"
