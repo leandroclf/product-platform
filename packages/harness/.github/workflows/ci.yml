@@ -11,3 +11,14 @@ jobs:
         with: { node-version: 20 }
       - run: npm install
       - run: npm run validate
+      - name: Build immutable package artifact
+        run: |
+          npm pack
+          sha256sum *.tgz > SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-platform-harness-${{ github.sha }}
+          path: |
+            *.tgz
+            SHA256SUMS
+          retention-days: 30
