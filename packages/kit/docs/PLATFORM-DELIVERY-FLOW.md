@@ -4,7 +4,7 @@ Contrato operacional para que um repositório alvo seja implementado conforme as
 
 ## Papéis (um dono por capacidade)
 
-| Repositório | Papel na esteira | Dono de |
+| Pacote (em `packages/`, repositório `product-platform`) | Papel na esteira | Dono de |
 | --- | --- | --- |
 | `product-platform-cli` | Transforma o pedido inicial em proposta revisável e handoff | `proposal_generation` |
 | `product-platform-kit` | Define regras, contratos, registry, políticas e skills | contratos compartilhados, gates, conformance |
@@ -12,7 +12,7 @@ Contrato operacional para que um repositório alvo seja implementado conforme as
 | `product-platform-engineering-team` (`ai-team`) | Executa plan → implement → validate → review no alvo | `engineering_orchestration` |
 | Repositório alvo (produto) | Lógica de domínio, pontos de emissão, sinks e adapters próprios | domínio do produto |
 
-Dependências permitidas (`contracts/repository-boundaries.yaml`): produto → kit e harness; cli, engineering-team e harness → kit; kit → ninguém; produto → produto é proibido.
+Dependências permitidas (`contracts/repository-boundaries.yaml`; dentro da plataforma, `platform-packages.json` verificado por `scripts/check-package-boundaries.py`): produto → kit e harness; cli, engineering-team e harness → kit; kit → ninguém; produto → produto é proibido. Os quatro pacotes da plataforma vivem em um só repositório (`leandroclf/product-platform`); os produtos continuam em repositórios próprios e consomem o harness por artefato de release.
 
 ## Fluxo
 
@@ -69,6 +69,10 @@ python3 scripts/validate-platform-handoff.py --fingerprint      # sha256 do regi
 ```
 
 O validador reporta as condições de parada do G1: registry defasado, CREATE que duplica capacidade registrada, CREATE sem dono do portfólio, REUSE/EXTEND de capacidade inexistente ou que não mira o dono canônico, e dependência produto→produto.
+
+## Mudanças que cruzam pacotes da plataforma
+
+Contrato, harness, cli e engineering-team são pacotes de um mesmo repositório. Uma mudança que toque mais de um (por exemplo contrato no kit e implementação no harness) é uma única tarefa do `ai-team`, uma branch e um PR no repositório da plataforma. O gate G1 continua valendo para o produto alvo; dentro da plataforma, a ordem kit → harness → consumidores é garantida pelo grafo de pacotes e pelo CI por caminho.
 
 ## Aplicação interina (até existir automação)
 

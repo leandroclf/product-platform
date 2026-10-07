@@ -23,3 +23,4 @@ notes:
   - Runtime integrations require a domain reason and explicit contract; repository separation alone is not a reason.
   - Allowed dependency is permission to compose, not a mandatory runtime dependency.
   - Browser and FXServer consumers adopt only compatible capabilities; telemetry is off by default.
+  - The four platform entries are packages of the single platform repository (platform_monorepo in portfolio-products.json). The graph is enforced there by platform-packages.json and scripts/check-package-boundaries.py; products keep separate repositories and consume the harness as a released artifact.

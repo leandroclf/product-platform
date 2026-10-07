@@ -1,6 +1,6 @@
 # ADR 004: Plataforma em um repositório, produtos separados, harness como artefato
 
-Status: aceita (estratégia). Nome do repositório, layout final e calendário: a confirmar (ver `docs/PLATFORM-MONOREPO-MIGRATION.md`).
+Status: aceita e implementada em `leandroclf/product-platform` (privado). Pacotes: `kit`, `harness`, `cli`, `engineering-team` em `packages/`. Decisões padrão tomadas na execução: o pacote de contratos mantém o nome `kit`; o harness é consumido por artefato de release; o histórico foi preservado, excluindo apenas os `events.jsonl` brutos de `validation/runs` do engineering-team. Ver `docs/PLATFORM-MONOREPO-MIGRATION.md`.
 
 ## Contexto
 

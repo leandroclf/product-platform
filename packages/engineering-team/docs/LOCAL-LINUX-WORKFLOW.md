@@ -76,14 +76,18 @@ ai-team init --test-image meu-site-tests:local \
 
 Esse exemplo requer que os scripts existam no package.json. O build da imagem obtém dependências com rede antes da tarefa; a execução dos checks fica offline. Se Argus alterar o lockfile, reconstrua a imagem e configure uma nova tarefa: a imagem de uma tarefa iniciada é imutável. Não reutilize dependências antigas como evidência para um novo lockfile.
 
+## Mudanças na própria plataforma
+
+Os pacotes da plataforma (`kit`, `harness`, `cli` e este) vivem no repositório `product-platform`. Uma mudança que cruza pacotes é uma única tarefa: rode `ai-team init` e `ai-team run` na raiz desse repositório. As regras do kit e o grafo de pacotes (`platform-packages.json`) são verificados pelo CI por caminho.
+
 ## Regras da plataforma (kit e harness)
 
 Para que o produto alvo seja entregue conforme a esteira da plataforma, passe o handoff de capacidades e as regras no `run`:
 
 ```bash
 ai-team run --handoff capacidades.json \
-  --registry ~/projetos/product-platform-kit/contracts/capability-registry.yaml \
-  --rules ~/projetos/product-platform-kit/docs/PLATFORM-DELIVERY-FLOW.md \
+  --registry ~/projetos/product-platform/packages/kit/contracts/capability-registry.yaml \
+  --rules ~/projetos/product-platform/packages/kit/docs/PLATFORM-DELIVERY-FLOW.md \
   'Implemente X no produto'
 ```
 

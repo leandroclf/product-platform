@@ -50,10 +50,10 @@ Decisão: `docs/adr/004-platform-monorepo.md`. Este plano não move nada por si 
 | Decisão | Opções |
 | --- | --- |
 | Nome do repositório | **Decidido**: `leandroclf/product-platform` (criado, vazio) |
-| Pacote de contratos | manter o nome `kit` ou renomear para `contracts` |
-| Consumo do harness pelos produtos | artefato de release (recomendado) ou subdiretório Git com SHA |
-| Histórico | preservar (recomendado) ou começar limpo |
-| Calendário | antes ou depois de o `vehicle-tracking` adotar a versão 0.2.0 do harness |
+| Pacote de contratos | **Padrão adotado**: manter o nome `kit` (evita renomear registry e contratos); renomear fica como follow-up opcional |
+| Consumo do harness pelos produtos | **Padrão adotado**: artefato de release `harness-v*` com `SHA256SUMS` |
+| Histórico | **Padrão adotado**: preservado; removidos apenas os `events.jsonl` brutos de `validation/runs` (continham e-mail corporativo e caminhos locais; 105 arquivos, 13 MB) |
+| Calendário | **Padrão adotado**: migração antes; o `vehicle-tracking` não foi alterado e passa a adotar uma release `harness-v*` do repositório novo |
 
 ## Reversão
 
