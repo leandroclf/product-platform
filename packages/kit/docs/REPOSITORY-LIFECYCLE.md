@@ -2,9 +2,9 @@
 
 | Repository | State | Canonical responsibility |
 |---|---|---|
-| ai-kit | PLATFORM | shared contracts, policies, skills, SDK sources, conformance |
-| ai-engineering-team | PLATFORM | engineering orchestration and evidence |
-| OmniCLI | ACTIVE | discovery, proposal, handoff |
+| product-platform-kit | PLATFORM | shared contracts, policies, skills, SDK sources, conformance |
+| product-platform-engineering-team | PLATFORM | engineering orchestration and evidence |
+| product-platform-cli | ACTIVE | discovery, proposal, handoff |
 | vehicle-tracking | ACTIVE | vehicle tracking product and first commercial reference |
 | ai-docs | ACTIVE | document intelligence product |
 | bussola-financeira | ACTIVE | financial insight product |
