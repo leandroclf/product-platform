@@ -1,0 +1,66 @@
+from pathlib import Path
+
+import pytest
+from pydantic import ValidationError
+
+from omnicli.config import DEFAULT_CONFIG, config_fingerprint, config_snapshot, load_config, write_example_config
+from omnicli.exceptions import ConfigurationError
+from omnicli.models import OmniConfig, PipelineConfig, ProviderConfig, StageConfig
+
+
+def test_default_config_has_critical_pipeline() -> None:
+    names = [stage.name for stage in DEFAULT_CONFIG.pipeline.stages]
+    assert names == [
+        "discovery",
+        "critical-review",
+        "architecture",
+        "feasibility",
+        "master-proposal",
+    ]
+    assert DEFAULT_CONFIG.providers["codex"].args[0] == "exec"
+    assert DEFAULT_CONFIG.providers["codex"].max_stderr_chars == 100_000
+    assert DEFAULT_CONFIG.providers["claude"].args[-2:] == ["--output-format", "text"]
+    assert set(DEFAULT_CONFIG.providers) == {"claude", "codex"}
+
+
+def test_config_round_trip(tmp_path: Path) -> None:
+    config_path = tmp_path / "omnicli.yaml"
+    write_example_config(config_path)
+    loaded = load_config(config_path)
+    assert loaded.pipeline.stages[-1].name == "master-proposal"
+    assert loaded.providers["claude"].command == "claude"
+
+
+def test_default_provider_sources_are_registered() -> None:
+    sources = (Path(__file__).parents[1] / "docs" / "provider-sources.txt").read_text(encoding="utf-8")
+    for provider in DEFAULT_CONFIG.providers.values():
+        assert provider.documentation_url
+        assert provider.installation_url
+        assert provider.documentation_url in sources
+        assert provider.installation_url in sources
+
+
+def test_missing_config_is_reported(tmp_path: Path) -> None:
+    with pytest.raises(ConfigurationError):
+        load_config(tmp_path / "missing.yaml")
+
+
+def test_unknown_stage_provider_is_rejected() -> None:
+    with pytest.raises(ValidationError, match="unknown providers"):
+        OmniConfig(
+            pipeline=PipelineConfig(
+                stages=[StageConfig(name="review", provider="missing", role="Reviewer", instruction="Review")]
+            ),
+        providers={"known": ProviderConfig(command="known")},
+        )
+
+
+def test_config_snapshot_redacts_provider_environment() -> None:
+    config = DEFAULT_CONFIG.model_copy(deep=True)
+    config.providers["claude"].environment = {"API_TOKEN": "secret-value"}
+
+    snapshot = config_snapshot(config)
+
+    assert snapshot["providers"]["claude"]["environment"] == {"API_TOKEN": "[REDACTED]"}
+    assert "secret-value" not in str(snapshot)
+    assert len(config_fingerprint(config)) == 64

@@ -1,0 +1,14 @@
+{
+ "$schema":"https://json-schema.org/draft/2020-12/schema",
+ "title":"EngineeringProposalHandoff","type":"object","additionalProperties":false,
+ "required":["schema_version","proposal_id","repository","objective","scope","acceptance","risk","evidence"],
+ "properties":{
+  "schema_version":{"const":"1.0"},"proposal_id":{"type":"string","minLength":1},
+  "repository":{"type":"object","additionalProperties":false,"required":["url","base_ref"],"properties":{"url":{"type":"string"},"base_ref":{"type":"string"},"base_sha":{"type":"string"}}},
+  "objective":{"type":"string","minLength":1},
+  "scope":{"type":"object","required":["allowed_paths"],"properties":{"allowed_paths":{"type":"array","items":{"type":"string"}}}},
+  "acceptance":{"type":"object","required":["criteria"],"properties":{"criteria":{"type":"array","minItems":1,"items":{"type":"string"}}}},
+  "risk":{"type":"object","required":["level"],"properties":{"level":{"enum":["low","medium","high","critical"]}}},
+  "evidence":{"type":"object","required":["required"],"properties":{"required":{"type":"array","items":{"enum":["tests","build","ci","security","benchmark"]}}}}
+ }
+}

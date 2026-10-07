@@ -1,0 +1,92 @@
+pipeline:
+  name: conception
+  max_loops: 3
+  workspace: .omnicli_workspace
+  output: proposta.md
+  retain_prompt_content: false
+  input_retention: hash-only
+  graph_version: conception-v1
+  quality_loop:
+    enabled: false
+    min_score: 80
+    min_improvement: 3
+    stable_passes: 1
+    max_steps: 30
+    max_calls: 50
+    stop_on_quality: true
+  stages:
+    - name: discovery
+      provider: claude
+      role: Explorador de produto
+      instruction: >-
+        Expanda a ideia inicial. Identifique problema, público-alvo, objetivos,
+        funcionalidades e perguntas ainda não respondidas.
+      timeout_seconds: 300
+      max_retries: 1
+    - name: critical-review
+      provider: codex
+      role: Revisor crítico
+      instruction: >-
+        Questione premissas, contradições, riscos, dependências e excesso de escopo.
+        Sugira correções objetivas.
+      timeout_seconds: 300
+      max_retries: 1
+    - name: architecture
+      provider: codex
+      role: Arquiteto de soluções
+      instruction: >-
+        Estruture componentes, fluxos, dados, integrações, segurança,
+        observabilidade e plano de implementação.
+      timeout_seconds: 300
+      max_retries: 1
+    - name: feasibility
+      provider: claude
+      role: Revisor de viabilidade
+      instruction: >-
+        Avalie custos, complexidade, riscos operacionais e alternativas mais simples.
+      timeout_seconds: 300
+      max_retries: 1
+    - name: master-proposal
+      provider: claude
+      role: Editor técnico
+      instruction: >-
+        Consolide a Proposta Mestra com escopo, premissas, requisitos,
+        arquitetura, riscos, critérios de aceite e decisões pendentes.
+      timeout_seconds: 300
+      max_retries: 1
+
+providers:
+  claude:
+    command: claude
+    args: [-p, "{prompt}", --output-format, text]
+    enabled: true
+    version_args: [--version]
+    capability_args: [--help]
+    required_capabilities: ["-p"]
+    documentation_url: https://code.claude.com/docs/en/cli-reference
+    installation_url: https://code.claude.com/docs/en/setup
+    latest_version_url: https://registry.npmjs.org/@anthropic-ai%2Fclaude-code/latest
+    release_notes_url: https://github.com/anthropics/claude-code/releases
+    update_command_hint: "Siga o método de instalação; npm: npm install -g @anthropic-ai/claude-code@latest"
+    max_prompt_chars: 200000
+    max_output_chars: 500000
+    max_stderr_chars: 20000
+    inherit_environment: false
+    environment_allowlist: [PATH, HOME, USER, TMPDIR, LANG, LC_ALL]
+  codex:
+    command: codex
+    args: [exec, "{prompt}"]
+    enabled: true
+    version_args: [--version]
+    capability_args: [--help]
+    required_capabilities: ["exec"]
+    documentation_url: https://developers.openai.com/codex/cli
+    installation_url: https://developers.openai.com/codex/cli
+    latest_version_url: https://api.github.com/repos/openai/codex/releases/latest
+    release_notes_url: https://github.com/openai/codex/releases
+    update_command_hint: "Siga o método oficial de instalação documentado para esta instalação do Codex"
+    max_prompt_chars: 200000
+    max_output_chars: 500000
+    max_stderr_chars: 100000
+    inherit_environment: false
+    environment_allowlist: [PATH, HOME, USER, TMPDIR, LANG, LC_ALL]
