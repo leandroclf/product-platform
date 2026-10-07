@@ -55,5 +55,50 @@ class PlatformRulesTest(unittest.TestCase):
             self.assertEqual(lt.with_platform(out, state), out)
 
 
+ENVELOPE = json.loads((Path(__file__).resolve().parents[3] / 'kit/contracts/platform-handoff/fixtures/valid.json').read_text())
+PROPOSAL_BASE = ENVELOPE['proposal']['repository']['base_sha']
+
+
+class EnvelopeHandoffTest(unittest.TestCase):
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp())
+        self.run_dir = self.tmp / 'run'; self.run_dir.mkdir()
+
+    def write(self, value):
+        path = self.tmp / 'envelope.json'; path.write_text(json.dumps(value)); return str(path)
+
+    def test_envelope_is_split_into_the_files_the_stages_read(self):
+        inputs = lt.platform_inputs(self.write(ENVELOPE), [], None, PROPOSAL_BASE)
+        self.assertEqual(sorted(inputs), ['capabilities.json', 'proposal.json', 'rules.json'])
+        self.assertEqual(json.loads(inputs['capabilities.json']), ENVELOPE['portfolio'])  # formato que o gate do plano usa
+        self.assertEqual(json.loads(inputs['proposal.json'])['objective'], ENVELOPE['proposal']['objective'])
+        self.assertEqual(json.loads(inputs['rules.json'])['profile'], 'backend')
+        state = {'platform': lt.freeze_platform(self.run_dir, inputs)}
+        self.assertEqual(sorted(n for n, _ in lt.platform_artifacts(self.run_dir, state)), sorted(inputs))
+        self.assertIn('/handoff/proposal.json', lt.with_platform('Request: x', state))
+
+    def test_floating_refs_and_unknown_fields_are_rejected_by_the_kit_schema(self):
+        floating = json.loads(json.dumps(ENVELOPE)); floating['rules_refs']['kit']['ref'] = 'main'
+        extra = dict(ENVELOPE, surprise=1)
+        for bad in (floating, extra):
+            with self.assertRaises(ValidationError):
+                lt.platform_inputs(self.write(bad), [], None, PROPOSAL_BASE)
+
+    def test_stale_proposal_is_blocked_by_base_sha_but_unknown_head_is_not_checked(self):
+        with self.assertRaises(lt.Blocked):
+            lt.platform_inputs(self.write(ENVELOPE), [], None, 'f' * 40)
+        self.assertIn('proposal.json', lt.platform_inputs(self.write(ENVELOPE), [], None, None))
+        no_base = json.loads(json.dumps(ENVELOPE)); del no_base['proposal']['repository']['base_sha']
+        self.assertIn('proposal.json', lt.platform_inputs(self.write(no_base), [], None, 'f' * 40))
+
+    def test_registry_check_uses_the_envelope_portfolio_fingerprint(self):
+        registry = self.tmp / 'registry.yaml'; registry.write_text('capabilities: {}')
+        with self.assertRaises(lt.Blocked):  # o fixture guarda um fingerprint de referência
+            lt.platform_inputs(self.write(ENVELOPE), [], str(registry), PROPOSAL_BASE)
+        matching = json.loads(json.dumps(ENVELOPE))
+        matching['portfolio']['registry_fingerprint'] = __import__('hashlib').sha256(registry.read_bytes()).hexdigest()
+        self.assertIn('rules.json', lt.platform_inputs(self.write(matching), [], str(registry), PROPOSAL_BASE))
+
+
 if __name__ == '__main__':
     unittest.main()

@@ -49,17 +49,34 @@ def with_efficiency(prompt):
 
 
 HANDOFF_SCHEMA = ROOT / 'contracts/portfolio-capability-handoff.schema.json'
+ENVELOPE_SCHEMA = ROOT.parent / 'kit/contracts/platform-handoff/v1.schema.json'  # contrato do kit, sem cópia
 PLATFORM_MAX_BYTES = 256 * 1024
 
 
-def platform_inputs(handoff, rules, registry=None):
-    """Validate operator-supplied platform inputs (capability handoff + kit/harness rules) into {artifact name: text}."""
+def platform_inputs(handoff, rules, registry=None, base_sha=None):
+    """Validate operator-supplied platform inputs (handoff + kit/harness rules) into {artifact name: text}.
+
+    The handoff is either the flat PortfolioCapabilityHandoff or the kit's PlatformHandoff envelope; an envelope is
+    split into capabilities.json (flat, what the plan gate uses), proposal.json and rules.json."""
     inputs = {}
     if handoff:
         text = read_bounded(Path(handoff))
-        Draft202012Validator(read(HANDOFF_SCHEMA)).validate(read_json(text))
-        inputs['capabilities.json'] = text
-        if registry and hashlib.sha256(Path(registry).read_bytes()).hexdigest() != json.loads(text)['registry_fingerprint']:
+        document = read_json(text)
+        portfolio = document
+        if isinstance(document, dict) and 'portfolio' in document:
+            if not ENVELOPE_SCHEMA.is_file():
+                raise Blocked('PlatformHandoff schema not found; run ai-team from the product-platform checkout')
+            Draft202012Validator(read(ENVELOPE_SCHEMA)).validate(document)
+            wanted = document['proposal']['repository'].get('base_sha')
+            if wanted and base_sha and wanted != base_sha:
+                raise Blocked('stale proposal: its base_sha differs from the target HEAD')
+            portfolio = document['portfolio']
+            inputs['proposal.json'] = json.dumps(document['proposal'], indent=2)
+            inputs['rules.json'] = json.dumps(document['rules_refs'], indent=2)
+        else:
+            Draft202012Validator(read(HANDOFF_SCHEMA)).validate(document)
+        inputs['capabilities.json'] = json.dumps(portfolio, indent=2)
+        if registry and hashlib.sha256(Path(registry).read_bytes()).hexdigest() != portfolio['registry_fingerprint']:
             raise Blocked('stale registry: its sha256 differs from the handoff registry_fingerprint')
     elif registry:
         raise Blocked('--registry requires --handoff')
@@ -119,7 +136,8 @@ def with_platform(prompt, state):
         return prompt
     note = ('Platform delivery rules (fingerprint ' + platform['fingerprint'][:12] + ') are mandatory and outrank the target '
             'AGENTS.md, which may only tighten them: read every file in /handoff/rules/ and, when present, '
-            '/handoff/capabilities.json (capability decisions). Obey REUSE/EXTEND/CREATE, never reimplement a capability '
+            '/handoff/capabilities.json (capability decisions), /handoff/proposal.json (objective, scope, acceptance '
+            'criteria, risk and required evidence) and /handoff/rules.json (kit and harness commits, profile). Obey REUSE/EXTEND/CREATE, never reimplement a capability '
             'owned by the platform, and use BLOCKED if the work would violate them. ')
     return prompt[:match.start()] + note + prompt[match.start():]
 
@@ -1223,7 +1241,7 @@ def main(argv=None):
         config = validate_config(read(project_path(repo) / 'config.json'))
         if config['repository'] != str(repo) or not args.request.strip() or len(args.request) > 16000:
             raise Blocked('invalid project/request')
-        inputs = platform_inputs(args.handoff, args.rules, args.registry)
+        inputs = platform_inputs(args.handoff, args.rules, args.registry, git(repo, 'rev-parse', 'HEAD'))
         # Freeze local image content before creating a task; do not update mid-run.
         config['provider_image'] = image_present(config['provider_image'])
         config['test_image'] = image_present(config['test_image'])
