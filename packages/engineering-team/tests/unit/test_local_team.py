@@ -25,7 +25,7 @@ def plan(sha='a' * 40):
     return dict(schema_version='1.0.0', base_sha=sha, status='READY', risk='R1',
                 objective='Improve file', out_of_scope=[], assumptions=[], validation=['offline checks'],
                 tasks=[dict(id='T1', description='Change file', acceptance_ids=['AC1'])],
-                acceptance_criteria=[dict(id='AC1', description='File improved')])
+                acceptance_criteria=[dict(id='AC1', description='File improved')], capability_decisions=[])
 
 
 def assessment(role, sha, planned):
@@ -169,7 +169,8 @@ class LocalTeamTests(unittest.TestCase):
         output.write_text('')
         if label.endswith('-plan'):
             sha = team.git(path / 'workspace', 'rev-parse', 'HEAD')
-            team.atomic(path / ('staging-' + label) / 'result.json', plan(sha))
+            team.atomic(path / ('staging-' + label) / 'result.json',
+                        dict(plan(sha), capability_decisions=getattr(self, 'plan_decisions', [])))
         elif label.endswith('-implement'):
             (path / 'workspace' / 'file').write_text('after ' + label)
             output.write_text(json.dumps({'structured_output': dict(plan_id=state['plan_id'], status='COMPLETE', summary='Implemented')}))
@@ -196,6 +197,51 @@ class LocalTeamTests(unittest.TestCase):
         self.assertTrue(all(x['resolved_model'] is None for x in state['stage_runs']))
         self.assertIn('after 0-implement', (path / 'handoff-0-review' / 'changes.patch').read_text())
         self.assertFalse((path / 'handoff-0-review' / 'validate.json').exists())
+
+    def test_plan_capability_decisions_must_match_the_platform_handoff(self):
+        handoff = {'registry_fingerprint': 'a' * 64, 'product': 'site',
+                   'capabilities': [{'name': 'entitlements', 'decision': 'REUSE', 'owner': 'product-platform-harness'}]}
+        ok = dict(plan(), capability_decisions=[{'name': 'entitlements', 'decision': 'REUSE', 'owner': 'product-platform-harness'}])
+        team.validate_plan(ok, 'a' * 40, handoff)
+        team.validate_plan(plan(), 'a' * 40)  # no handoff: nothing to enforce
+        for bad in ([], [{'name': 'entitlements', 'decision': 'CREATE', 'owner': 'product-platform-harness'}],
+                    ok['capability_decisions'] * 2,
+                    ok['capability_decisions'] + [{'name': 'payments', 'decision': 'CREATE', 'owner': 'site'}]):
+            with self.assertRaises(ValueError):
+                team.validate_plan(dict(plan(), capability_decisions=bad), 'a' * 40, handoff)
+
+    def test_stale_registry_blocks_run_inputs(self):
+        registry = self.root / 'registry.yaml'; registry.write_text('capabilities: []')
+        digest = __import__('hashlib').sha256(registry.read_bytes()).hexdigest()
+        h = self.root / 'handoff.json'
+        h.write_text(json.dumps({'registry_fingerprint': digest, 'product': 'site',
+            'capabilities': [{'name': 'x', 'decision': 'CREATE', 'owner': 'site'}]}))
+        self.assertIn('capabilities.json', team.platform_inputs(str(h), [], str(registry)))
+        registry.write_text('capabilities: [changed]')
+        with self.assertRaises(team.Blocked):
+            team.platform_inputs(str(h), [], str(registry))
+        with self.assertRaises(team.Blocked):
+            team.platform_inputs(None, [], str(registry))
+
+    def test_platform_rules_reach_every_stage_and_are_recorded(self):
+        task, path, target, base = self.setup_run()
+        handoff = {'registry_fingerprint': 'a' * 64, 'product': 'site',
+                   'capabilities': [{'name': 'entitlements', 'decision': 'REUSE', 'owner': 'product-platform-harness'}]}
+        rules = self.root / 'DELIVERY.md'; rules.write_text('# regras')
+        h = self.root / 'handoff.json'; h.write_text(json.dumps(handoff))
+        state = team.read(path / 'state.json')
+        self.plan_decisions = handoff['capabilities']
+        state['platform'] = team.freeze_platform(path, team.platform_inputs(str(h), [str(rules)]))
+        team.atomic(path / 'state.json', state)
+        with patch.object(team, 'image_present'), patch.object(team, 'execute', side_effect=self.controlled_executor):
+            team.worker(task)
+        state = team.read(path / 'state.json')
+        self.assertEqual(state['status'], 'REVIEWED')
+        self.assertTrue(all(x['platform'] == state['platform']['fingerprint'] for x in state['stage_runs']))
+        for label in ('0-plan', '0-implement', '0-validate', '0-review'):
+            self.assertEqual((path / ('handoff-' + label) / 'rules' / 'DELIVERY.md').read_text(), '# regras')
+            self.assertEqual(json.loads((path / ('handoff-' + label) / 'capabilities.json').read_text()), handoff)
+            self.assertIn('Platform delivery rules', (path / (label + '.prompt')).read_text())
 
     def test_failed_checks_trigger_bounded_repair_before_reviews(self):
         task, path, _, _ = self.setup_run()

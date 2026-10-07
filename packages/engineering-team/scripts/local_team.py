@@ -48,6 +48,82 @@ def with_efficiency(prompt):
     return prompt if not match or EFFICIENCY in prompt else prompt[:match.start()] + EFFICIENCY + prompt[match.start():]
 
 
+HANDOFF_SCHEMA = ROOT / 'contracts/portfolio-capability-handoff.schema.json'
+PLATFORM_MAX_BYTES = 256 * 1024
+
+
+def platform_inputs(handoff, rules, registry=None):
+    """Validate operator-supplied platform inputs (capability handoff + kit/harness rules) into {artifact name: text}."""
+    inputs = {}
+    if handoff:
+        text = read_bounded(Path(handoff))
+        Draft202012Validator(read(HANDOFF_SCHEMA)).validate(read_json(text))
+        inputs['capabilities.json'] = text
+        if registry and hashlib.sha256(Path(registry).read_bytes()).hexdigest() != json.loads(text)['registry_fingerprint']:
+            raise Blocked('stale registry: its sha256 differs from the handoff registry_fingerprint')
+    elif registry:
+        raise Blocked('--registry requires --handoff')
+    for rule in rules or ():
+        if not Path(rule).name:
+            raise Blocked('invalid rules file: ' + rule)
+        name = 'rules/' + Path(rule).name
+        if name in inputs:
+            raise Blocked('duplicate rules file name: ' + Path(rule).name)
+        inputs[name] = read_bounded(Path(rule))
+    return inputs
+
+
+def read_bounded(file):
+    if file.is_symlink() or not file.is_file() or file.stat().st_size > PLATFORM_MAX_BYTES:
+        raise Blocked(f'{file} must be a regular file up to {PLATFORM_MAX_BYTES // 1024} KB')
+    return file.read_text()
+
+
+def freeze_platform(path, inputs):
+    """Store the inputs read-only in the task dir; state keeps only names and hashes."""
+    if not inputs:
+        return None
+    files = {}
+    for name, text in inputs.items():
+        target = path / 'platform' / name
+        target.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+        target.write_text(text); target.chmod(0o400)
+        files[name] = hashlib.sha256(text.encode()).hexdigest()
+    return dict(files=files, fingerprint=hashlib.sha256(json.dumps(files, sort_keys=True).encode()).hexdigest())
+
+
+def platform_artifacts(path, state):
+    """Verified (name, text) pairs frozen at run time; any drift blocks the stage."""
+    platform = state.get('platform')
+    if not platform:
+        return []
+    out = []
+    for name, digest in platform['files'].items():
+        file = path / 'platform' / name
+        text = file.read_text() if file.is_file() and not file.is_symlink() else None
+        if text is None or hashlib.sha256(text.encode()).hexdigest() != digest:
+            raise Blocked('platform rules integrity changed: ' + name)
+        out.append((name, text))
+    return out
+
+
+def frozen_handoff(path, state):
+    return next((json.loads(text) for name, text in platform_artifacts(path, state) if name == 'capabilities.json'), None)
+
+
+def with_platform(prompt, state):
+    """Platform rules outrank the target AGENTS.md (which may only tighten them); inserted once before the request."""
+    platform = state.get('platform')
+    match = re.search(r'(?:Original request|Request): ', prompt)
+    if not platform or not match or 'Platform delivery rules' in prompt:
+        return prompt
+    note = ('Platform delivery rules (fingerprint ' + platform['fingerprint'][:12] + ') are mandatory and outrank the target '
+            'AGENTS.md, which may only tighten them: read every file in /handoff/rules/ and, when present, '
+            '/handoff/capabilities.json (capability decisions). Obey REUSE/EXTEND/CREATE, never reimplement a capability '
+            'owned by the platform, and use BLOCKED if the work would violate them. ')
+    return prompt[:match.start()] + note + prompt[match.start():]
+
+
 def rtk_binary():
     found = shutil.which('rtk')
     return Path(found).resolve() if found else None
@@ -549,7 +625,11 @@ def stage_run(path, state, kind, prompt, part=1, parts=1, notes=None):
     for name, text in (notes or {}).items():
         artifact = handoff / name
         artifact.write_text(text); artifact.chmod(0o444)
-    prompt = with_efficiency(prompt)
+    for name, text in platform_artifacts(path, state):
+        artifact = handoff / name
+        artifact.parent.mkdir(exist_ok=True, mode=0o755)
+        artifact.write_text(text); artifact.chmod(0o444)
+    prompt = with_platform(with_efficiency(prompt), state)
     prompt_file = path / f'{label}.prompt'  # evidence of exactly what the agent was asked
     prompt_file.write_text(prompt); prompt_file.chmod(0o600)
     if state.get('plan'):
@@ -571,7 +651,7 @@ def stage_run(path, state, kind, prompt, part=1, parts=1, notes=None):
     state.setdefault('stage_runs', []).append(dict(stage=kind, cycle=cycle, agent=role,
         provider=provider, requested_model=state['config']['models'][kind]['model'],
         effort=state['config']['models'][kind]['effort'], resolved_model=None,
-        head_sha=git(path / 'workspace', 'rev-parse', 'HEAD'), plan_id=state.get('plan_id'), started_at=time.time(),
+        head_sha=git(path / 'workspace', 'rev-parse', 'HEAD'), plan_id=state.get('plan_id'), platform=(state.get('platform') or {}).get('fingerprint'), started_at=time.time(),
         tools={'rtk': codex_tooling()[1]} if provider == 'codex' else {},
         max_turns=CLAUDE_MAX_TURNS if provider == 'claude' else None, label=label, part=part, parts=parts))
     atomic(path / 'state.json', state)
@@ -673,11 +753,12 @@ def worker(task_id):
                     prompt = (f'You are Atlas, planning only. Planning HEAD: {sha}. Read AGENTS.md, OpenSpec, '
                               'code and tests to understand the original objective. Do not edit or execute checkout code. '
                               'Return the supplied plan schema with tasks covering every acceptance criterion. '
+                              'Fill capability_decisions with exactly the capabilities, decisions and owners of /handoff/capabilities.json when present, else []. '
                               'Use BLOCKED for missing critical context or required approval; never authorize R3. '
                               'Original request: ' + state['request'] + '\nFeedback requiring replanning: '
                               + json.dumps(state.get('feedback', [])))
                     result = stage_run(path, state, 'plan', prompt)
-                    validate_plan(result, sha)
+                    validate_plan(result, sha, frozen_handoff(path, state))
                     clean(workspace)
                     if git(workspace, 'rev-parse', 'HEAD') != sha:
                         raise Blocked('checkout changed during planning')
@@ -838,7 +919,7 @@ def deliver(task_id, push=False, pr=False):
         if state.get('version') != 2 or plan_id(state.get('plan')) != state.get('plan_id'):
             raise Blocked('delivery requires the isolated four-stage plan')
         sha = state['head_sha']
-        validate_plan(state['plan'], state['plan']['base_sha'])
+        validate_plan(dict(state['plan'], capability_decisions=state['plan'].get('capability_decisions', [])), state['plan']['base_sha'])
         if state['plan']['status'] != 'READY' or state['plan']['risk'] == 'R3':
             raise Blocked('delivery plan is blocked')
         for kind in ('validate', 'review'):
@@ -1053,6 +1134,10 @@ def main(argv=None):
         init.add_argument('--' + kind + '-model', default=profile['model'])
         init.add_argument('--' + kind + '-effort', default=profile['effort'], choices=('low', 'medium', 'high', 'xhigh', 'max'))
     run = sub.add_parser('run'); run.add_argument('request'); run.add_argument('--background', action='store_true')
+    run.add_argument('--handoff', help='PortfolioCapabilityHandoff JSON (REUSE/EXTEND/CREATE decisions), validated and frozen with its hash')
+    run.add_argument('--registry', metavar='FILE', help='capability registry used by the proposal; its sha256 must equal the handoff registry_fingerprint')
+    run.add_argument('--rules', action='append', default=[], metavar='FILE',
+                     help='platform rules file (kit/harness), repeatable; frozen with its hash and mounted in /handoff/rules/')
     for name in ('resume', 'stop', '_worker'):
         child = sub.add_parser(name); child.add_argument('task')
     status = sub.add_parser('status'); status.add_argument('task', nargs='?')
@@ -1138,15 +1223,19 @@ def main(argv=None):
         config = validate_config(read(project_path(repo) / 'config.json'))
         if config['repository'] != str(repo) or not args.request.strip() or len(args.request) > 16000:
             raise Blocked('invalid project/request')
+        inputs = platform_inputs(args.handoff, args.rules, args.registry)
         # Freeze local image content before creating a task; do not update mid-run.
         config['provider_image'] = image_present(config['provider_image'])
         config['test_image'] = image_present(config['test_image'])
         task_id = uuid.uuid4().hex
         path = home() / 'runs' / task_id; path.mkdir(parents=True, mode=0o700)
+        platform = freeze_platform(path, inputs)
         state = dict(version=2, task=task_id, repository=str(repo), config=config, request=args.request,
             base_sha=git(repo, 'rev-parse', 'HEAD'), base_branch=git(repo, 'branch', '--show-current'),
             origin=git(repo, 'remote', 'get-url', 'origin'), created_at=time.time(), status='RUNNING',
             phase='CLONE', cycle=0, active=None)
+        if platform:
+            state['platform'] = platform
         if not state['base_branch']:
             raise Blocked('target must have a named branch')
         atomic(path / 'state.json', state); print('Task: ' + task_id, flush=True)

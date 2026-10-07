@@ -18,7 +18,7 @@ def config(repo, parts=None):
 def plan(sha):
     return dict(schema_version='1.0.0', base_sha=sha, status='READY', risk='R1', objective='Improve', out_of_scope=[], assumptions=[],
                 validation=['checks'], tasks=[dict(id=f'T{i}', description=f'Change {i}', acceptance_ids=[f'AC{i}']) for i in (1, 2, 3)],
-                acceptance_criteria=[dict(id=f'AC{i}', description=f'Done {i}') for i in (1, 2, 3)])
+                acceptance_criteria=[dict(id=f'AC{i}', description=f'Done {i}') for i in (1, 2, 3)], capability_decisions=[])
 
 
 def assessment(role, sha, planned):

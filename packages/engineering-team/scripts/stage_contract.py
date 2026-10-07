@@ -22,10 +22,16 @@ REVIEW_SCHEMA = ROOT / 'schemas/local-review.schema.json'
 IMPLEMENT_SCHEMA = ROOT / 'schemas/local-implementation.schema.json'
 
 
-def validate_plan(value, sha):
+def validate_plan(value, sha, handoff=None):
     Draft202012Validator(json.loads(PLAN_SCHEMA.read_text())).validate(value)
     if value['base_sha'] != sha:
         raise ValueError('plan does not match planning HEAD')
+    if handoff:
+        want = {c['name']: (c['decision'], c['owner']) for c in handoff['capabilities']}
+        got = {c['name']: (c['decision'], c['owner']) for c in value['capability_decisions']}
+        if len(got) != len(value['capability_decisions']) or got != want:
+            raise ValueError('plan capability_decisions differ from the platform handoff: ' + json.dumps(
+                {k: dict(handoff=want.get(k), plan=got.get(k)) for k in sorted(set(want) | set(got)) if want.get(k) != got.get(k)}))
     criteria = [x['id'] for x in value['acceptance_criteria']]
     tasks = [x['id'] for x in value['tasks']]
     referenced = {x for task in value['tasks'] for x in task['acceptance_ids']}

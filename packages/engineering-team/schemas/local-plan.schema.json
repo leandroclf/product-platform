@@ -115,6 +115,39 @@
         "minLength": 1,
         "maxLength": 4000
       }
+    },
+    "capability_decisions": {
+      "type": "array",
+      "maxItems": 40,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "decision": {
+            "type": "string",
+            "enum": [
+              "REUSE",
+              "EXTEND",
+              "CREATE"
+            ]
+          },
+          "owner": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        },
+        "required": [
+          "name",
+          "decision",
+          "owner"
+        ]
+      }
     }
   },
   "required": [
@@ -127,6 +160,7 @@
     "assumptions",
     "tasks",
     "acceptance_criteria",
-    "validation"
+    "validation",
+    "capability_decisions"
   ]
 }
