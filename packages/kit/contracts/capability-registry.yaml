@@ -7,39 +7,39 @@ policy:
     - explicit_owner_assignment
 capabilities:
   proposal_generation:
-    owner: OmniCLI
+    owner: product-platform-cli
     surface: workflow
     reuse: proposal-handoff
   engineering_delivery:
-    owner: ai-engineering-team
+    owner: product-platform-engineering-team
     surface: workflow
     lifecycle: [plan, implement, validate, review]
   shared_engineering_contracts:
-    owner: ai-kit
+    owner: product-platform-kit
     surface: package
   product_platform:
-    owner: product-harness
+    owner: product-platform-harness
     surface: packages
     modules: [core, growth, commerce, economics, observability]
     status: bootstrap
   product_events:
-    owner: ai-kit
-    implementation_owner: product-harness
+    owner: product-platform-kit
+    implementation_owner: product-platform-harness
     contract: product-event/v1
   payments:
-    owner: product-harness
+    owner: product-platform-harness
     module: commerce
     capabilities: [checkout, subscriptions, webhook_inbox, idempotency, payment_ledger, stripe, mercado_pago]
   entitlements:
-    owner: product-harness
+    owner: product-platform-harness
     module: core
     capabilities: [plans, limits, access_resolution, usage_metering]
   growth:
-    owner: product-harness
+    owner: product-platform-harness
     module: growth
     capabilities: [analytics, sales_signals, crm, outbox]
   finops:
-    owner: product-harness
+    owner: product-platform-harness
     module: economics
     capabilities: [cost_attribution, payment_economics, unit_economics]
   vehicle_tracking:
