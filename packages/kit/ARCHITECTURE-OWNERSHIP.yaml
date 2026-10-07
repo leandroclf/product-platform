@@ -20,7 +20,7 @@ capabilities:
   vehicle_tracking_domain: { owner: vehicle-tracking, kind: product }
   stripe_adapter: { owner: product-platform-harness, kind: platform-adapter }
   mercado_pago_adapter: { owner: product-platform-harness, kind: platform-adapter }
-  document_processing_domain: { owner: ai-docs, kind: historical-product }
+  document_processing_domain: { owner: ai-docs, kind: product }
   financial_insights_domain: { owner: bussola-financeira, kind: product }
   country_risk_pricing_domain: { owner: lf-worldbank-risk-pricing, kind: product }
   b2b_enrichment_domain: { owner: lf-openalex-enrichment-mvp, kind: product }
@@ -36,7 +36,7 @@ repositories:
   product-platform-kit: PLATFORM
   product-platform-harness: PLATFORM
   vehicle-tracking: ACTIVE
-  ai-docs: HISTORICAL_OUT_OF_SCOPE
+  ai-docs: ACTIVE
   bussola-financeira: ACTIVE
   lf-worldbank-risk-pricing: ACTIVE
   lf-openalex-enrichment-mvp: ACTIVE

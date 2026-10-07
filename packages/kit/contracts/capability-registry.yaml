@@ -95,10 +95,9 @@ capabilities:
     owner: professional-english-coach
     surface: product-domain
     capabilities: [text_practice, learning_path, local_progress, optional_ai_feedback]
-historical_capabilities:
   document_processing:
     owner: ai-docs
-    status: out_of_current_scope
+    surface: product-domain
     capabilities: [ocr, document_extraction, document_classification, async_processing, callbacks]
 references:
   vehicle-tracking-v2: teltonika_legacy

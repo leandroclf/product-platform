@@ -12,10 +12,11 @@ allowed_dependencies:
   agentic-travel-engine: [product-platform-kit, product-platform-harness]
   fivem-server-monitor-pro: [product-platform-kit, product-platform-harness]
   professional-english-coach: [product-platform-kit, product-platform-harness]
+  ai-docs: [product-platform-kit, product-platform-harness]
   product-platform-kit: []
 forbidden:
   - from: product-platform-kit
-    to: [product-platform-cli, product-platform-engineering-team, product-platform-harness, vehicle-tracking, bussola-financeira, lf-worldbank-risk-pricing, lf-openalex-enrichment-mvp, lf-wikidata-entity-graph, agentic-travel-engine, fivem-server-monitor-pro, professional-english-coach]
+    to: [product-platform-cli, product-platform-engineering-team, product-platform-harness, vehicle-tracking, bussola-financeira, lf-worldbank-risk-pricing, lf-openalex-enrichment-mvp, lf-wikidata-entity-graph, agentic-travel-engine, fivem-server-monitor-pro, professional-english-coach, ai-docs]
   - from: products
     to: products
 notes:

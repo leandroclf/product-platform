@@ -54,11 +54,15 @@
       "domain": "english_learning",
       "runtime": "local-first-browser",
       "wave": 3
+    },
+    {
+      "repository": "ai-docs",
+      "domain": "document_processing",
+      "runtime": "python-server",
+      "wave": 2
     }
   ],
-  "historical_products": [
-    "ai-docs"
-  ],
+  "historical_products": [],
   "policy": {
     "product_source_dependencies": false,
     "external_telemetry_default": "off",

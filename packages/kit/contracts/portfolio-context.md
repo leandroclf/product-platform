@@ -3,7 +3,7 @@
 Every new-product proposal and implementation must resolve capabilities before code generation.
 
 Current evolution scope is `contracts/portfolio-products.json`: four platform
-repositories and eight product candidates. Historical products are not new
+repositories and nine product candidates. Historical products are not new
 adoption targets. `implementation_status`, `implemented` and `planned` in the
 registry distinguish existing behavior from roadmap capabilities. An allowed
 dependency does not require a product to install every runtime module.

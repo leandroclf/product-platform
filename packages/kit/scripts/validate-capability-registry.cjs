@@ -8,7 +8,7 @@ const boundaries = read("contracts/repository-boundaries.yaml");
 
 const portfolio = JSON.parse(read("contracts/portfolio-products.json"));
 const required = [...portfolio.platform_repositories, ...portfolio.products.map(p => p.repository)];
-if (portfolio.products.length !== 8 || new Set(required).size !== 12) throw new Error("portfolio must contain four platforms and eight unique products");
+if (portfolio.products.length !== 9 || new Set(required).size !== 13) throw new Error("portfolio must contain four platforms and nine unique products");
 for (const repo of required) {
   if (!ownership.includes(repo)) throw new Error(`ownership missing repository: ${repo}`);
   if (!boundaries.includes(`  ${repo}:`)) throw new Error(`dependency boundary missing: ${repo}`);
