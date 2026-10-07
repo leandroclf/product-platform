@@ -7,8 +7,8 @@ Versão atual: 0.2.0, com [quatro etapas isoladas](ISOLATED-AGENT-STAGES.md). CL
 Pré-requisitos: Linux, Git, Python 3.10+ com venv/ensurepip e Docker Engine acessível ao usuário; `gh` é necessário somente para PR. Docker Compose é usado pelo harness histórico, não pelo CLI local. Acesso ao daemon Docker é uma autoridade ampla do host: não entregar socket ao agente. O instalador não usa sudo, não muda grupos e não instala pacotes do sistema.
 
 ```bash
-git clone --branch main https://github.com/leandroclf/ai-engineering-team.git
-cd ai-engineering-team
+git clone --branch main https://github.com/leandroclf/product-platform-engineering-team.git
+cd product-platform-engineering-team
 bash scripts/install-local.sh --check
 bash scripts/install-local.sh
 export PATH="$HOME/.local/bin:$PATH"
@@ -75,6 +75,24 @@ ai-team init --test-image meu-site-tests:local \
 ```
 
 Esse exemplo requer que os scripts existam no package.json. O build da imagem obtém dependências com rede antes da tarefa; a execução dos checks fica offline. Se Argus alterar o lockfile, reconstrua a imagem e configure uma nova tarefa: a imagem de uma tarefa iniciada é imutável. Não reutilize dependências antigas como evidência para um novo lockfile.
+
+## Regras da plataforma (kit e harness)
+
+Para que o produto alvo seja entregue conforme a esteira da plataforma, passe o handoff de capacidades e as regras no `run`:
+
+```bash
+ai-team run --handoff capacidades.json \
+  --registry ~/projetos/product-platform-kit/contracts/capability-registry.yaml \
+  --rules ~/projetos/product-platform-kit/docs/PLATFORM-DELIVERY-FLOW.md \
+  'Implemente X no produto'
+```
+
+- `--handoff` é um JSON no formato `contracts/portfolio-capability-handoff.schema.json` (`registry_fingerprint`, `product`, `capabilities` com REUSE/EXTEND/CREATE e dono). É validado antes de criar a tarefa; handoff inválido bloqueia o `run`.
+- `--rules` é repetível e aceita arquivos regulares de texto até 256 KB (por exemplo o documento do kit e o `AGENTS.md` do harness). Nomes duplicados são rejeitados.
+- Os arquivos são congelados na tarefa com SHA-256, verificados antes de cada etapa (adulteração bloqueia a etapa), montados somente leitura em `/handoff/capabilities.json` e `/handoff/rules/` e citados no prompt de plan, implement, validate e review. O fingerprint fica em `state.json` e em cada item de `stage_runs`.
+- As regras têm precedência sobre o `AGENTS.md` do alvo, que só pode endurecê-las. Sem as flags, o comportamento anterior não muda.
+- O plano do Atlas inclui `capability_decisions`; o host exige que sejam exatamente as capacidades, decisões e donos do handoff (faltante, extra, duplicada ou divergente bloqueia o plano). Passe `--registry <registry do kit>` para exigir que o SHA-256 do arquivo seja igual ao `registry_fingerprint` do handoff; registry alterado depois da proposta bloqueia o `run` como contexto defasado. O host confere a decisão declarada, não a qualidade da implementação: isso continua com Sentinel e a revisão.
+- Tarefas criadas antes desta versão não têm `capability_decisions`; a entrega delas continua válida.
 
 ## Pedir trabalho
 

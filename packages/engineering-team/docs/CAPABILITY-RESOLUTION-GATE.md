@@ -24,3 +24,5 @@ A bounded change may require multiple repositories. Treat each repository mutati
 Typical sequence:
 
 product-platform-kit contract (if needed) -> product-platform-harness capability -> immutable release -> product consumer -> remove superseded local copy.
+
+Ver também a esteira completa e os gates G0-G6 em `product-platform-kit/docs/PLATFORM-DELIVERY-FLOW.md`.

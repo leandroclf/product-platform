@@ -8,6 +8,7 @@ The portfolio deliberately separates four concerns.
 | --- | --- | --- |
 | `product-platform-engineering-team` | Execute bounded software-engineering work through isolated plan, implement, validate and review stages and preserve evidence | Dynamic model gateway, general-purpose idea discovery tool, central policy repository |
 | `product-platform-cli` | Turn ambiguous product/engineering intent into a challenged, reviewable proposal before implementation | Code-execution runtime |
+| `product-platform-harness` | Reusable runtime embedded in products: identity, plans, entitlements, product events, payment adapters, economics, safe observability | Product domain logic, central database, mandatory control plane |
 | `product-platform-kit` | Reusable engineering policies, skills, profiles and agent-native adapters | Competing orchestration/control plane |
 | `ai-engineering-control-plane` | Architectural laboratory/reference for governance concepts not yet justified in the local runtime | Default runtime or mandatory dependency |
 

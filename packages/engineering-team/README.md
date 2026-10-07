@@ -1,4 +1,4 @@
-# ai-engineering-team
+# product-platform-engineering-team
 
 Fluxo com três agentes e quatro etapas isoladas: Atlas/OpenAI planeja, Argus/Claude implementa, Sentinel/OpenAI valida e Atlas/Claude revisa em nova sessão. Modelos fixos por etapa, sem gateway ou roteador dinâmico; evidências por SHA e plano.
 
@@ -7,8 +7,8 @@ Fluxo com três agentes e quatro etapas isoladas: Atlas/OpenAI planeja, Argus/Cl
 O comando `ai-team` permite pedir trabalho na raiz de um repositório alvo. Ele prepara um clone independente, executa ciclos limitados de implementação, testes offline e duas revisões. A entrega é explícita em branch/PR; merge e deploy são ações separadas.
 
 ```bash
-git clone --branch main https://github.com/leandroclf/ai-engineering-team.git
-cd ai-engineering-team
+git clone --branch main https://github.com/leandroclf/product-platform-engineering-team.git
+cd product-platform-engineering-team
 bash scripts/install-local.sh --check
 bash scripts/install-local.sh
 export PATH="$HOME/.local/bin:$PATH"
