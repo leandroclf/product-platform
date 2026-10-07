@@ -1,0 +1,13 @@
+[
+  {"name":"minimal","valid":true,"event":{"schema_version":"1.0","event":"feature_used","product_id":"pilot","environment":"test","release_sha":"abc123","occurred_at":"2026-10-06T12:00:00Z"}},
+  {"name":"nullable identity","valid":true,"event":{"schema_version":"1.0","event":"limit_reached","product_id":"pilot","environment":"test","release_sha":"abc123","occurred_at":"2026-10-06T12:00:00+00:00","account_id":null,"feature":"geofences"}},
+  {"name":"pii field","valid":false,"event":{"schema_version":"1.0","event":"feature_used","product_id":"pilot","environment":"test","release_sha":"abc123","occurred_at":"2026-10-06T12:00:00Z","email":"private@example.invalid"}},
+  {"name":"unknown event","valid":false,"event":{"schema_version":"1.0","event":"document_payload","product_id":"pilot","environment":"test","release_sha":"abc123","occurred_at":"2026-10-06T12:00:00Z"}},
+  {"name":"missing release","valid":false,"event":{"schema_version":"1.0","event":"feature_used","product_id":"pilot","environment":"test","occurred_at":"2026-10-06T12:00:00Z"}},
+  {"name":"wrong version","valid":false,"event":{"schema_version":"2.0","event":"feature_used","product_id":"pilot","environment":"test","release_sha":"abc123","occurred_at":"2026-10-06T12:00:00Z"}},
+  {"name":"wrong identity type","valid":false,"event":{"schema_version":"1.0","event":"feature_used","product_id":"pilot","environment":"test","release_sha":"abc123","occurred_at":"2026-10-06T12:00:00Z","account_id":42}},
+  {"name":"empty product","valid":false,"event":{"schema_version":"1.0","event":"feature_used","product_id":"","environment":"test","release_sha":"abc123","occurred_at":"2026-10-06T12:00:00Z"}},
+  {"name":"invalid time","valid":false,"event":{"schema_version":"1.0","event":"feature_used","product_id":"pilot","environment":"test","release_sha":"abc123","occurred_at":"not-a-date"}},
+  {"name":"invalid offset","valid":false,"event":{"schema_version":"1.0","event":"feature_used","product_id":"pilot","environment":"test","release_sha":"abc123","occurred_at":"2026-10-06T12:00:00+00:99"}},
+  {"name":"invalid calendar date","valid":false,"event":{"schema_version":"1.0","event":"feature_used","product_id":"pilot","environment":"test","release_sha":"abc123","occurred_at":"2026-02-30T12:00:00Z"}}
+]

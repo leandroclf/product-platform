@@ -1,0 +1,1 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {validateLedgerEntry} from './ledger.js';test('validates economics identity',()=>assert.equal(validateLedgerEntry({id:'1',accountId:'a',gateway:'stripe',currency:'BRL',grossMinor:1000,feeMinor:100,taxMinor:50,netMinor:850,occurredAt:'2026-01-01T00:00:00Z'}).netMinor,850));

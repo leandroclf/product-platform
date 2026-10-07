@@ -1,0 +1,2 @@
+export interface HarnessTraceContext { productId:string; environment:string; releaseSha:string; accountId?:string; capability?:string; }
+export function safeAttributes(c:HarnessTraceContext):Record<string,string>{return Object.fromEntries(Object.entries({ 'product.id':c.productId,'deployment.environment':c.environment,'service.version':c.releaseSha,'product.account_id':c.accountId,'product.capability':c.capability}).filter(([,v])=>Boolean(v))) as Record<string,string>;}
