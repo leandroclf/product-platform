@@ -1,0 +1,10 @@
+node_modules/
+dist/
+build/
+*.egg-info/
+__pycache__/
+.pytest_cache/
+.venv/
+.ai-kit.local.*
+*.tgz
+SHA256SUMS

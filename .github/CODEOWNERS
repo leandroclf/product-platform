@@ -1,0 +1,10 @@
+# Dono padrão de toda a plataforma; ajuste por pacote quando houver mais de uma pessoa.
+*                              @leandroclf
+/packages/kit/                 @leandroclf
+/packages/harness/             @leandroclf
+/packages/cli/                 @leandroclf
+/packages/engineering-team/    @leandroclf
+# Contratos e grafo de dependências: mudança aqui afeta todos os pacotes e os produtos.
+/platform-packages.json        @leandroclf
+/scripts/check-package-boundaries.py @leandroclf
+/.github/workflows/            @leandroclf
