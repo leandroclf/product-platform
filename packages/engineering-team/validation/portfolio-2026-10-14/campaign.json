@@ -1,0 +1,349 @@
+{
+  "campaign": "portfolio-20261014",
+  "sandbox_authorization": "autorizado; mensagem do operador nesta sessão, após pergunta explícita para os nove produtos",
+  "products": [
+    {
+      "product": "bussola-financeira",
+      "repository": "/home/leandro/IdeaProjects/lfsolucoes/product-platform/bussola-financeira",
+      "base_sha": "51f4092dc8ad7f7439ca74b524f05286a46bff20",
+      "status": "DELIVERED",
+      "task_id": "60215a4d68a3475eb605fb5bd40bc206",
+      "phase": "COMPLETE",
+      "head_sha": "cbff6f501c11eae17e93a95bf054c90bbd41eb3d",
+      "reason": null,
+      "attempts": [
+        {
+          "task_id": "5dd49e0a9cba4b109970cdf26b2da909",
+          "status": "FAILED",
+          "reason": "Missing image identity in tests evidence caused INCONCLUSIVE; repair made no code changes"
+        }
+      ],
+      "test_image": "bussola-tests:pilot-20261014",
+      "checks": [
+        "python3 scripts/validate_harness_artifact.py",
+        "PYTHONPATH=src DATABASE_URL=sqlite+pysqlite:///:memory: python3 -m pytest -p no:cacheprovider tests/test_ingestion_integrity.py tests/test_product_events.py -v"
+      ],
+      "handoff": "packages/engineering-team/validation/portfolio-2026-10-14/handoff-bussola-ci.json",
+      "prompt": "packages/engineering-team/validation/portfolio-2026-10-14/prompt.txt",
+      "pr_url": "https://github.com/leandroclf/bussola-financeira/pull/8",
+      "github_ci": {
+        "status": "PASS",
+        "checks": [
+          {
+            "__typename": "CheckRun",
+            "completedAt": "2026-10-15T01:59:39Z",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/leandroclf/bussola-financeira/actions/runs/38668575312/job/116206063632",
+            "name": "test",
+            "startedAt": "2026-10-15T01:59:15Z",
+            "status": "COMPLETED",
+            "workflowName": "ci"
+          }
+        ],
+        "pr_state": "OPEN",
+        "is_draft": true
+      },
+      "pr_description_updated": true
+    },
+    {
+      "product": "ai-docs",
+      "repository": "/home/leandro/IdeaProjects/lfsolucoes/product-platform/product-platform/.venv/portfolio-round-20261014/ai-docs",
+      "base_sha": "87f27488df154261b547bb5c5264b8945aa3e536",
+      "status": "DELIVERED",
+      "task_id": "2a27c2f50cd04e69abdccad14c48e2da",
+      "test_image": "bussola-tests:pilot-20261014",
+      "checks": [
+        "python3 scripts/validate_harness_artifact.py",
+        "PYTHONPATH=. python3 -m pytest -p no:cacheprovider tests -q"
+      ],
+      "handoff": "packages/engineering-team/validation/portfolio-2026-10-14/ai-docs/handoff.json",
+      "prompt": "packages/engineering-team/validation/portfolio-2026-10-14/ai-docs/prompt.txt",
+      "phase": "COMPLETE",
+      "head_sha": "9ae9d1a214bffde40fdd3efebe8bcc8dd861726a",
+      "reason": null,
+      "pr_url": "https://github.com/leandroclf/ai-docs/pull/27",
+      "github_ci": {
+        "status": "PASS",
+        "checks": [
+          {
+            "__typename": "CheckRun",
+            "completedAt": "2026-10-15T01:59:37Z",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/leandroclf/ai-docs/actions/runs/38668291268/job/116205156802",
+            "name": "test",
+            "startedAt": "2026-10-15T01:55:56Z",
+            "status": "COMPLETED",
+            "workflowName": "ci"
+          }
+        ],
+        "pr_state": "OPEN",
+        "is_draft": true
+      },
+      "pr_description_updated": true
+    },
+    {
+      "product": "lf-wikidata-entity-graph",
+      "repository": "/home/leandro/IdeaProjects/lfsolucoes/product-platform/product-platform/.venv/portfolio-round-20261014/lf-wikidata-entity-graph",
+      "base_sha": "a53a2857391426c66736308abde8b0f3b04af282",
+      "status": "DELIVERED",
+      "task_id": "e66a1e77888b4063831a8c1569d21cab",
+      "test_image": "portfolio-light-tests:20261014",
+      "checks": [
+        "PYTHONPATH=. python3 tools/smoke_check.py",
+        "PYTHONPATH=. python3 -m pytest -p no:cacheprovider -q"
+      ],
+      "handoff": "packages/engineering-team/validation/portfolio-2026-10-14/lf-wikidata-entity-graph/handoff.json",
+      "prompt": "packages/engineering-team/validation/portfolio-2026-10-14/lf-wikidata-entity-graph/prompt.txt",
+      "baseline_exit_code": 0,
+      "phase": "COMPLETE",
+      "head_sha": "ab57fb7bd917a353c013549598048ace8b802286",
+      "reason": null,
+      "pr_url": "https://github.com/leandroclf/lf-wikidata-entity-graph/pull/6",
+      "github_ci": {
+        "status": "PASS",
+        "checks": [
+          {
+            "__typename": "CheckRun",
+            "completedAt": "2026-10-15T02:02:30Z",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/leandroclf/lf-wikidata-entity-graph/actions/runs/38668862653/job/116206963144",
+            "name": "test",
+            "startedAt": "2026-10-15T02:02:21Z",
+            "status": "COMPLETED",
+            "workflowName": "CI"
+          }
+        ],
+        "pr_state": "OPEN",
+        "is_draft": true
+      },
+      "pr_description_updated": true
+    },
+    {
+      "product": "vehicle-tracking",
+      "repository": "/home/leandro/IdeaProjects/lfsolucoes/product-platform/product-platform/.venv/portfolio-round-20261014/recovery/vehicle-tracking",
+      "base_sha": "8aa17557562b7521674785bcc063528eb16d25ed",
+      "status": "WAITING_QUOTA",
+      "task_id": null,
+      "original_base_sha": "43cd73e423c25e20ebe0c25c0dd094a199c87648",
+      "preparation_commit": "49efac0e00b935ed89cbacea6e266255d3f7f3da",
+      "prepared_lockfile_sha256": "91428f84c4d53c7d839b9afbff4dccbc2b4e70e664428097ee0827d38febdb86",
+      "test_image": "portfolio-vehicle-tests:20261014",
+      "checks": [
+        "cp -R /deps/node_modules /work/node_modules",
+        "pnpm install --lockfile-only --offline --frozen-lockfile --ignore-scripts",
+        "pnpm run validate:product-contract",
+        "pnpm run typecheck",
+        "pnpm test",
+        "node -e \"require('fs').writeFileSync('/tmp/portfolio-cpu-limit.cjs', 'const os=require(\\\"os\\\");const cpus=os.cpus;os.cpus=()=>cpus().slice(0,2);')\"",
+        "NEXT_TELEMETRY_DISABLED=1 NODE_OPTIONS=--require=/tmp/portfolio-cpu-limit.cjs pnpm run build"
+      ],
+      "test_exec": true,
+      "handoff": "packages/engineering-team/validation/portfolio-2026-10-14/vehicle-tracking/handoff.json",
+      "prompt": "packages/engineering-team/validation/portfolio-2026-10-14/vehicle-tracking/prompt.txt",
+      "baseline_exit_code": 0,
+      "phase": "REVIEW",
+      "head_sha": "8aa17557562b7521674785bcc063528eb16d25ed",
+      "reason": "Waiting for native quota reset at 2026-10-15T03:17:53Z before creating a new task",
+      "attempts": [
+        {
+          "task_id": "af9ebc42da2c4634a07e7004d6ac48c4",
+          "status": "STOPPED",
+          "reason": "Host build evidence missing from frozen inputs; preserved before a new task with actual build evidence"
+        },
+        {
+          "task_id": "c28ad5ca9c9c4f0ab48b14eac7a4f118",
+          "status": "FAILED",
+          "reason": "validate failed: You’ve hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/pro), visit https://chatgpt.com/codex/settings/usage to purchase more credits or try again at 3:17 AM.; no implicit retry/model fallback",
+          "head_sha": "8aa17557562b7521674785bcc063528eb16d25ed"
+        }
+      ],
+      "extra_rules": [
+        "packages/engineering-team/validation/portfolio-2026-10-14/vehicle-tracking/BUILD-EVIDENCE.json",
+        "packages/engineering-team/validation/portfolio-2026-10-14/vehicle-tracking/CANDIDATE-EVIDENCE.json"
+      ],
+      "original_repository": "/home/leandro/IdeaProjects/lfsolucoes/product-platform/product-platform/.venv/portfolio-round-20261014/vehicle-tracking"
+    },
+    {
+      "product": "lf-openalex-enrichment-mvp",
+      "repository": "/home/leandro/IdeaProjects/lfsolucoes/product-platform/lf-openalex-enrichment-mvp",
+      "base_sha": "c4c412b1dfb3d7594df229f77767d67cf68225c7",
+      "status": "DELIVERED",
+      "task_id": "dc3cbc766a6f4d269ff8b0b1fafd42a0",
+      "test_image": "portfolio-light-tests:20261014",
+      "checks": [
+        "flake8 .",
+        "PYTHONPATH=. python3 tools/smoke_check.py",
+        "PYTHONPATH=. python3 -m pytest -p no:cacheprovider -q"
+      ],
+      "handoff": "packages/engineering-team/validation/portfolio-2026-10-14/lf-openalex-enrichment-mvp/handoff.json",
+      "prompt": "packages/engineering-team/validation/portfolio-2026-10-14/lf-openalex-enrichment-mvp/prompt.txt",
+      "baseline_exit_code": 0,
+      "phase": "COMPLETE",
+      "head_sha": "2f94e0b314147068d56bb5747e0612f11465def8",
+      "reason": null,
+      "pr_url": "https://github.com/leandroclf/lf-openalex-enrichment-mvp/pull/7",
+      "github_ci": {
+        "status": "PASS",
+        "checks": [
+          {
+            "__typename": "CheckRun",
+            "completedAt": "2026-10-15T02:10:16Z",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/leandroclf/lf-openalex-enrichment-mvp/actions/runs/38669531937/job/116209113532",
+            "name": "test",
+            "startedAt": "2026-10-15T02:09:53Z",
+            "status": "COMPLETED",
+            "workflowName": "CI"
+          },
+          {
+            "__typename": "CheckRun",
+            "completedAt": "2026-10-15T02:09:59Z",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/leandroclf/lf-openalex-enrichment-mvp/actions/runs/38669532070/job/116209114099",
+            "name": "build",
+            "startedAt": "2026-10-15T02:09:53Z",
+            "status": "COMPLETED",
+            "workflowName": "CI Pipeline"
+          }
+        ],
+        "pr_state": "OPEN",
+        "is_draft": true
+      },
+      "pr_description_updated": true
+    },
+    {
+      "product": "lf-worldbank-risk-pricing",
+      "repository": "/home/leandro/IdeaProjects/lfsolucoes/product-platform/product-platform/.venv/portfolio-round-20261014/lf-worldbank-risk-pricing",
+      "base_sha": "98dfb265ca6942866200e50e9c0aa186022e6828",
+      "status": "DELIVERED",
+      "task_id": "acc4b7e5edcf45d59cae6b148e5047ed",
+      "test_image": "portfolio-light-tests:20261014",
+      "checks": [
+        "PYTHONPATH=. python3 tools/smoke_check.py",
+        "PYTHONPATH=. python3 -m pytest -p no:cacheprovider -q"
+      ],
+      "handoff": "packages/engineering-team/validation/portfolio-2026-10-14/lf-worldbank-risk-pricing/handoff.json",
+      "prompt": "packages/engineering-team/validation/portfolio-2026-10-14/lf-worldbank-risk-pricing/prompt.txt",
+      "baseline_exit_code": 0,
+      "phase": "COMPLETE",
+      "head_sha": "ebbe0f92d8e70c25491af7343d4fc8bad812e06e",
+      "reason": null,
+      "pr_url": "https://github.com/leandroclf/lf-worldbank-risk-pricing/pull/5",
+      "github_ci": {
+        "status": "PASS",
+        "checks": [
+          {
+            "__typename": "CheckRun",
+            "completedAt": "2026-10-15T02:07:28Z",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/leandroclf/lf-worldbank-risk-pricing/actions/runs/38669296721/job/116208346882",
+            "name": "test",
+            "startedAt": "2026-10-15T02:07:10Z",
+            "status": "COMPLETED",
+            "workflowName": "CI"
+          }
+        ],
+        "pr_state": "OPEN",
+        "is_draft": true
+      },
+      "pr_description_updated": true
+    },
+    {
+      "product": "agentic-travel-engine",
+      "repository": "/home/leandro/IdeaProjects/lfsolucoes/product-platform/product-platform/.venv/portfolio-round-20261014/recovery/agentic-travel-engine",
+      "base_sha": "e348f456970c0141dcc2714e6978e292a4c9f14f",
+      "status": "WAITING_QUOTA",
+      "task_id": null,
+      "test_image": "portfolio-travel-tests:20261014",
+      "checks": [
+        "make lint",
+        "PYTHONPATH=. python3 -m pytest -p no:cacheprovider -q"
+      ],
+      "handoff": "packages/engineering-team/validation/portfolio-2026-10-14/agentic-travel-engine/handoff.json",
+      "prompt": "packages/engineering-team/validation/portfolio-2026-10-14/agentic-travel-engine/prompt.txt",
+      "baseline_exit_code": 0,
+      "phase": "REVIEW",
+      "head_sha": "e348f456970c0141dcc2714e6978e292a4c9f14f",
+      "reason": "Waiting for native quota reset at 2026-10-15T03:17:53Z before creating a new task",
+      "attempts": [
+        {
+          "task_id": "b96fe3cc10f84fea941724562832285c",
+          "status": "FAILED",
+          "reason": "validate failed: You’ve hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/pro), visit https://chatgpt.com/codex/settings/usage to purchase more credits or try again at 3:17 AM.; no implicit retry/model fallback",
+          "head_sha": "e348f456970c0141dcc2714e6978e292a4c9f14f"
+        }
+      ],
+      "extra_rules": [
+        "packages/engineering-team/validation/portfolio-2026-10-14/agentic-travel-engine/CANDIDATE-EVIDENCE.json"
+      ],
+      "original_repository": "/home/leandro/IdeaProjects/lfsolucoes/product-platform/agentic-travel-engine",
+      "original_base_sha": "e65fe48e1940f019a4e4dcddae011f85122f432d"
+    },
+    {
+      "product": "fivem-server-monitor-pro",
+      "repository": "/home/leandro/IdeaProjects/lfsolucoes/product-platform/product-platform/.venv/portfolio-round-20261014/recovery/fivem-server-monitor-pro",
+      "base_sha": "9de30c478c0f6f44645fbc830d16ed4d0ec18998",
+      "status": "WAITING_QUOTA",
+      "task_id": null,
+      "test_image": "portfolio-lua-tests:20261014",
+      "checks": [
+        "npm run verify",
+        "npm run test:lua",
+        "find . -name '*.lua' -not -path './data/*' -exec luac5.4 -p '{}' ';'"
+      ],
+      "handoff": "packages/engineering-team/validation/portfolio-2026-10-14/fivem-server-monitor-pro/handoff.json",
+      "prompt": "packages/engineering-team/validation/portfolio-2026-10-14/fivem-server-monitor-pro/prompt.txt",
+      "baseline_checks": [
+        "npm run verify",
+        "find . -name '*.lua' -not -path './data/*' -exec luac5.4 -p '{}' ';'"
+      ],
+      "baseline_exit_code": 0,
+      "phase": "REVIEW",
+      "head_sha": "9de30c478c0f6f44645fbc830d16ed4d0ec18998",
+      "reason": "Waiting for native quota reset at 2026-10-15T03:17:53Z before creating a new task",
+      "attempts": [
+        {
+          "task_id": "3ca4b5010ecd4f86a09131e05e5d2b10",
+          "status": "FAILED",
+          "reason": "validate failed: You’ve hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/pro), visit https://chatgpt.com/codex/settings/usage to purchase more credits or try again at 3:17 AM.; no implicit retry/model fallback",
+          "head_sha": "9de30c478c0f6f44645fbc830d16ed4d0ec18998"
+        }
+      ],
+      "extra_rules": [
+        "packages/engineering-team/validation/portfolio-2026-10-14/fivem-server-monitor-pro/CANDIDATE-EVIDENCE.json"
+      ],
+      "original_repository": "/home/leandro/IdeaProjects/lfsolucoes/product-platform/fivem-server-monitor-pro",
+      "original_base_sha": "658dbfb7140df5cb30e7a57384ab5fbb89d05255"
+    },
+    {
+      "product": "professional-english-coach",
+      "repository": "/home/leandro/IdeaProjects/lfsolucoes/product-platform/professional-english-coach",
+      "base_sha": "ade1d8139e9ac42e7c26d11e842f6789f6b22f50",
+      "status": "WAITING_QUOTA",
+      "task_id": null,
+      "test_image": "ai-eng-provider-cli:local",
+      "checks": [
+        "npm run check",
+        "npm run build"
+      ],
+      "handoff": "packages/engineering-team/validation/portfolio-2026-10-14/professional-english-coach/handoff.json",
+      "prompt": "packages/engineering-team/validation/portfolio-2026-10-14/professional-english-coach/prompt.txt",
+      "extra_rules": [
+        "packages/engineering-team/validation/portfolio-2026-10-14/professional-english-coach/browser-evidence.json"
+      ],
+      "baseline_exit_code": 0,
+      "phase": "PLAN",
+      "head_sha": null,
+      "reason": "Waiting for native quota reset at 2026-10-15T03:17:53Z before creating a new task",
+      "attempts": [
+        {
+          "task_id": "87956e223d90464492df175875a863b2",
+          "status": "FAILED",
+          "reason": "plan failed: You’ve hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/pro), visit https://chatgpt.com/codex/settings/usage to purchase more credits or try again at 3:17 AM.; no implicit retry/model fallback",
+          "head_sha": null
+        }
+      ]
+    }
+  ],
+  "quota_reset_utc": "2026-10-15T03:17:53+00:00"
+}

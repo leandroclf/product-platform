@@ -1,0 +1,38 @@
+{
+  "observed_at": "2026-10-15T02:13:40.860925+00:00",
+  "source": "native Codex app-server account/rateLimits/read; no inference",
+  "limits": [
+    {
+      "limitId": "codex",
+      "limitName": null,
+      "primary": {
+        "usedPercent": 100,
+        "windowDurationMins": 300,
+        "resetsAt": 1792034273
+      },
+      "secondary": {
+        "usedPercent": 16,
+        "windowDurationMins": 10080,
+        "resetsAt": 1792621073
+      },
+      "rateLimitReachedType": "rate_limit_reached"
+    },
+    {
+      "limitId": "codex",
+      "limitName": null,
+      "primary": {
+        "usedPercent": 100,
+        "windowDurationMins": 300,
+        "resetsAt": 1792034273
+      },
+      "secondary": {
+        "usedPercent": 16,
+        "windowDurationMins": 10080,
+        "resetsAt": 1792621073
+      },
+      "rateLimitReachedType": "rate_limit_reached"
+    }
+  ],
+  "reset_utc": "2026-10-15T03:17:53+00:00",
+  "reset_sao_paulo": "2026-10-15T00:17:53-03:00"
+}

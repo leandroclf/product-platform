@@ -1,0 +1,72 @@
+{
+  "schema_version": "1.0",
+  "proposal": {
+    "proposal_id": "portfolio-20261014-bussola-ci",
+    "repository": {
+      "url": "https://github.com/leandroclf/bussola-financeira.git",
+      "base_ref": "main",
+      "base_sha": "51f4092dc8ad7f7439ca74b524f05286a46bff20"
+    },
+    "objective": "Incluir no CI os dois testes determinísticos de integridade de ingestão já aprovados na baseline offline, preservando os quatro testes de ProductEvent e a validação do artefato do harness.",
+    "scope": {
+      "allowed_paths": [
+        ".github/workflows/ci.yml"
+      ]
+    },
+    "acceptance": {
+      "criteria": [
+        "Confirmar HEAD 51f4092dc8ad7f7439ca74b524f05286a46bff20 e ler integralmente os testes de ingestão para conferir SQLite em memória e DeterministicProvider, sem rede ou banco externo.",
+        "Adicionar um único passo pytest tests/test_ingestion_integrity.py -q imediatamente após o passo existente de tests/test_product_events.py no mesmo job de .github/workflows/ci.yml, preservando todos os passos anteriores e suas posições relativas.",
+        "Preservar scripts/validate_harness_artifact.py no CI e manter tests/test_ingestion_integrity.py e tests/test_product_events.py sem alterações.",
+        "Confirmar no runner offline do host, após a implementação, artefato verificado e exatamente dois testes de ingestão e quatro de eventos coletados e aprovados, registrando seus identificadores e resultados no SHA final.",
+        "Manter o diff de produto restrito ao novo passo do workflow; metadados OpenSpec são produzidos separadamente pelo host. Não alterar dependências, código de produção, APIs, contratos ou harness, nem introduzir skip, xfail, continue-on-error ou supressão de erro.",
+        "Sentinel e revisor avaliam cada critério no mesmo HEAD e plano com evidências do host; falha de baseline, sandbox ou necessidade de ampliar escopo retorna bloqueio ou replanejamento, sem contorno de permissões."
+      ]
+    },
+    "risk": {
+      "level": "low"
+    },
+    "evidence": {
+      "required": [
+        "tests",
+        "ci"
+      ]
+    }
+  },
+  "portfolio": {
+    "registry_fingerprint": "b476209eb1a2fcef3f7dd99a53393e9846ccb674bb1ba26c0337819c55a4d3d9",
+    "product": "bussola-financeira",
+    "capabilities": [
+      {
+        "name": "engineering_delivery",
+        "decision": "REUSE",
+        "owner": "product-platform-engineering-team",
+        "version": null,
+        "reason": "Mudança restrita de CI segue o fluxo padrão plan/implement/validate/review; não há necessidade de owner alternativo."
+      },
+      {
+        "name": "financial_insights",
+        "decision": "REUSE",
+        "owner": "bussola-financeira",
+        "version": null,
+        "reason": "Capacidade de domínio do produto permanece inalterada; nenhuma lógica de produto é tocada."
+      },
+      {
+        "name": "product_events",
+        "decision": "REUSE",
+        "owner": "product-platform-kit",
+        "version": null,
+        "reason": "Contrato product-event/v1 e implementação no product-platform-harness preservados sem alteração."
+      }
+    ]
+  },
+  "rules_refs": {
+    "kit": {
+      "ref": "37184551a1440b26fc5f117334f3ba3298332779"
+    },
+    "harness": {
+      "ref": "4040e76bbd0ff8b5933550121b07201010919bf5"
+    },
+    "profile": "devops"
+  }
+}

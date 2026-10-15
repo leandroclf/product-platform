@@ -1,0 +1,7 @@
+Running transversal smoke check in /work
+Smoke test passed for lf-openalex-enrichment-mvp!
+Smoke test passed for lf-openalex-enrichment-mvp!
+
+Transversal smoke check PASSED: All Python files are syntactically valid and imports resolve.
+...........................................
+43 passed in 0.06s

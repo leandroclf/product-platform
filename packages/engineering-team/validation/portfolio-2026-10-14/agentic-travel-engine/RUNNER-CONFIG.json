@@ -1,0 +1,48 @@
+{
+  "source": "host coordinator; prepared before task creation",
+  "meaning": "Frozen runner configuration; tests.json separately proves command results. The ai-team host resolves and freezes these same local image references before starting the task.",
+  "config": {
+    "version": 2,
+    "repository": "/home/leandro/IdeaProjects/lfsolucoes/product-platform/agentic-travel-engine",
+    "provider_image": "sha256:9e28df2e25217e285c5d7e8ed23f6fef74da4eb1a3a971ea95bcb60cb1c3f21a",
+    "test_image": "sha256:feaf9adad2adfdf1407d711e5de7b0ae1074e157e7c73a5d07b0d79f47f4884e",
+    "checks": [
+      "make lint",
+      "PYTHONPATH=. python3 -m pytest -p no:cacheprovider -q"
+    ],
+    "timeout": 1800,
+    "max_cycles": 3,
+    "max_seconds": 7200,
+    "models": {
+      "plan": {
+        "model": "gpt-6.1-sol",
+        "effort": "medium"
+      },
+      "implement": {
+        "model": "claude-sonnet-5-5",
+        "effort": "medium"
+      },
+      "validate": {
+        "model": "gpt-6-astra",
+        "effort": "medium"
+      },
+      "review": {
+        "model": "claude-opus-5-5",
+        "effort": "medium"
+      }
+    },
+    "implement_parts": 1,
+    "codex_sandbox": "danger-full-access",
+    "test_tmpfs_exec": false
+  },
+  "test_boundary": [
+    "network none",
+    "no account volumes",
+    "no Docker socket",
+    "source read-only",
+    "non-root uid 1001",
+    "read-only rootfs",
+    "cap-drop ALL",
+    "no-new-privileges"
+  ]
+}

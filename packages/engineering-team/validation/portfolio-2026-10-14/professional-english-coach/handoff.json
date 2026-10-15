@@ -1,0 +1,59 @@
+{
+  "schema_version": "1.0",
+  "proposal": {
+    "proposal_id": "portfolio-20261014-professional-english-coach",
+    "repository": {
+      "url": "https://github.com/leandroclf/professional-english-coach.git",
+      "base_ref": "main",
+      "base_sha": "ade1d8139e9ac42e7c26d11e842f6789f6b22f50"
+    },
+    "objective": "Reconciliar documentação e OpenSpec de restore local com a implementação já entregue e os testes existentes, sem reimplementar funcionalidades.",
+    "scope": {
+      "allowed_paths": [
+        "docs/roadmap.md",
+        "openspec/changes/expand-family-learning-platform/tasks.md"
+      ]
+    },
+    "acceptance": {
+      "criteria": [
+        "Ler src/engine.js, src/app.js e testes de restore; distinguir funções implementadas, interface presente e aceitação em navegador ainda não executada. Não tratar os 38 testes como prova de aceitação de browser.",
+        "Atualizar o roadmap e o item de import/restore distinguindo a implementação dos helpers da interface: src/app.js não importa nem chama importData/restoreData, e só expõe exportação e exclusão. Manter o item de entrega completa pendente/explicitamente parcial, registrando helpers e testes já presentes; não marcar restauração pela UI como implementada ou aceita. Preservar perfis familiares, sync e offline/PWA como propostas.",
+        "Não alterar código, conteúdo do aprendiz, armazenamento local, mídia ou termos de uso; não enviar respostas para provedores nem ligar IA/telemetria.",
+        "npm run check e npm run build devem passar. No relatório declarar a aceitação de navegador como pendente se não houver evidência real; esta tarefa encerra apenas a reconciliação documental."
+      ]
+    },
+    "risk": {
+      "level": "low"
+    },
+    "evidence": {
+      "required": [
+        "tests"
+      ]
+    }
+  },
+  "portfolio": {
+    "registry_fingerprint": "b476209eb1a2fcef3f7dd99a53393e9846ccb674bb1ba26c0337819c55a4d3d9",
+    "product": "professional-english-coach",
+    "capabilities": [
+      {
+        "name": "engineering_delivery",
+        "decision": "REUSE",
+        "owner": "product-platform-engineering-team"
+      },
+      {
+        "name": "english_learning",
+        "decision": "REUSE",
+        "owner": "professional-english-coach"
+      }
+    ]
+  },
+  "rules_refs": {
+    "kit": {
+      "ref": "37184551a1440b26fc5f117334f3ba3298332779"
+    },
+    "harness": {
+      "ref": "4040e76bbd0ff8b5933550121b07201010919bf5"
+    },
+    "profile": "frontend"
+  }
+}

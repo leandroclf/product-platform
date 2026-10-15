@@ -1,0 +1,12 @@
+Starting smoke tests...
+[PASSED] API: get_matching_metrics
+[PASSED] API: is_match_above_threshold
+[PASSED] API: count_matches_above_threshold
+[PASSED] Ingest: ingest_entities
+[PASSED] Ingest: validate_entity_record
+[PASSED] Pipeline: process_entity_graph_pipeline
+
+All smoke tests passed! (6/6)
+smoke-check:ok
+...........................................                              [100%]
+43 passed in 0.05s

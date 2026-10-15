@@ -1,0 +1,61 @@
+{
+  "schema_version": "1.0",
+  "proposal": {
+    "proposal_id": "portfolio-20261014-lf-worldbank-risk-pricing",
+    "repository": {
+      "url": "https://github.com/leandroclf/lf-worldbank-risk-pricing.git",
+      "base_ref": "main",
+      "base_sha": "98dfb265ca6942866200e50e9c0aa186022e6828"
+    },
+    "objective": "Validar respostas numéricas e malformadas da ingestão World Bank e demonstrar o fallback de ano com rastreabilidade correta.",
+    "scope": {
+      "allowed_paths": [
+        "backend/src/data_ingestion.py",
+        "tests/test_data_ingestion.py",
+        "tests/test_worldbank_governance.py"
+      ]
+    },
+    "acceptance": {
+      "criteria": [
+        "Adicionar regressões com requests mockado para respostas de shape inválido, valores nulos, valores não numéricos e NaN/inf; dado inválido não pode ser classificado como fetch bem-sucedido nem alimentar score.",
+        "Preservar o comportamento resiliente de retornar None em falha e a busca limitada de três anos, permitindo fallback para um valor finito válido. Não modificar fórmulas de score, bandas de risco ou preço.",
+        "Demonstrar por teste que requested_year, resolved_year e attempts refletem o ano usado e que métricas registram uma única tentativa por fetch, inclusive em erro. Isolar/resetar o estado global de métricas nos testes.",
+        "Usar somente biblioteca padrão para eventual correção mínima e mocks existentes. Não chamar fonte World Bank ou produção; preservar skip de integração preexistente, sem adicionar outro.",
+        "Executar pytest completo e smoke; diff restrito aos três arquivos autorizados."
+      ]
+    },
+    "risk": {
+      "level": "low"
+    },
+    "evidence": {
+      "required": [
+        "tests"
+      ]
+    }
+  },
+  "portfolio": {
+    "registry_fingerprint": "b476209eb1a2fcef3f7dd99a53393e9846ccb674bb1ba26c0337819c55a4d3d9",
+    "product": "lf-worldbank-risk-pricing",
+    "capabilities": [
+      {
+        "name": "engineering_delivery",
+        "decision": "REUSE",
+        "owner": "product-platform-engineering-team"
+      },
+      {
+        "name": "country_risk_pricing",
+        "decision": "REUSE",
+        "owner": "lf-worldbank-risk-pricing"
+      }
+    ]
+  },
+  "rules_refs": {
+    "kit": {
+      "ref": "37184551a1440b26fc5f117334f3ba3298332779"
+    },
+    "harness": {
+      "ref": "4040e76bbd0ff8b5933550121b07201010919bf5"
+    },
+    "profile": "backend"
+  }
+}

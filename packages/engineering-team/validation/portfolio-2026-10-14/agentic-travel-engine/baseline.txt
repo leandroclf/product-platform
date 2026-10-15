@@ -1,0 +1,7 @@
+ruff check src tests
+All checks passed!
+black --check src tests
+...........................                                              [100%]
+27 passed in 0.20s
+All done! ✨ 🍰 ✨
+96 files would be left unchanged.

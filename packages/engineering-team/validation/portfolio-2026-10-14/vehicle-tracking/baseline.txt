@@ -1,0 +1,186 @@
+Done in 550ms
+
+> yukz-app@0.1.0 validate:product-contract /work
+> node scripts/validate-product-event-contract.cjs && node scripts/validate-product-platform-artifact.cjs
+
+Product Harness contract conformance passed
+Harness artifact verified: harness-v0.2.0 (b3375495bd86)
+
+> yukz-app@0.1.0 typecheck /work
+> tsc --noEmit
+
+
+> yukz-app@0.1.0 test /work
+> jest --runInBand
+
+
+> yukz-app@0.1.0 build /work
+> next build
+
+   ▲ Next.js 15.1.4
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully
+   Linting and checking validity of types ...
+   Collecting page data ...
+   Generating static pages (0/62) ...
+   Generating static pages (15/62) 
+   Generating static pages (30/62) 
+   Generating static pages (46/62) 
+ ✓ Generating static pages (62/62)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                              Size     First Load JS
+┌ ○ /                                    6.14 kB         157 kB
+├ ○ /_not-found                          259 B           106 kB
+├ ƒ /api                                 259 B           106 kB
+├ ƒ /api/alerts                          259 B           106 kB
+├ ƒ /api/alerts/read-all                 259 B           106 kB
+├ ƒ /api/analytics/dashboard/config      259 B           106 kB
+├ ƒ /api/analytics/export                259 B           106 kB
+├ ƒ /api/analytics/metrics               259 B           106 kB
+├ ƒ /api/auth/login                      259 B           106 kB
+├ ƒ /api/auth/logout                     259 B           106 kB
+├ ƒ /api/auth/me                         259 B           106 kB
+├ ƒ /api/auth/phone                      259 B           106 kB
+├ ƒ /api/auth/register                   259 B           106 kB
+├ ƒ /api/auth/reset-password             259 B           106 kB
+├ ƒ /api/auth/update-password            259 B           106 kB
+├ ƒ /api/billing/checkout                259 B           106 kB
+├ ƒ /api/billing/plans                   259 B           106 kB
+├ ƒ /api/commands                        259 B           106 kB
+├ ƒ /api/commands/confirm                259 B           106 kB
+├ ƒ /api/dashboard/statistics            259 B           106 kB
+├ ƒ /api/drivers                         259 B           106 kB
+├ ƒ /api/drivers/assign                  259 B           106 kB
+├ ƒ /api/geofences                       259 B           106 kB
+├ ƒ /api/geofences/check                 259 B           106 kB
+├ ƒ /api/health                          259 B           106 kB
+├ ƒ /api/mfa                             259 B           106 kB
+├ ƒ /api/monitoring/events               259 B           106 kB
+├ ƒ /api/monitoring/export               259 B           106 kB
+├ ƒ /api/notifications                   259 B           106 kB
+├ ƒ /api/profile                         259 B           106 kB
+├ ƒ /api/reports                         259 B           106 kB
+├ ƒ /api/reports/[id]/download           259 B           106 kB
+├ ƒ /api/reports/custom                  259 B           106 kB
+├ ƒ /api/reports/generate                259 B           106 kB
+├ ƒ /api/roles                           259 B           106 kB
+├ ƒ /api/settings                        259 B           106 kB
+├ ƒ /api/settings/notifications          259 B           106 kB
+├ ƒ /api/settings/preferences            259 B           106 kB
+├ ƒ /api/users                           259 B           106 kB
+├ ƒ /api/users/[id]/role                 259 B           106 kB
+├ ƒ /api/vehicles                        259 B           106 kB
+├ ƒ /api/vehicles/commands               259 B           106 kB
+├ ƒ /api/vehicles/positions              259 B           106 kB
+├ ƒ /api/vehicles/status                 259 B           106 kB
+├ ƒ /api/webhooks/payments               259 B           106 kB
+├ ○ /commands                            6.95 kB         120 kB
+├ ○ /dashboard                           11.3 kB         141 kB
+├ ○ /dashboard/alerts                    6.22 kB         131 kB
+├ ○ /dashboard/analytics                 33.1 kB         295 kB
+├ ○ /dashboard/drivers                   6.71 kB         131 kB
+├ ○ /dashboard/geofences                 4.7 kB          139 kB
+├ ○ /dashboard/map                       42 kB           182 kB
+├ ○ /dashboard/profile                   8.96 kB         145 kB
+├ ○ /dashboard/reports                   10.4 kB         280 kB
+├ ○ /dashboard/settings                  3.43 kB         121 kB
+├ ○ /dashboard/users                     1.6 kB          119 kB
+├ ○ /dashboard/vehicles                  36.7 kB         201 kB
+├ ƒ /dashboard/vehicles/[id]             7.11 kB         208 kB
+├ ○ /forgot-password                     4.45 kB         121 kB
+├ ○ /login                               1.44 kB         135 kB
+├ ○ /profile                             5.43 kB         130 kB
+├ ○ /register                            1.37 kB         134 kB
+└ ○ /tracking                            7.85 kB         132 kB
++ First Load JS shared by all            106 kB
+  ├ chunks/6435-b50b42ca234b1b0b.js      50.6 kB
+  ├ chunks/dd170130-64335ad4ab36401c.js  53 kB
+  └ other shared chunks (total)          2.27 kB
+
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
+PASS src/app/api/billing/checkout/__tests__/route.test.ts
+PASS src/app/api/geofences/__tests__/route.test.ts
+PASS src/app/api/webhooks/payments/__tests__/route.test.ts
+PASS src/lib/analytics/__tests__/analytics-service.test.ts
+PASS src/lib/vehicles/__tests__/vehicles-service.test.ts
+PASS src/app/api/auth/phone/__tests__/route.test.ts
+  ● Console
+
+    console.error
+      Erro na API de phone auth: ZodError: [
+        {
+          "code": "too_small",
+          "minimum": 10,
+          "type": "string",
+          "inclusive": true,
+          "exact": false,
+          "message": "Número de telefone inválido",
+          "path": [
+            "phone"
+          ]
+        }
+      ]
+          at Object.get error [as error] (/work/node_modules/.pnpm/zod@3.24.3/node_modules/zod/lib/types.js:55:31)
+          at ZodObject.parse (/work/node_modules/.pnpm/zod@3.24.3/node_modules/zod/lib/types.js:131:22)
+          at POST (/work/src/app/api/auth/phone/route.ts:18:37)
+          at Object.<anonymous> (/work/src/app/api/auth/phone/__tests__/route.test.ts:18:22) {
+        issues: [
+          {
+            code: 'too_small',
+            minimum: 10,
+            type: 'string',
+            inclusive: true,
+            exact: false,
+            message: 'Número de telefone inválido',
+            path: [Array]
+          }
+        ],
+        addIssue: [Function (anonymous)],
+        addIssues: [Function (anonymous)],
+        errors: [
+          {
+            code: 'too_small',
+            minimum: 10,
+            type: 'string',
+            inclusive: true,
+            exact: false,
+            message: 'Número de telefone inválido',
+            path: [Array]
+          }
+        ]
+      }
+
+      28 |     });
+      29 |   } catch (error) {
+    > 30 |     console.error('Erro na API de phone auth:', error);
+         |             ^
+      31 |
+      32 |     if (error instanceof z.ZodError) {
+      33 |       return NextResponse.json(
+
+      at POST (src/app/api/auth/phone/route.ts:30:13)
+      at Object.<anonymous> (src/app/api/auth/phone/__tests__/route.test.ts:18:22)
+
+PASS src/lib/auth/__tests__/mfa-service.test.ts
+PASS src/lib/product-harness/__tests__/posthog.test.ts
+PASS src/lib/payments/__tests__/webhook-signatures.test.ts
+PASS src/lib/product-harness/__tests__/hubspot.test.ts
+PASS src/lib/product-harness/__tests__/sales-signals.test.ts
+PASS src/lib/product-harness/__tests__/entitlements.test.ts
+PASS src/lib/product-harness/__tests__/sales-outbox-worker.test.ts
+PASS src/lib/__tests__/sanity.test.ts
+
+Test Suites: 14 passed, 14 total
+Tests:       37 passed, 37 total
+Snapshots:   0 total
+Time:        1.748 s
+Ran all test suites.
+Browserslist: browsers data (caniuse-lite) is 18 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
