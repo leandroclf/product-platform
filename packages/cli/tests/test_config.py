@@ -31,6 +31,11 @@ def test_config_round_trip(tmp_path: Path) -> None:
     assert loaded.providers["claude"].command == "claude"
 
 
+@pytest.mark.parametrize("config", [DEFAULT_CONFIG, load_config(Path(__file__).parents[1] / "omnicli.example.yaml")])
+def test_codex_conception_can_run_outside_a_git_repository(config: OmniConfig) -> None:
+    assert "--skip-git-repo-check" in config.providers["codex"].args
+
+
 def test_default_provider_sources_are_registered() -> None:
     sources = (Path(__file__).parents[1] / "docs" / "provider-sources.txt").read_text(encoding="utf-8")
     for provider in DEFAULT_CONFIG.providers.values():

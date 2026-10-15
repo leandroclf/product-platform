@@ -9,7 +9,7 @@ Contrato operacional para que um repositório alvo seja implementado conforme as
 | `product-platform-cli` | Transforma o pedido inicial em proposta revisável e handoff | `proposal_generation` |
 | `product-platform-kit` | Define regras, contratos, registry, políticas e skills | contratos compartilhados, gates, conformance |
 | `product-platform-harness` | Runtime reutilizável embutido nos produtos (eventos, entitlements, pagamentos, economics, observabilidade) | capacidades de runtime |
-| `product-platform-engineering-team` (`ai-team`) | Executa plan → implement → validate → review no alvo | `engineering_orchestration` |
+| `product-platform-engineering-team` (`ai-team`) | Executa plan → implement → validate → review no alvo | `engineering_delivery` |
 | Repositório alvo (produto) | Lógica de domínio, pontos de emissão, sinks e adapters próprios | domínio do produto |
 
 Dependências permitidas (`contracts/repository-boundaries.yaml`; dentro da plataforma, `platform-packages.json` verificado por `scripts/check-package-boundaries.py`): produto → kit e harness; cli, engineering-team e harness → kit; kit → ninguém; produto → produto é proibido. Os quatro pacotes da plataforma vivem em um só repositório (`leandroclf/product-platform`); os produtos continuam em repositórios próprios e consomem o harness por artefato de release.
@@ -33,7 +33,7 @@ pedido inicial
 
 | Gate | Quando | Regra | Fonte | Estado de automação |
 | --- | --- | --- | --- | --- |
-| G0 Proposta | fim do CLI | Escopo, riscos, decisões e critérios de aceite presentes; registry hasheado no manifest | `product-platform-cli/docs/fluxo-engenharia.md` | Parcial: quality gate por seções; `conceive --handoff-out` gera o JSON de capacidades; falta o handoff completo (escopo, risco, evidências) |
+| G0 Proposta | fim do CLI | Escopo, riscos, decisões e critérios de aceite presentes; registry hasheado no manifest | `product-platform-cli/docs/fluxo-engenharia.md` | Implementado: `conceive --envelope-out` gera proposta, capacidades e regras no envelope completo; o kit valida schema e G1 e o `ai-team` congela os três componentes. A revisão humana da proposta permanece obrigatória |
 | G1 Capacidades | antes do PLAN | Cada capacidade resolvida em REUSE > EXTEND > CREATE; parar se duplicar capacidade registrada, houver dependência produto→produto, EXTEND mirar o consumidor ou o registry estiver defasado | `contracts/capability-registry.yaml`, `engineering-team/docs/CAPABILITY-RESOLUTION-GATE.md` | Automático: `scripts/validate-platform-handoff.py` (kit) confere schema, fingerprint, nomes e donos contra o registry; no `ai-team`, `run --handoff` valida e congela, `--registry` bloqueia registry defasado e o plano deve declarar `capability_decisions` idênticas ao handoff |
 | G2 Regras | início de cada etapa | O agente recebe as regras da plataforma (este documento, `AGENTS.md` do kit, políticas do harness) com versão/SHA registrados | este documento | Automático: `ai-team run --rules` congela, hasheia e monta as regras em todas as etapas |
 | G3 Checks | após IMPLEMENT | Lint, testes, build, conformance de ProductEvent e validação do artefato do harness no container offline | `init --check` do alvo | Manual por projeto |
@@ -85,7 +85,7 @@ O `ai-team run` aceita `--handoff` e `--rules` (ver `product-platform-engineerin
 
 ## Evolução (backlog de automação)
 
-Em ordem de dependência. Itens com código exigem tarefa própria por repositório.
+Em ordem de dependência. Mudanças entre pacotes da plataforma cabem em uma única tarefa; mudanças nos produtos exigem tarefas nos respectivos repositórios.
 
 | # | Repositório | Mudança | Resultado |
 | --- | --- | --- | --- |
@@ -93,15 +93,15 @@ Em ordem de dependência. Itens com código exigem tarefa própria por repositó
 | 2 | kit | **Feito**: envelope `PlatformHandoff` v1, `scripts/validate-platform-handoff.py` (fingerprint e G1 contra o registry) e, na raiz do repositório, `scripts/test_handoff_contract.py` (cli → kit → ai-team, executado no workflow `platform`); o CLI e o `ai-team` aceitam o envelope | contrato único |
 | 3 | engineering-team | **Feito**: `run --handoff`, `--rules` e `--registry` validados e congelados com hash; `capability_decisions` no plano verificado pelo host | G1 e G2 automáticos |
 | 4 | engineering-team | Check de conformidade como fase própria do host | G3 padronizado |
-| 5 | kit | Substituir conformance por substring por validação JSON Schema; fixtures e runner para `payment-event/v1`; remover cópias legadas do ProductEvent | G3 confiável |
-| 6 | harness | Gate de CI conforme a spec do kit (lint, conformance, integração); release publicada 0.2.0 | alvos podem pinar |
+| 5 | kit | Substituir checagens manuais/substring de conformance por validação JSON Schema; fixtures e runner para `payment-event/v1`; remover cópias legadas do ProductEvent após migração dos consumidores | G3 confiável |
+| 6 | harness | **Parcial**: CI executa build e testes TypeScript/Python contra o corpus canônico do kit; `harness-v0.2.1` publicado com tarball, wheel e checksums. Lint dedicado e integração completa de pagamentos permanecem pendentes | alvos já podem pinar o artefato publicado |
 | 7 | todos | Concluir a troca de nomes legados nos READMEs, ROADMAPs e pacotes SDK (o validador de nomes aposentados lista os pontos) | nomenclatura única |
 
 ## Lacunas conhecidas (fatos verificados nos repositórios)
 
-- O `ai-team` consome `PortfolioCapabilityHandoff` via `--handoff`, mas `EngineeringProposalHandoff` não é consumido por ninguém e o CLI emite Markdown, manifest e, com `--handoff-out`, só o JSON de capacidades.
+- O contrato completo CLI → kit → `ai-team` é coberto por `scripts/test_handoff_contract.py`. A jornada com concepção autenticada, revisão humana e entrega em produto real ainda precisa de aceitação; ver [baseline e piloto](PLATFORM-READINESS.md).
 - O host confere a decisão declarada no plano, não o código produzido; a ausência de duplicação de capacidade na implementação depende de Sentinel e da revisão.
-- O harness está `partial` no registry (sem inbox durável, outbox, ledger persistido, reserva atômica de uso) e a 0.2.0 ainda é candidata local.
+- O harness está `partial` no registry (sem inbox durável, outbox, ledger persistido, reserva atômica de uso). Isso limita suas capacidades, não a existência da release: `harness-v0.2.1` foi publicado em 2026-10-07 e conferido em 2026-10-14.
 - O manifesto do kit no alvo (`pin: ^0.1`) não é validado nem aplicado por nenhum script.
 
 ## Validação com provedores reais (2026-10-07)
@@ -111,6 +111,6 @@ Um pedido real passou por Codex e Claude em um repositório de teste, usando o e
 - O envelope foi aceito, dividido e congelado com SHA-256; as quatro etapas ficaram presas ao mesmo fingerprint de plataforma.
 - O Atlas declarou `capability_decisions` idênticas ao handoff, citou os SHAs do kit e do harness e o perfil, e **bloqueou** quando o pedido saía do `allowed_paths`.
 - Plan, implement, checks offline, validate e review fecharam sem ciclos de reparo; Sentinel e revisor aprovaram os cinco critérios com evidência e o mesmo `head_sha`; a entrega criou a branch `ai-team/<task>` sem tocar no checkout do alvo.
-- Limites: repositório de brinquedo, modelos intermediários e envelope montado sem executar os provedores do `product-platform-cli`. Um pedido em produto real e o `omnicli conceive` com provedores reais ainda não foram exercitados.
+- Limites desta execução: repositório de brinquedo, modelos intermediários e envelope montado sem executar os provedores do `product-platform-cli`. Ela não comprova a jornada conjunta de concepção e implementação em produto real; a evidência anterior do pipeline de concepção está em `packages/cli/docs/production-transition-status.md` e a consolidação atual em [PLATFORM-READINESS.md](PLATFORM-READINESS.md).
 - Defeitos encontrados e corrigidos: o gate de capacidades mascarava um plano `BLOCKED` com uma mensagem enganosa, e o prompt não dizia que o host grava o OpenSpec fora do escopo do agente.
 - Limitação conhecida: o `doctor` não detecta token de login vencido (ver `LOCAL-LINUX-WORKFLOW.md`, diagnóstico de falhas).

@@ -1,0 +1,75 @@
+{
+  "schema_version": "1.0",
+  "proposal": {
+    "proposal_id": "run-20261015-012157-7487aabbd0c4",
+    "repository": {
+      "url": "https://github.com/leandroclf/bussola-financeira.git",
+      "base_ref": "main",
+      "base_sha": "51f4092dc8ad7f7439ca74b524f05286a46bff20"
+    },
+    "objective": "Após revisão humana e confirmação de isolamento de rede/banco em tests/test_ingestion_integrity.py, adicionar ao CI um passo que execute os dois testes determinísticos de integridade de ingestão, preservando test_product_events.py e o validador do artefato do harness.",
+    "scope": {
+      "allowed_paths": [
+        ".github/workflows/ci.yml",
+        "tests/test_ingestion_integrity.py"
+      ]
+    },
+    "acceptance": {
+      "criteria": [
+        "Ler o conteúdo completo de tests/test_ingestion_integrity.py antes do PR e confirmar, por evidência concreta no próprio arquivo, que não há dependência do banco padrão em arquivo (sqlite:///./data/app.db) nem de chamadas reais via src/bussola_financeira/providers.py.",
+        "Se a leitura revelar dependência de rede ou banco real, tratar como falha de baseline: expor o problema e, somente nesse caso, editar tests/test_ingestion_integrity.py para isolar o teste, sem remover ou enfraquecer asserções de proveniência, linhagem, contagem de linhas inválidas, idempotência ou falha explícita do provedor.",
+        "Adicionar um único passo `pytest tests/test_ingestion_integrity.py -q` em .github/workflows/ci.yml, após o passo existente de test_product_events.py, sem criar job novo nem alterar a ordem dos passos existentes.",
+        "Preservar scripts/validate_harness_artifact.py na posição atual e tests/test_product_events.py sem alteração.",
+        "Não adicionar dependências novas (ex.: pytest-socket) nem tocar requirements.txt/requirements-dev.txt; necessidade de bloqueio de rede automático fica registrada como melhoria futura fora deste escopo.",
+        "Não introduzir skip, xfail, continue-on-error ou qualquer supressão para obter aprovação verde.",
+        "Confirmar exatamente dois testes de ingestão coletados e aprovados, com registro do identificador de cada teste e do resultado.",
+        "Apresentar diff restrito aos caminhos autorizados; qualquer necessidade de tocar produção, dependências, contratos ou harness interrompe a implementação e retorna para revisão humana."
+      ]
+    },
+    "risk": {
+      "level": "low"
+    },
+    "evidence": {
+      "required": [
+        "tests",
+        "ci"
+      ]
+    }
+  },
+  "portfolio": {
+    "registry_fingerprint": "b476209eb1a2fcef3f7dd99a53393e9846ccb674bb1ba26c0337819c55a4d3d9",
+    "product": "bussola-financeira",
+    "capabilities": [
+      {
+        "name": "engineering_delivery",
+        "decision": "REUSE",
+        "owner": "product-platform-engineering-team",
+        "version": null,
+        "reason": "Mudança restrita de CI segue o fluxo padrão plan/implement/validate/review; não há necessidade de owner alternativo."
+      },
+      {
+        "name": "financial_insights",
+        "decision": "REUSE",
+        "owner": "bussola-financeira",
+        "version": null,
+        "reason": "Capacidade de domínio do produto permanece inalterada; nenhuma lógica de produto é tocada."
+      },
+      {
+        "name": "product_events",
+        "decision": "REUSE",
+        "owner": "product-platform-kit",
+        "version": null,
+        "reason": "Contrato product-event/v1 e implementação no product-platform-harness preservados sem alteração."
+      }
+    ]
+  },
+  "rules_refs": {
+    "kit": {
+      "ref": "3a49cc1d38c985cd16b8067faa2f63cb37521ecb"
+    },
+    "harness": {
+      "ref": "4040e76bbd0ff8b5933550121b07201010919bf5"
+    },
+    "profile": "backend"
+  }
+}

@@ -74,7 +74,7 @@ DEFAULT_CONFIG = OmniConfig(
         ),
         "codex": ProviderConfig(
             command="codex",
-            args=["exec", "{prompt}"],
+            args=["exec", "--skip-git-repo-check", "{prompt}"],
             required_capabilities=["exec"],
             documentation_url="https://developers.openai.com/codex/cli",
             installation_url="https://developers.openai.com/codex/cli",
