@@ -25,12 +25,18 @@ def main():
             # Exercise production mount construction, replacing account volume with empty tmpfs.
             volume = next(i for i, value in enumerate(cmd) if '-home:/home/agent' in value)
             cmd[volume - 1:volume + 1] = ['--tmpfs', '/home/agent:uid=1001,gid=1001,mode=700']
+            stage_rules = any(value.endswith(':/home/agent/.codex/AGENTS.md:ro') for value in cmd)
             end = cmd.index(image)
             script = '''import os,pathlib
 assert os.getuid() == 1001
-assert not list(pathlib.Path('/home/agent').iterdir())
+home = pathlib.Path('/home/agent')
+expected = {'.codex', '.codex/AGENTS.md'} if STAGE_RULES else set()
+assert {str(p.relative_to(home)) for p in home.rglob('*')} == expected
 assert not pathlib.Path('/var/run/docker.sock').exists()
-for filename in ('/work/.git/marker', '/handoff/marker'):
+protected = ['/work/.git/marker', '/handoff/marker']
+if STAGE_RULES:
+ protected.append('/home/agent/.codex/AGENTS.md')
+for filename in protected:
  try: pathlib.Path(filename).write_text('tampered')
  except OSError: pass
  else: raise AssertionError('unexpected write: '+filename)
@@ -40,7 +46,7 @@ except OSError:
 else:
  assert IMPLEMENT
 pathlib.Path('/output/result.json').write_text('stage output')
-'''.replace('IMPLEMENT', repr(kind == 'implement'))
+'''.replace('IMPLEMENT', repr(kind == 'implement')).replace('STAGE_RULES', repr(stage_rules))
             cmd = cmd[:end] + ['--network', 'none', image, 'python3', '-c', script]
             result = subprocess.run(cmd, text=True, capture_output=True, timeout=30, env=env_without_authority())
             if result.returncode:

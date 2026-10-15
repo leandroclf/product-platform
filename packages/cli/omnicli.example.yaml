@@ -75,7 +75,7 @@ providers:
     environment_allowlist: [PATH, HOME, USER, TMPDIR, LANG, LC_ALL]
   codex:
     command: codex
-    args: [exec, "{prompt}"]
+    args: [exec, --skip-git-repo-check, "{prompt}"]
     enabled: true
     version_args: [--version]
     capability_args: [--help]
