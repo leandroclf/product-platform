@@ -1,0 +1,95 @@
+
+> fivem-server-monitor-pro@0.1.0 verify
+> npm run check && npm test
+
+
+> fivem-server-monitor-pro@0.1.0 check
+> node scripts/validate.mjs
+
+Validation passed: 49 files, 14 manifest references.
+
+> fivem-server-monitor-pro@0.1.0 test
+> node --test tests/*.test.mjs
+
+TAP version 13
+# Subtest: dashboard contains required accessible controls
+ok 1 - dashboard contains required accessible controls
+  ---
+  duration_ms: 4.446578
+  type: 'test'
+  ...
+# Subtest: server payload does not collect player identifiers
+ok 2 - server payload does not collect player identifiers
+  ---
+  duration_ms: 0.886723
+  type: 'test'
+  ...
+# Subtest: network access checks happen before snapshots are emitted
+ok 3 - network access checks happen before snapshots are emitted
+  ---
+  duration_ms: 0.915436
+  type: 'test'
+  ...
+# Subtest: Docker profile keeps secrets external and exposes FiveM networking
+ok 4 - Docker profile keeps secrets external and exposes FiveM networking
+  ---
+  duration_ms: 2.038232
+  type: 'test'
+  ...
+# Subtest: persistence exposes backup recovery diagnostics and pins server data
+ok 5 - persistence exposes backup recovery diagnostics and pins server data
+  ---
+  duration_ms: 1.23705
+  type: 'test'
+  ...
+# Subtest: security contract keeps dashboard read-only and refresh server-authorized
+ok 6 - security contract keeps dashboard read-only and refresh server-authorized
+  ---
+  duration_ms: 1.523758
+  type: 'test'
+  ...
+# Subtest: discord and privacy-sensitive features remain opt-in or redacted by contract
+ok 7 - discord and privacy-sensitive features remain opt-in or redacted by contract
+  ---
+  duration_ms: 0.914936
+  type: 'test'
+  ...
+# Subtest: normalizes malformed input to safe defaults
+ok 8 - normalizes malformed input to safe defaults
+  ---
+  duration_ms: 1.043296
+  type: 'test'
+  ...
+# Subtest: detects ping and capacity warnings
+ok 9 - detects ping and capacity warnings
+  ---
+  duration_ms: 0.244148
+  type: 'test'
+  ...
+# Subtest: critical events override warning health
+ok 10 - critical events override warning health
+  ---
+  duration_ms: 0.13855
+  type: 'test'
+  ...
+# Subtest: historical critical events do not keep a recovered server critical
+ok 11 - historical critical events do not keep a recovered server critical
+  ---
+  duration_ms: 0.156834
+  type: 'test'
+  ...
+# Subtest: formats uptime predictably
+ok 12 - formats uptime predictably
+  ---
+  duration_ms: 0.153538
+  type: 'test'
+  ...
+1..12
+# tests 12
+# suites 0
+# pass 12
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 99.986253

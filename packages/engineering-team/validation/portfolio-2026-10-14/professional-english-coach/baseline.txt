@@ -1,0 +1,246 @@
+
+> professional-english-coach@0.1.0 check
+> node --check server.js && node --check src/app.js && node --check src/data.js && node --check src/engine.js && node --check src/coach.js && node --check src/i18n.js && node --check src/curriculum.js && node --check src/learning-engine.js && node --check src/learning-view.js && node --check src/media-assets.js && node --check scripts/build-static.mjs && node --test
+
+TAP version 13
+# Subtest: feedback parser accepts the required coaching structure and bounds text
+ok 1 - feedback parser accepts the required coaching structure and bounds text
+  ---
+  duration_ms: 1.445411
+  type: 'test'
+  ...
+# Subtest: feedback input limits learner text and keeps recent context concise
+ok 2 - feedback input limits learner text and keeps recent context concise
+  ---
+  duration_ms: 0.267081
+  type: 'test'
+  ...
+# Subtest: provider integration uses the Responses endpoint and validates returned JSON
+ok 3 - provider integration uses the Responses endpoint and validates returned JSON
+  ---
+  duration_ms: 1.185734
+  type: 'test'
+  ...
+# Subtest: provider is never called without server credentials
+ok 4 - provider is never called without server credentials
+  ---
+  duration_ms: 0.254126
+  type: 'test'
+  ...
+# Subtest: a session preserves staged answers and completed history
+ok 5 - a session preserves staged answers and completed history
+  ---
+  duration_ms: 3.278498
+  type: 'test'
+  ...
+# Subtest: every track progresses from recognition through guided production to open responses
+ok 6 - every track progresses from recognition through guided production to open responses
+  ---
+  duration_ms: 0.49584
+  type: 'test'
+  ...
+# Subtest: an unfinished session from the previous curriculum keeps its original stage order
+ok 7 - an unfinished session from the previous curriculum keeps its original stage order
+  ---
+  duration_ms: 0.16541
+  type: 'test'
+  ...
+# Subtest: new sessions save the bilingual lesson plan while legacy sessions remain unchanged
+ok 8 - new sessions save the bilingual lesson plan while legacy sessions remain unchanged
+  ---
+  duration_ms: 0.185478
+  type: 'test'
+  ...
+# Subtest: owner-authorized audio is available with transcript and explicit unreviewed-rights metadata
+ok 9 - owner-authorized audio is available with transcript and explicit unreviewed-rights metadata
+  ---
+  duration_ms: 0.211196
+  type: 'test'
+  ...
+# Subtest: audio cloze accepts case and terminal punctuation, then reveals its transcript
+ok 10 - audio cloze accepts case and terminal punctuation, then reveals its transcript
+  ---
+  duration_ms: 0.178945
+  type: 'test'
+  ...
+# Subtest: optional listening can be skipped without recording a learner response
+ok 11 - optional listening can be skipped without recording a learner response
+  ---
+  duration_ms: 0.220584
+  type: 'test'
+  ...
+# Subtest: a generated follow-up prompt is preserved with the learner answer
+ok 12 - a generated follow-up prompt is preserved with the learner answer
+  ---
+  duration_ms: 0.192771
+  type: 'test'
+  ...
+# Subtest: an opted-in AI follow-up opens one final conversation turn after open-ended practice
+ok 13 - an opted-in AI follow-up opens one final conversation turn after open-ended practice
+  ---
+  duration_ms: 1.198969
+  type: 'test'
+  ...
+# Subtest: review recall advances spacing and a retry resets it
+ok 14 - review recall advances spacing and a retry resets it
+  ---
+  duration_ms: 0.576842
+  type: 'test'
+  ...
+# Subtest: repeated corrections are grouped and scheduled for another retrieval attempt
+ok 15 - repeated corrections are grouped and scheduled for another retrieval attempt
+  ---
+  duration_ms: 0.665919
+  type: 'test'
+  ...
+# Subtest: local state round trip and invalid version handling
+ok 16 - local state round trip and invalid version handling
+  ---
+  duration_ms: 0.242484
+  type: 'test'
+  ...
+# Subtest: an unfinished response draft survives reload and clears after submission
+ok 17 - an unfinished response draft survives reload and clears after submission
+  ---
+  duration_ms: 0.201689
+  type: 'test'
+  ...
+# Subtest: browser locale selects Portuguese on first visit while an explicit choice wins
+ok 18 - browser locale selects Portuguese on first visit while an explicit choice wins
+  ---
+  duration_ms: 1.453826
+  type: 'test'
+  ...
+# Subtest: localized track copy and stage directions leave practice prompts in English
+ok 19 - localized track copy and stage directions leave practice prompts in English
+  ---
+  duration_ms: 0.228488
+  type: 'test'
+  ...
+# Subtest: Portuguese interface copy is translated without modifying protected learner content
+ok 20 - Portuguese interface copy is translated without modifying protected learner content
+  ---
+  duration_ms: 0.65573
+  type: 'test'
+  ...
+# Subtest: all eight lessons have bilingual instruction and valid progressive content
+ok 21 - all eight lessons have bilingual instruction and valid progressive content
+  ---
+  duration_ms: 8.99657
+  type: 'test'
+  ...
+# Subtest: legacy state is unchanged and recognition completes without written answers
+ok 22 - legacy state is unchanged and recognition completes without written answers
+  ---
+  duration_ms: 0.243806
+  type: 'test'
+  ...
+# Subtest: feedback must be acknowledged and malformed/double submission is rejected
+ok 23 - feedback must be acknowledged and malformed/double submission is rejected
+  ---
+  duration_ms: 0.467606
+  type: 'test'
+  ...
+# Subtest: draft and help survive storage round trip and export
+ok 24 - draft and help survive storage round trip and export
+  ---
+  duration_ms: 0.290895
+  type: 'test'
+  ...
+# Subtest: assistance and skips do not inflate unassisted accuracy; writing is ungraded
+ok 25 - assistance and skips do not inflate unassisted accuracy; writing is ungraded
+  ---
+  duration_ms: 0.412634
+  type: 'test'
+  ...
+# Subtest: delayed retrieval advances spacing, same-day repetition does not, and errors reset it
+ok 26 - delayed retrieval advances spacing, same-day repetition does not, and errors reset it
+  ---
+  duration_ms: 0.340829
+  type: 'test'
+  ...
+# Subtest: due review begins with retrieval; new lessons show instruction first
+ok 27 - due review begins with retrieval; new lessons show instruction first
+  ---
+  duration_ms: 0.168917
+  type: 'test'
+  ...
+# Subtest: mixed retrieval combines studied units and weekly goals count unique local days
+ok 28 - mixed retrieval combines studied units and weekly goals count unique local days
+  ---
+  duration_ms: 0.350818
+  type: 'test'
+  ...
+# Subtest: both interfaces expose beginner modes, media alternatives and explicit feedback
+ok 29 - both interfaces expose beginner modes, media alternatives and explicit feedback
+  ---
+  duration_ms: 1.408632
+  type: 'test'
+  ...
+# Subtest: every curriculum media file exists with original script and captions
+ok 30 - every curriculum media file exists with original script and captions
+  ---
+  duration_ms: 11.74288
+  type: 'test'
+  ...
+# Subtest: validated local restore accepts exported data and rejects malformed input without overwrite
+ok 31 - validated local restore accepts exported data and rejects malformed input without overwrite
+  ---
+  duration_ms: 0.555221
+  type: 'test'
+  ...
+# Subtest: restore conflict is deterministic and never silently destroys current learner data
+ok 32 - restore conflict is deterministic and never silently destroys current learner data
+  ---
+  duration_ms: 0.320191
+  type: 'test'
+  ...
+# Subtest: unsupported backup shape is rejected
+ok 33 - unsupported backup shape is rejected
+  ---
+  duration_ms: 0.176761
+  type: 'test'
+  ...
+# Subtest: status does not expose secrets and identifies unavailable coaching
+ok 34 - status does not expose secrets and identifies unavailable coaching
+  ---
+  duration_ms: 27.578986
+  type: 'test'
+  ...
+# Subtest: feedback endpoint does not call provider when keys are missing
+ok 35 - feedback endpoint does not call provider when keys are missing
+  ---
+  duration_ms: 10.209434
+  type: 'test'
+  ...
+# Subtest: feedback endpoint returns structured provider suggestions without logging the response
+ok 36 - feedback endpoint returns structured provider suggestions without logging the response
+  ---
+  duration_ms: 4.320922
+  type: 'test'
+  ...
+# Subtest: app serves its entry point and rejects unsupported methods
+ok 37 - app serves its entry point and rejects unsupported methods
+  ---
+  duration_ms: 6.578847
+  type: 'test'
+  ...
+# Subtest: static server assigns browser media types for audio, video and captions
+ok 38 - static server assigns browser media types for audio, video and captions
+  ---
+  duration_ms: 0.230843
+  type: 'test'
+  ...
+1..38
+# tests 38
+# suites 0
+# pass 38
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 384.125606
+
+> professional-english-coach@0.1.0 build
+> node scripts/build-static.mjs
+

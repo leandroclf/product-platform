@@ -1,0 +1,42 @@
+Execute a primeira tarefa delimitada do portfólio: incluir os testes determinísticos de integridade de ingestão no CI da Bússola Financeira.
+
+OBJETIVO E CONTEXTO
+O CI atual valida o artefato do harness, instala as dependências existentes e executa somente tests/test_product_events.py. Os dois testes de tests/test_ingestion_integrity.py já existem, usam SQLite em memória e DeterministicProvider e passaram junto com os quatro testes de eventos no runner offline. A alteração esperada é um único passo adicional no workflow. Não há necessidade demonstrada de editar testes ou código de produção.
+
+BASELINE E REGRAS
+- Produto: bussola-financeira; origem esperada: https://github.com/leandroclf/bussola-financeira.git.
+- Base exata: 51f4092dc8ad7f7439ca74b524f05286a46bff20, main.
+- Kit/plataforma: 37184551a1440b26fc5f117334f3ba3298332779.
+- Harness consumido: harness-v0.2.1, commit 4040e76bbd0ff8b5933550121b07201010919bf5; identidade e checksum em vendor/harness-artifact.json.
+- O envelope congelado em /handoff/proposal.json define objetivo, escopo e aceite. /handoff/capabilities.json define as decisões; /handoff/rules.json e /handoff/rules/ contêm as referências e regras. Leia também o AGENTS.md do produto. Não trate este texto como autorização para enfraquecer regras superiores.
+- A análise dos nove produtos pertence ao coordenador e não amplia esta tarefa. Não leia nem altere outro produto. Os dados financeiros de produção e as fontes externas não são necessários.
+
+ESCOPO EXATO
+Edite somente .github/workflows/ci.yml. Após o passo existente que executa pytest tests/test_product_events.py -q, acrescente um único passo que execute pytest tests/test_ingestion_integrity.py -q. Preserve jobs, triggers, permissões, versão Python, dependências, ordem dos passos anteriores e validação do artefato. Não reescreva nem reformate o workflow inteiro.
+
+Não alterar testes, requirements, manifests, lockfiles, código de produção, APIs, contratos, harness, migrações, telemetria ou configuração de deploy. Não adicionar dependências. Não introduzir skip, xfail, continue-on-error, tolerância a falhas ou remoção de asserções. Se a baseline falhar ou for necessário sair do escopo, explique a evidência e retorne BLOCKED/REPLAN_REQUIRED conforme o contrato da etapa.
+
+PLANEJAMENTO
+Confirme HEAD e leia em lote apenas os arquivos necessários: AGENTS.md, workflow atual, tests/test_ingestion_integrity.py, tests/test_product_events.py, scripts/validate_harness_artifact.py, configuração pytest e manifest do artefato. Expanda a leitura apenas para resolver uma dúvida concreta. Confirme o isolamento dos testes, sem executar código do checkout nas etapas de planejamento/validação/revisão. Declare capability_decisions exatamente iguais ao handoff: REUSE de engineering_delivery, financial_insights e product_events com seus donos canônicos. Não criar ou estender capacidades.
+
+Use o schema obrigatório da etapa para plano e pareceres; textos descritivos em português brasileiro. O coordenador registra o OpenSpec e faz commits; o agente implementador não deve escrever OpenSpec, executar Git ou pedir caminhos extras para isso. Argus só dispõe das ferramentas de arquivo autorizadas; comandos são responsabilidade do host. Não solicitar shell, ferramentas, acesso de rede ou credenciais adicionais para realizar esta edição.
+
+CHECKS DO HOST
+A imagem já preparada é bussola-tests:pilot-20261014, identidade sha256:81e71a8a0c0e0a316fd35744d001564cfce1aa4e41bc28a23a2cc988d21aa064. Ela contém as dependências atuais; não certifique outra imagem por associação de nome.
+1. python3 scripts/validate_harness_artifact.py
+2. PYTHONPATH=src DATABASE_URL=sqlite+pysqlite:///:memory: python3 -m pytest -p no:cacheprovider tests/test_ingestion_integrity.py tests/test_product_events.py -v
+Os checks devem executar no runner offline sem volumes de conta ou socket Docker. Não rodar ingestão real, migração, download, instalação de pacotes ou APIs de provedor. Resultados da baseline são contexto; o aceite exige evidência dos checks após a implementação no SHA final.
+
+ACEITE E REVISÃO
+- Diff de produto restrito ao novo passo em .github/workflows/ci.yml; OpenSpec produzido pelo host é metadado separado da implementação.
+- Exatamente dois testes de ingestão e quatro de eventos coletados e aprovados. Registrar os identificadores, incluindo test_market_ingestion_preserves_provenance_lineage_invalid_count_and_idempotency e test_provider_failure_is_not_silently_reported_as_success.
+- Artefato do harness verificado; nenhum teste existente ou contrato alterado.
+- Conferir que o novo passo é alcançável no mesmo job, usa as dependências já instaladas e não altera a cobertura anterior.
+- Sentinel e revisor devem avaliar cada critério com referências ao diff e aos checks do host no mesmo HEAD/plano, sem presumir aprovação pela saída do outro.
+- Se aprovável, retornar o status previsto no schema; não inventar testes, CI remoto, revisão humana, publicação ou deploy. O host deve usar Conventional Commits em português brasileiro para os commits que cria.
+
+LIMITE OPERACIONAL CONHECIDO
+A tentativa 13c9fed321c04d8b94dccfa424e62aa4 falhou no planejamento: bwrap não conseguiu criar namespace no host. Essa tarefa terminou em FAILED e não pode ser retomada. Esta é uma nova tarefa somente depois de resolver o pré-requisito do executor. Não alterar sandbox, permissões, volumes ou credenciais por iniciativa do agente. Caso o problema persista, retorne o bloqueio exato; não repita inferências sem mudança de condição.
+
+ENTREGA
+Entregar a menor mudança completa, com plano, evidência dos checks e pareceres no SHA final. O checkout original do produto deve ser preservado. Ao final, informar arquivos alterados, capacidades reutilizadas, resultado de cada critério e limitações. Não fazer push, merge, migração ou deploy por dentro dos agentes: essas ações pertencem à etapa externa de entrega do coordenador e às autorizações aplicáveis.

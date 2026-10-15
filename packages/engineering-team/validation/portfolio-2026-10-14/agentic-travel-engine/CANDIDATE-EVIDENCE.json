@@ -1,0 +1,19 @@
+{
+  "source": "host coordinator; unreviewed candidate preserved after native provider quota failure",
+  "previous_task": "b96fe3cc10f84fea941724562832285c",
+  "original_product_base": "e65fe48e1940f019a4e4dcddae011f85122f432d",
+  "candidate_head": "e348f456970c0141dcc2714e6978e292a4c9f14f",
+  "previous_failure": "validate failed: You’ve hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/pro), visit https://chatgpt.com/codex/settings/usage to purchase more credits or try again at 3:17 AM.; no implicit retry/model fallback",
+  "previous_local_checks": {
+    "head_sha": "e348f456970c0141dcc2714e6978e292a4c9f14f",
+    "exit_code": 0,
+    "started_at": 1792030166.1494906,
+    "ended_at": 1792030170.8124483,
+    "checks": [
+      "make lint",
+      "PYTHONPATH=. python3 -m pytest -p no:cacheprovider -q"
+    ],
+    "output": "ruff check src tests\nAll checks passed!\nblack --check src tests\n...................................................                      [100%]\n51 passed in 0.30s\n"
+  },
+  "review_status": "not approved; new task must validate and review the complete product diff"
+}

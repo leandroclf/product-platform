@@ -1,0 +1,64 @@
+{
+  "schema_version": "1.0",
+  "proposal": {
+    "proposal_id": "portfolio-20261014-lf-wikidata-entity-graph",
+    "repository": {
+      "url": "https://github.com/leandroclf/lf-wikidata-entity-graph.git",
+      "base_ref": "main",
+      "base_sha": "a53a2857391426c66736308abde8b0f3b04af282"
+    },
+    "objective": "Impedir que pseudo-QIDs gerados localmente sejam expostos como vínculos Wikidata verificados, preservando o pipeline local de normalização e grafo.",
+    "scope": {
+      "allowed_paths": [
+        "backend/src/api.py",
+        "tests/",
+        "tools/smoke_check.py",
+        "README.md",
+        "docs/openapi.yaml",
+        "docs/postman_collection.json"
+      ]
+    },
+    "acceptance": {
+      "criteria": [
+        "Sem fonte verificada configurada, link_entities_to_wikidata retorna linked=false, qid=null e confiança zero; não gerar QID por hash nem confiança por comprimento do nome. Não implementar chamadas a Wikidata nem uma nova camada de providers nesta tarefa.",
+        "Preservar nomes normalizados, matching lexical, ingestão, identidade local e grafo de aliases. Um registro com QID sintético prévio não vira verificado apenas por ter formato Q. Contagens de vínculos devem refletir somente os vínculos realmente verificados.",
+        "Atualizar testes do pipeline e smoke que esperavam QIDs inventados, mantendo as asserções de validação, deduplicação, aliases, IDs de origem e matching. Fixtures explícitas de grafo podem continuar representando entradas já verificadas, identificadas como fixtures; não usar a geração por hash para satisfazer o teste.",
+        "README, OpenAPI e exemplos da coleção devem declarar a indisponibilidade de resolução externa e manter os campos nullable existentes, com exemplo realista não resolvido. Não anunciar integração ou disponibilidade de produção.",
+        "Suite pytest completa e smoke devem passar offline, sem skip novo, dependência nova ou acesso externo; diffs limitados ao escopo."
+      ]
+    },
+    "risk": {
+      "level": "medium"
+    },
+    "evidence": {
+      "required": [
+        "tests"
+      ]
+    }
+  },
+  "portfolio": {
+    "registry_fingerprint": "b476209eb1a2fcef3f7dd99a53393e9846ccb674bb1ba26c0337819c55a4d3d9",
+    "product": "lf-wikidata-entity-graph",
+    "capabilities": [
+      {
+        "name": "engineering_delivery",
+        "decision": "REUSE",
+        "owner": "product-platform-engineering-team"
+      },
+      {
+        "name": "entity_resolution",
+        "decision": "REUSE",
+        "owner": "lf-wikidata-entity-graph"
+      }
+    ]
+  },
+  "rules_refs": {
+    "kit": {
+      "ref": "37184551a1440b26fc5f117334f3ba3298332779"
+    },
+    "harness": {
+      "ref": "4040e76bbd0ff8b5933550121b07201010919bf5"
+    },
+    "profile": "backend"
+  }
+}

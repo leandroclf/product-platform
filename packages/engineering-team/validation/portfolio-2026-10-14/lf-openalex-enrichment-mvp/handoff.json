@@ -1,0 +1,63 @@
+{
+  "schema_version": "1.0",
+  "proposal": {
+    "proposal_id": "portfolio-20261014-lf-openalex-enrichment-mvp",
+    "repository": {
+      "url": "https://github.com/leandroclf/lf-openalex-enrichment-mvp.git",
+      "base_ref": "main",
+      "base_sha": "c4c412b1dfb3d7594df229f77767d67cf68225c7"
+    },
+    "objective": "Rejeitar scores NaN e infinitos no cálculo e na fronteira HTTP de value-score, mantendo o contrato dos scores finitos.",
+    "scope": {
+      "allowed_paths": [
+        "backend/src/api.py",
+        "backend/src/http_server.py",
+        "tests/",
+        "docs/openapi.yaml",
+        "docs/postman_collection.json"
+      ]
+    },
+    "acceptance": {
+      "criteria": [
+        "Rastrear todos os chamadores de clamp_value_score e build_value_signal_summary. Rejeitar NaN, +Infinity e -Infinity antes de classificar ou serializar, inclusive strings conversíveis a esses valores. Usar a biblioteca padrão, sem nova dependência.",
+        "Preservar clamp e bandas para scores finitos, incluindo zero, limites 50/80 e valores finitos fora de 0..100, sem alterar a regra comercial.",
+        "POST /v1/value-score deve retornar erro 400 documentado para score não numérico ou não finito, sem 200 com NaN e sem 500 por erro de entrada. Testar servidor em loopback efêmero e payloads válidos/inválidos sem rede externa.",
+        "Reusar e atualizar OpenAPI/coleção existentes apenas onde necessário para o contrato de erro. Não ampliar enriquecimento ou integrar fonte externa nesta tarefa.",
+        "Executar flake8, smoke e pytest completos; manter os dois workflows atuais e não adicionar skip ou supressão de lint."
+      ]
+    },
+    "risk": {
+      "level": "medium"
+    },
+    "evidence": {
+      "required": [
+        "tests"
+      ]
+    }
+  },
+  "portfolio": {
+    "registry_fingerprint": "b476209eb1a2fcef3f7dd99a53393e9846ccb674bb1ba26c0337819c55a4d3d9",
+    "product": "lf-openalex-enrichment-mvp",
+    "capabilities": [
+      {
+        "name": "engineering_delivery",
+        "decision": "REUSE",
+        "owner": "product-platform-engineering-team"
+      },
+      {
+        "name": "b2b_enrichment",
+        "decision": "REUSE",
+        "owner": "lf-openalex-enrichment-mvp"
+      }
+    ]
+  },
+  "rules_refs": {
+    "kit": {
+      "ref": "37184551a1440b26fc5f117334f3ba3298332779"
+    },
+    "harness": {
+      "ref": "4040e76bbd0ff8b5933550121b07201010919bf5"
+    },
+    "profile": "backend"
+  }
+}

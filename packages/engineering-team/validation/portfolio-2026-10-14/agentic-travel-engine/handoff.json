@@ -1,0 +1,63 @@
+{
+  "schema_version": "1.0",
+  "proposal": {
+    "proposal_id": "portfolio-20261014-agentic-travel-engine-quota-recovery",
+    "repository": {
+      "url": "https://github.com/leandroclf/agentic-travel-engine.git",
+      "base_ref": "main",
+      "base_sha": "e348f456970c0141dcc2714e6978e292a4c9f14f"
+    },
+    "objective": "Concluir, documentar e revisar as correções preservadas após esgotamento de cota. Garantir conversão monetária determinística e segura diante de taxa inválida, ausência de taxa e falhas de cache/provedor.",
+    "scope": {
+      "allowed_paths": [
+        "src/application/services/currency_conversion.py",
+        "tests/test_currency_conversion.py",
+        "README.md"
+      ]
+    },
+    "acceptance": {
+      "criteria": [
+        "Rastrear chamadores e escrever testes assíncronos com conectores e cache falsos: taxa positiva válida, mesma moeda, nenhuma oferta, taxa ausente, taxa zero/negativa/NaN/infinita e falha do provedor.",
+        "Usar somente taxas finitas positivas do cache e dos conectores; taxa inválida em cache não impede fallback ao provedor. Se nenhuma taxa válida for obtida, manter valor, moeda e confiança originais, sem modificação parcial.",
+        "Preservar Decimal e arredondamento ROUND_HALF_UP em duas casas. Uma conversão válida deve aplicar a regra de confiança atual. Falha de leitura/escrita de cache não deve perder uma taxa válida do provedor ou derrubar a busca.",
+        "Cobrir prioridade dos conectores e o caminho de cache válido sem chamada externa; não chamar OpenAI, Redis ou fornecedores reais. Não mudar assinaturas públicas ou criar abstração de cache nova.",
+        "make lint e pytest completos devem passar offline, preservando todos os testes existentes e sem adicionar dependências.",
+        "A base desta nova tarefa é o candidato não aprovado e348f456970c0141dcc2714e6978e292a4c9f14f. A validação e a revisão devem cobrir o diff de produto completo desde e65fe48e1940f019a4e4dcddae011f85122f432d, incluindo as correções herdadas, e os novos checks no HEAD final. A falha anterior foi exclusivamente de cota do provedor; não é aprovação nem teste falho. Não reescrever correções já presentes sem defeito demonstrado.",
+        "Adicionar ao README uma nota curta sobre o contrato de conversão já corrigido: taxas finitas positivas, fallback de cache/provedor, preservação de valor/moeda/confiança sem taxa válida e ROUND_HALF_UP. Documentar os comandos de validação atuais sem prometer disponibilidade de fontes ou efetuar chamadas reais. Não reimplementar a correção herdada."
+      ]
+    },
+    "risk": {
+      "level": "low"
+    },
+    "evidence": {
+      "required": [
+        "tests"
+      ]
+    }
+  },
+  "portfolio": {
+    "registry_fingerprint": "b476209eb1a2fcef3f7dd99a53393e9846ccb674bb1ba26c0337819c55a4d3d9",
+    "product": "agentic-travel-engine",
+    "capabilities": [
+      {
+        "name": "engineering_delivery",
+        "decision": "REUSE",
+        "owner": "product-platform-engineering-team"
+      },
+      {
+        "name": "travel_search",
+        "decision": "REUSE",
+        "owner": "agentic-travel-engine"
+      }
+    ]
+  },
+  "rules_refs": {
+    "kit": {
+      "ref": "37184551a1440b26fc5f117334f3ba3298332779"
+    },
+    "harness": {
+      "ref": "4040e76bbd0ff8b5933550121b07201010919bf5"
+    },
+    "profile": "backend"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0",
+  "kind": "host_executed_regression_against_original_product_base",
+  "repository": "leandroclf/fivem-server-monitor-pro",
+  "base_sha": "658dbfb7140df5cb30e7a57384ab5fbb89d05255",
+  "test_file": "tests/storage.test.lua copied from reviewed candidate 9de30c478c0f6f44645fbc830d16ed4d0ec18998; production server/storage.lua and server/utils.lua extracted from original base",
+  "runner_image": "portfolio-lua-tests:20261014",
+  "runner_image_id": "sha256:e8ed5945d838721d55025a62a5853453bba6bd58aed36569702d029f1cbe39a6",
+  "command": "lua5.4 tests/storage.test.lua",
+  "network": "disabled",
+  "exit_code": 1,
+  "summary": "9/12 passed; 3 regression failures",
+  "failures": [
+    {
+      "test": "recovered backup survives a primary write failure and data is retried",
+      "observed": "valid backup expected J:1, got garbage"
+    },
+    {
+      "test": "backup write failure with valid primary keeps primary and stays dirty",
+      "observed": "persist result expected false, got true"
+    },
+    {
+      "test": "invalid primary never replaces an existing backup on persist",
+      "observed": "backup expected J:1, got garbage"
+    }
+  ],
+  "interpretation": "Original production code fails backup preservation and dirty-state scenarios exercised by the added Lua suite. This is a regression comparison, not current-candidate approval.",
+  "recorded_by": "host command execution; exact stdout captured in campaign operator log"
+}

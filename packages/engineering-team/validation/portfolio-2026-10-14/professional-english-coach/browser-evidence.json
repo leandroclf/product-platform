@@ -1,0 +1,16 @@
+{
+  "status": "PASS",
+  "source_sha": "ade1d8139e9ac42e7c26d11e842f6789f6b22f50",
+  "browser": "155.0.8059.39",
+  "sandbox": "enabled",
+  "environment": "headless browser against clean local snapshot; ephemeral profile; external requests blocked",
+  "checks": [
+    "history export produces valid v1 JSON",
+    "no import/restore UI control exists",
+    "restore helpers execute in browser, reject conflict and allow explicit replacement"
+  ],
+  "limits": [
+    "No import/restore UI exists, so user-facing restoration was not accepted",
+    "No real learner data, provider call, production host or human usability evaluation"
+  ]
+}

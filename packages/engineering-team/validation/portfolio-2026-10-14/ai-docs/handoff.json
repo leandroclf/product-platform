@@ -1,0 +1,66 @@
+{
+  "schema_version": "1.0",
+  "proposal": {
+    "proposal_id": "portfolio-20261014-ai-docs",
+    "repository": {
+      "url": "https://github.com/leandroclf/ai-docs.git",
+      "base_ref": "main",
+      "base_sha": "87f27488df154261b547bb5c5264b8945aa3e536"
+    },
+    "objective": "Separar credenciais de callback da chave de autenticação de entrada, eliminando o fallback indevido em todos os envios pelo CallbackService.",
+    "scope": {
+      "allowed_paths": [
+        "app/services/callback_service.py",
+        "tests/test_callback_credentials.py",
+        "docs/callback-reliability-contract.md"
+      ]
+    },
+    "acceptance": {
+      "criteria": [
+        "Ler CallbackService e seus chamadores antes de editar. settings.api_key autentica entrada e não pode ser copiada automaticamente para callbacks; usar a configuração callback_api_key já existente para o padrão de saída e preservar headers explícitos do chamador.",
+        "Testes determinísticos devem capturar headers de POST e PUT com chaves de entrada e saída diferentes, com chave de callback ausente e com header explícito; a chave de entrada nunca é enviada por fallback. Nenhuma requisição externa real ou credencial real.",
+        "Cobrir sucesso 2xx e falha não-2xx/transport sem alterar a semântica de status e retry existente; encerrar tarefas de background criadas pelos testes. Não reestruturar lifecycle, fila ou persistência nesta tarefa.",
+        "Executar os sete testes existentes e os novos testes, além do validador do artefato. Documentar a separação das credenciais e o limite de retry em memória. Não adicionar dependências, não alterar API de entrada nem ler .env."
+      ]
+    },
+    "risk": {
+      "level": "medium"
+    },
+    "evidence": {
+      "required": [
+        "tests",
+        "security"
+      ]
+    }
+  },
+  "portfolio": {
+    "registry_fingerprint": "b476209eb1a2fcef3f7dd99a53393e9846ccb674bb1ba26c0337819c55a4d3d9",
+    "product": "ai-docs",
+    "capabilities": [
+      {
+        "name": "engineering_delivery",
+        "decision": "REUSE",
+        "owner": "product-platform-engineering-team"
+      },
+      {
+        "name": "document_processing",
+        "decision": "REUSE",
+        "owner": "ai-docs"
+      },
+      {
+        "name": "product_events",
+        "decision": "REUSE",
+        "owner": "product-platform-kit"
+      }
+    ]
+  },
+  "rules_refs": {
+    "kit": {
+      "ref": "37184551a1440b26fc5f117334f3ba3298332779"
+    },
+    "harness": {
+      "ref": "4040e76bbd0ff8b5933550121b07201010919bf5"
+    },
+    "profile": "security"
+  }
+}

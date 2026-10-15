@@ -1,0 +1,25 @@
+{
+  "recorded_at": "2026-10-15T02:05:58.324472+00:00",
+  "source": "host coordinator",
+  "command": [
+    "docker",
+    "build",
+    "--pull=false",
+    "-t",
+    "portfolio-vehicle-tests:20261014",
+    "/home/leandro/IdeaProjects/lfsolucoes/product-platform/product-platform/.venv/portfolio-round-20261014/builds/vehicle"
+  ],
+  "exit_code": 0,
+  "output": "#0 building with \"desktop-linux\" instance using docker driver\n\n#1 [internal] load build definition from Dockerfile\n#1 transferring dockerfile: 199B done\n#1 DONE 0.0s\n\n#2 [internal] load metadata for docker.io/library/vt-tests:local\n#2 DONE 0.5s\n\n#3 [internal] load .dockerignore\n#3 transferring context: 2B done\n#3 DONE 0.0s\n\n#4 [1/6] FROM docker.io/library/vt-tests:local@sha256:3a0f3b1d5162daaa5459ea266cf2c77565a4a6206ad7edc54e5486d700668ed0\n#4 resolve docker.io/library/vt-tests:local@sha256:3a0f3b1d5162daaa5459ea266cf2c77565a4a6206ad7edc54e5486d700668ed0 0.0s done\n#4 DONE 0.0s\n\n#5 [internal] load build context\n#5 transferring context: 289B done\n#5 DONE 0.0s\n\n#6 [3/6] COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./\n#6 CACHED\n\n#7 [4/6] COPY vendor ./vendor\n#7 CACHED\n\n#8 [5/6] RUN pnpm install --frozen-lockfile\n#8 CACHED\n\n#9 [2/6] WORKDIR /deps\n#9 CACHED\n\n#10 [6/6] WORKDIR /work\n#10 CACHED\n\n#11 exporting to image\n#11 exporting layers done\n#11 exporting manifest sha256:0f449e477b621ea8818b6849d8d473564a0e98f2d19ac07cd971f9dd53495559 done\n#11 exporting config sha256:ac5cc0c4b31ba09cf0ee92e8013842c8497f694bde5c80cc80190a4474558375 done\n#11 exporting attestation manifest sha256:2213bae391751a1e7af33542b608a1435561688dc8eaa888f98c73c2162eff7a\n#11 exporting attestation manifest sha256:2213bae391751a1e7af33542b608a1435561688dc8eaa888f98c73c2162eff7a 0.0s done\n#11 exporting manifest list sha256:03dc98b21ca4dae2f58a4bd6e7a2f368e4ce64aa8d65aad8c9e5af5ab8100cb8 0.0s done\n#11 naming to docker.io/library/portfolio-vehicle-tests:20261014 done\n#11 unpacking to docker.io/library/portfolio-vehicle-tests:20261014 0.0s done\n#11 DONE 0.1s\n\nView build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/4yaxhqfi2090inrsogsdv2eub\n",
+  "image_id": "sha256:03dc98b21ca4dae2f58a4bd6e7a2f368e4ce64aa8d65aad8c9e5af5ab8100cb8",
+  "candidate_commit": "49efac0e00b935ed89cbacea6e266255d3f7f3da",
+  "files_sha256": {
+    "package.json": "9c4911d97f0d0aa9f39e9561f815fd07cec6a8eb94d0bd9660d07f791f377409",
+    "pnpm-lock.yaml": "91428f84c4d53c7d839b9afbff4dccbc2b4e70e664428097ee0827d38febdb86",
+    "pnpm-workspace.yaml": "945c439676c82efd4b1923cd3abac581127303517cbaa4429e0c2e20a7093324",
+    "vendor/harness-artifact.json": "0d307510f856be615877db1a86325cc3a226f76333bd9695759595054d63aaa1"
+  },
+  "context": "Only manifests, Dockerfile and vendor artifacts; no accounts or application environment files",
+  "dockerfile": "FROM vt-tests:local\nWORKDIR /deps\nCOPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./\nCOPY vendor ./vendor\nRUN pnpm install --frozen-lockfile\nWORKDIR /work\n",
+  "note": "The image layer executes pnpm install --frozen-lockfile. This repeated build reused the successful immutable layer; output includes its command and cache status. The candidate manifests and lockfile match the context byte for byte."
+}
