@@ -1,0 +1,70 @@
+{
+  "schema_version": "1.0",
+  "recorded_at": "2026-10-15T01:30:27.497730+00:00",
+  "pilot": "bussola-ci-20261014",
+  "operator_authorization": {
+    "message": "pode seguir",
+    "scope": "consolidar alterações locais e executar piloto delimitado; sem publicação, merge ou deploy",
+    "sandbox_change": "pending explicit operator choice"
+  },
+  "platform_fix_commit": "542f480fa30bf5663082a8be855eba5e2e6ab3df",
+  "target_base_sha": "51f4092dc8ad7f7439ca74b524f05286a46bff20",
+  "technical_review": {
+    "ingestion_isolation": "SQLite em memória e DeterministicProvider confirmados por leitura integral",
+    "required_product_change": "adicionar um único passo pytest tests/test_ingestion_integrity.py -q após testes de eventos no CI",
+    "test_edits_needed": false
+  },
+  "verification": {
+    "package_boundaries_tests": 6,
+    "package_boundaries": "passed",
+    "handoff_contract_tests": 4,
+    "kit_architecture": "passed",
+    "kit_handoff_tests": 5,
+    "product_event_conformance": "passed",
+    "cli_tests": 104,
+    "cli_ruff": "passed",
+    "cli_mypy": "passed; 20 source files",
+    "engineering_team_unit_tests": 128,
+    "engineering_team_other_tests": 23,
+    "stage_isolation": "passed with ai-eng-provider-cli:local; first invocation failed because default validation image was absent",
+    "pilot_baseline": {
+      "runner": "local_team.test_command",
+      "network": "none",
+      "credentials": false,
+      "harness_artifact": "verified",
+      "image": "sha256:81e71a8a0c0e0a316fd35744d001564cfce1aa4e41bc28a23a2cc988d21aa064",
+      "tests": [
+        "test_market_ingestion_preserves_provenance_lineage_invalid_count_and_idempotency",
+        "test_provider_failure_is_not_silently_reported_as_success",
+        "test_feedback_event_excludes_financial_content",
+        "test_product_event_is_created_and_validated_by_the_harness",
+        "test_unknown_product_event_name_is_rejected",
+        "test_canonical_metadata_cannot_be_overridden"
+      ],
+      "result": "6 passed"
+    }
+  },
+  "execution_attempts": [
+    {
+      "task_id": "13c9fed321c04d8b94dccfa424e62aa4",
+      "status": "FAILED",
+      "phase": "PLAN",
+      "sandbox": "read-only",
+      "reason": "bwrap: No permissions to create a new namespace; plan could not inspect checkout or handoff",
+      "mutations_to_target": false,
+      "artifacts_sha256": {
+        "0-plan.prompt": "33d60f54b158ea4bea77bceab609b7834cea17ed3169b114fbfbdbbc5403f2d8",
+        "0-plan.stderr": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+        "0-plan.stdout": "b644bfe9205a7a43d8344a9781b5038ee578ff99a1b1df82faa6589414d52395",
+        "0-plan.json": "0619b3cb88a3cab5691c51c8cd330d0347cc035bdee4bf7c38723314aaa774a5"
+      }
+    }
+  ],
+  "delivery": {
+    "status": "blocked before implementation",
+    "branch": null,
+    "pushed": false,
+    "merged": false,
+    "deployed": false
+  }
+}

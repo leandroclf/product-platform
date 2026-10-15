@@ -14,13 +14,16 @@ Products keep domain logic and product-specific adapters/configuration. Shared b
 
 ## Initial adoption
 
-Latest release: `harness-v0.2.0` (TypeScript). `0.2.1` is the first release that also publishes the Python wheel. The stricter
+Latest verified release (2026-10-14): `harness-v0.2.1`, published with the TypeScript tarball,
+Python wheel and `SHA256SUMS`. The stricter
 event validator rejects previously accepted unknown fields; validate adapters
 before upgrading from the `0.1.0` pilot artifact.
 
-`vehicle-tracking` pins the existing commit `ffb68c07dfbe491b804e3b59ad1e0ad791872e9e`
-for its first TypeScript integration. Local changes after that SHA require a new
-immutable release before consumer adoption. Current primitives do not implement
+`vehicle-tracking` consumes the `harness-v0.2.0` tarball from commit
+`b3375495bd86b6ee01d8430419496cbc492fbb49`; `bussola-financeira` consumes the
+`harness-v0.2.1` wheel from `4040e76bbd0ff8b5933550121b07201010919bf5`.
+Their `vendor/harness-artifact.json` files record the version and checksum.
+Local changes require a new immutable release before consumer adoption. Current primitives do not implement
 durable usage metering, webhook inbox or outbox delivery.
 
 Python ProductEvent runtime is now maintained in `packages/python`, using the

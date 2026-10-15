@@ -15,6 +15,7 @@ Repositório único da plataforma de produtos: contratos e políticas, runtime r
 - Cada pacote tem CI próprio, filtrado por caminho (`.github/workflows/<pacote>.yml`). Uma mudança em `packages/kit/contracts/product-event/` também executa o CI do harness contra o fixture canônico.
 - Produtos nunca dependem do código-fonte deste repositório: fixam um release do harness pelo checksum do artefato.
 - A esteira de entrega (gates G0 a G6) está em [`packages/kit/docs/PLATFORM-DELIVERY-FLOW.md`](packages/kit/docs/PLATFORM-DELIVERY-FLOW.md).
+- A baseline verificada e as próximas etapas estão em [`packages/kit/docs/PLATFORM-READINESS.md`](packages/kit/docs/PLATFORM-READINESS.md).
 
 ## Verificação local
 

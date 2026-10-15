@@ -1,0 +1,81 @@
+{
+  "schema_version": "1.0",
+  "local_date": "2026-10-14",
+  "platform_base_sha": "3a49cc1d38c985cd16b8067faa2f63cb37521ecb",
+  "source_changes": "uncommitted corrections to CLI Codex configuration and stage isolation canary; see git diff",
+  "run_id": "run-20261015-012157-7487aabbd0c4",
+  "status": "completed",
+  "termination_reason": "completed",
+  "metrics": {
+    "elapsed_ms": 213018,
+    "total_stage_duration_ms": 212802,
+    "failed_stage_count": 0,
+    "retry_count": 0,
+    "prompt_chars": 190690,
+    "output_chars": 39933,
+    "max_context_chars": 40858,
+    "context_growth_chars": 8770
+  },
+  "calls_used": 5,
+  "portfolio_fingerprint": "b476209eb1a2fcef3f7dd99a53393e9846ccb674bb1ba26c0337819c55a4d3d9",
+  "config_fingerprint": "5c19be10753e573c19f86fb31aeeb214b9211b9f9c0a52d6b4a2272e0cb953a6",
+  "providers": {
+    "claude": "2.1.281",
+    "codex": "0.162.1"
+  },
+  "latest_version_check": "explicitly skipped; observed CLI versions recorded",
+  "stages": [
+    {
+      "stage": "discovery",
+      "provider": "claude",
+      "status": "completed",
+      "attempts": 1,
+      "output_sha256": "289642103adecf458acd26f194a4b5cfaf5bca6ae231337588ddf26b73d90d3b"
+    },
+    {
+      "stage": "critical-review",
+      "provider": "codex",
+      "status": "completed",
+      "attempts": 1,
+      "output_sha256": "dd271ca28cc29ac47e616039c30232ead202c4a7dbc9203212405f7761aa952c"
+    },
+    {
+      "stage": "architecture",
+      "provider": "codex",
+      "status": "completed",
+      "attempts": 1,
+      "output_sha256": "c06562885f3db1be996bf33c676a3a6203ca1d87a121927266f14fdfdf5dda82"
+    },
+    {
+      "stage": "feasibility",
+      "provider": "claude",
+      "status": "completed",
+      "attempts": 1,
+      "output_sha256": "3e88f5839944fea7ea61614da0c0dab895fd16d74422db4fef74ba5fb105f5f4"
+    },
+    {
+      "stage": "master-proposal",
+      "provider": "claude",
+      "status": "completed",
+      "attempts": 1,
+      "output_sha256": "eca751bd50c332b7080a78772e316cdfb97a63ab5fc3d8ce3723b14100a6ba8a"
+    }
+  ],
+  "handoff_validation": "passed kit validator and ai-team platform_inputs with actual target HEAD",
+  "pilot_baseline": {
+    "status": "passed",
+    "ingestion_tests": 2,
+    "product_event_tests": 4,
+    "harness_artifact": "verified",
+    "runner": "local_team.test_command; network none; no account volumes or Docker socket",
+    "image": "bussola-tests:pilot-20261014",
+    "image_id": "sha256:81e71a8a0c0e0a316fd35744d001564cfce1aa4e41bc28a23a2cc988d21aa064",
+    "target_base_sha": "51f4092dc8ad7f7439ca74b524f05286a46bff20",
+    "target_worktree": "clean"
+  },
+  "human_review": "pending; no ai-team run, merge or deploy",
+  "artifacts_sha256": {
+    "proposta.md": "4dca10f6c1c743f7a468e9ba0ac2a327446d684bf50d33c1acc8e91576a6b596",
+    "handoff.json": "e33874927cb544c91cfe506e4c9c5fc2ed97740a1b23f91d27419a12214285fd"
+  }
+}
