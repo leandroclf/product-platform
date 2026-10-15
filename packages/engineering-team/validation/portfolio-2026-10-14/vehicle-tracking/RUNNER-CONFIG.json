@@ -3,7 +3,7 @@
   "meaning": "Frozen runner configuration; tests.json separately proves command results. The ai-team host resolves and freezes these same local image references before starting the task.",
   "config": {
     "version": 2,
-    "repository": "/home/leandro/IdeaProjects/lfsolucoes/product-platform/product-platform/.venv/portfolio-round-20261014/vehicle-tracking",
+    "repository": "/home/leandro/IdeaProjects/lfsolucoes/product-platform/product-platform/.venv/portfolio-round-20261014/recovery/vehicle-tracking",
     "provider_image": "sha256:9e28df2e25217e285c5d7e8ed23f6fef74da4eb1a3a971ea95bcb60cb1c3f21a",
     "test_image": "sha256:03dc98b21ca4dae2f58a4bd6e7a2f368e4ce64aa8d65aad8c9e5af5ab8100cb8",
     "checks": [

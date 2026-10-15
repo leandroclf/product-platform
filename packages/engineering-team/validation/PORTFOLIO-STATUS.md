@@ -153,3 +153,43 @@ A verificação do English Coach em Chrome headless com sandbox habilitado confi
 exportação de JSON v1 e helpers de restore com rejeição de conflito/substituição
 explícita. Não há controle de import/restore na interface; essa funcionalidade
 continua parcial. Nenhum conteúdo real de aprendiz foi utilizado.
+
+
+## Resultado da rodada pelo ai-team — 15/10/2026
+
+As nove tarefas delimitadas passaram por planejamento, implementação, checks offline,
+Sentinel e revisão no SHA final, foram entregues em PR, e os nove CIs remotos passaram.
+A coluna “testes” resume apenas os checks declarados e seus resultados nesta tarefa;
+não representa uma certificação completa do produto. O estado detalhado, hashes,
+configurações congeladas, checks e tentativas anteriores estão em
+[campaign.json](portfolio-2026-10-14/campaign.json).
+
+| Produto | Resultado desta tarefa | Checks offline registrados | Entrega |
+|---|---|---|---|
+| Bússola | Incluídos os testes determinísticos de ingestão no CI; 6 testes | artefato do harness + 6 testes | [PR 8](https://github.com/leandroclf/bussola-financeira/pull/8), CI passou |
+| AI Docs | Callback usa credencial de saída própria; 20 testes | suíte pytest com POST/PUT, ausência/override de chave, falhas e retries | [PR 27](https://github.com/leandroclf/ai-docs/pull/27), CI passou |
+| Wikidata Entity Graph | Remove pseudo-QIDs sem fonte verificada; 45 testes e smoke 6/6 | pytest + smoke | [PR 6](https://github.com/leandroclf/lf-wikidata-entity-graph/pull/6), CI passou |
+| Vehicle Tracking | Lockfile reproduzível e instrução de instalação; 37 testes | conformance, typecheck, instalação congelada offline, testes e build Next (62 páginas) | [PR 54](https://github.com/leandroclf/vehicle-tracking/pull/54), CI passou; mantido aberto porque merge em main aciona migração e deploy |
+| OpenAlex | Rejeita scores não finitos/inválidos; 84 testes | pytest + flake8 + smoke | [PR 7](https://github.com/leandroclf/lf-openalex-enrichment-mvp/pull/7), CI passou |
+| World Bank | Valida indicadores finitos e fallback de ano; 125 testes, 1 skip externo preexistente | pytest + smoke | [PR 5](https://github.com/leandroclf/lf-worldbank-risk-pricing/pull/5), CI passou |
+| Agentic Travel | Preserva montante/moeda/confiança quando não há taxa válida; 51 testes | pytest + ruff + black | [PR 7](https://github.com/leandroclf/agentic-travel-engine/pull/7), CI passou |
+| FiveM Monitor | Preserva backup e retry; 12 testes Lua + 12 JavaScript | `npm run verify`, `npm run test:lua`, sintaxe Lua | [PR 3](https://github.com/leandroclf/fivem-server-monitor-pro/pull/3), CI passou |
+| English Coach | Corrige o estado documental: helpers de restore existem, UI de import/restore continua pendente; 38 testes | check + build + evidência headless sem rede | [PR 3](https://github.com/leandroclf/professional-english-coach/pull/3), mesclado em `main` no commit `59c5b90`; checkout local sincronizado |
+
+O FiveM teve uma tentativa encerrada sem alteração porque a nota genérica já existia;
+a tentativa nova executou a suíte Lua contra a produção original e reproduziu três
+falhas de preservação de backup/estado dirty. A tarefa seguinte documentou o contrato
+preciso, corrigiu o parecer e passou todas as verificações. Vehicle e Travel também
+precisaram de novas tentativas após bloqueios de cota ou evidência. As tentativas estão
+preservadas no registro; nenhuma aprovação foi atribuída a elas.
+
+Os PRs permanecem em rascunho para integração pelo responsável, exceto English Coach,
+cuja instrução local manda levar a entrega a `main` e cujo PR foi mesclado após o CI.
+Vehicle permanece como PR aberto. Não foi feito deploy ou migração em produção.
+
+A rodada fecha tarefas específicas, não a prontidão integral dos produtos. Permanecem
+fora do que foi provado: integrações com provedores reais em Travel, execução longa e
+frameworks/cliente/ACE em FXServer, perfis e disponibilidade de fontes externas, além
+da interface de import/restore e avaliação de aprendizagem do English Coach. Em
+Vehicle, a atualização de dependências foi validada com instalação e build, mas a
+integração que aciona migração/deploy requer a janela e o processo próprios.

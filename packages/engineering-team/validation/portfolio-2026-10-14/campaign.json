@@ -122,8 +122,8 @@
       "product": "vehicle-tracking",
       "repository": "/home/leandro/IdeaProjects/lfsolucoes/product-platform/product-platform/.venv/portfolio-round-20261014/recovery/vehicle-tracking",
       "base_sha": "8aa17557562b7521674785bcc063528eb16d25ed",
-      "status": "WAITING_QUOTA",
-      "task_id": null,
+      "status": "DELIVERED",
+      "task_id": "f99e791889e34e3897fe554faab19c12",
       "original_base_sha": "43cd73e423c25e20ebe0c25c0dd094a199c87648",
       "preparation_commit": "49efac0e00b935ed89cbacea6e266255d3f7f3da",
       "prepared_lockfile_sha256": "91428f84c4d53c7d839b9afbff4dccbc2b4e70e664428097ee0827d38febdb86",
@@ -141,9 +141,9 @@
       "handoff": "packages/engineering-team/validation/portfolio-2026-10-14/vehicle-tracking/handoff.json",
       "prompt": "packages/engineering-team/validation/portfolio-2026-10-14/vehicle-tracking/prompt.txt",
       "baseline_exit_code": 0,
-      "phase": "REVIEW",
-      "head_sha": "8aa17557562b7521674785bcc063528eb16d25ed",
-      "reason": "Waiting for native quota reset at 2026-10-15T03:17:53Z before creating a new task",
+      "phase": "COMPLETE",
+      "head_sha": "f4b57fce75e4259bc98e04f6f46dc508dce74975",
+      "reason": null,
       "attempts": [
         {
           "task_id": "af9ebc42da2c4634a07e7004d6ac48c4",
@@ -161,7 +161,26 @@
         "packages/engineering-team/validation/portfolio-2026-10-14/vehicle-tracking/BUILD-EVIDENCE.json",
         "packages/engineering-team/validation/portfolio-2026-10-14/vehicle-tracking/CANDIDATE-EVIDENCE.json"
       ],
-      "original_repository": "/home/leandro/IdeaProjects/lfsolucoes/product-platform/product-platform/.venv/portfolio-round-20261014/vehicle-tracking"
+      "original_repository": "/home/leandro/IdeaProjects/lfsolucoes/product-platform/product-platform/.venv/portfolio-round-20261014/vehicle-tracking",
+      "pr_url": "https://github.com/leandroclf/vehicle-tracking/pull/54",
+      "github_ci": {
+        "status": "PASS",
+        "checks": [
+          {
+            "__typename": "CheckRun",
+            "completedAt": "2026-10-15T10:11:16Z",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/leandroclf/vehicle-tracking/actions/runs/38718234817/job/116366083542",
+            "name": "validate",
+            "startedAt": "2026-10-15T10:09:28Z",
+            "status": "COMPLETED",
+            "workflowName": "ci"
+          }
+        ],
+        "pr_state": "OPEN",
+        "is_draft": true
+      },
+      "pr_description_updated": true
     },
     {
       "product": "lf-openalex-enrichment-mvp",
@@ -252,8 +271,8 @@
       "product": "agentic-travel-engine",
       "repository": "/home/leandro/IdeaProjects/lfsolucoes/product-platform/product-platform/.venv/portfolio-round-20261014/recovery/agentic-travel-engine",
       "base_sha": "e348f456970c0141dcc2714e6978e292a4c9f14f",
-      "status": "WAITING_QUOTA",
-      "task_id": null,
+      "status": "DELIVERED",
+      "task_id": "277d409a572f47209ffe41c9b7fa939b",
       "test_image": "portfolio-travel-tests:20261014",
       "checks": [
         "make lint",
@@ -262,9 +281,9 @@
       "handoff": "packages/engineering-team/validation/portfolio-2026-10-14/agentic-travel-engine/handoff.json",
       "prompt": "packages/engineering-team/validation/portfolio-2026-10-14/agentic-travel-engine/prompt.txt",
       "baseline_exit_code": 0,
-      "phase": "REVIEW",
-      "head_sha": "e348f456970c0141dcc2714e6978e292a4c9f14f",
-      "reason": "Waiting for native quota reset at 2026-10-15T03:17:53Z before creating a new task",
+      "phase": "COMPLETE",
+      "head_sha": "8dffd118b2835a4b304bd22b061d6adeeb4b2124",
+      "reason": null,
       "attempts": [
         {
           "task_id": "b96fe3cc10f84fea941724562832285c",
@@ -277,14 +296,33 @@
         "packages/engineering-team/validation/portfolio-2026-10-14/agentic-travel-engine/CANDIDATE-EVIDENCE.json"
       ],
       "original_repository": "/home/leandro/IdeaProjects/lfsolucoes/product-platform/agentic-travel-engine",
-      "original_base_sha": "e65fe48e1940f019a4e4dcddae011f85122f432d"
+      "original_base_sha": "e65fe48e1940f019a4e4dcddae011f85122f432d",
+      "pr_url": "https://github.com/leandroclf/agentic-travel-engine/pull/7",
+      "github_ci": {
+        "status": "PASS",
+        "checks": [
+          {
+            "__typename": "CheckRun",
+            "completedAt": "2026-10-15T10:06:02Z",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/leandroclf/agentic-travel-engine/actions/runs/38717765524/job/116364519993",
+            "name": "test",
+            "startedAt": "2026-10-15T10:05:33Z",
+            "status": "COMPLETED",
+            "workflowName": "ci"
+          }
+        ],
+        "pr_state": "OPEN",
+        "is_draft": true
+      },
+      "pr_description_updated": true
     },
     {
       "product": "fivem-server-monitor-pro",
       "repository": "/home/leandro/IdeaProjects/lfsolucoes/product-platform/product-platform/.venv/portfolio-round-20261014/recovery/fivem-server-monitor-pro",
       "base_sha": "9de30c478c0f6f44645fbc830d16ed4d0ec18998",
-      "status": "WAITING_QUOTA",
-      "task_id": null,
+      "status": "DELIVERED",
+      "task_id": "2f62e8c915454b17be49dd894f1e4c78",
       "test_image": "portfolio-lua-tests:20261014",
       "checks": [
         "npm run verify",
@@ -298,29 +336,55 @@
         "find . -name '*.lua' -not -path './data/*' -exec luac5.4 -p '{}' ';'"
       ],
       "baseline_exit_code": 0,
-      "phase": "REVIEW",
-      "head_sha": "9de30c478c0f6f44645fbc830d16ed4d0ec18998",
-      "reason": "Waiting for native quota reset at 2026-10-15T03:17:53Z before creating a new task",
+      "phase": "COMPLETE",
+      "head_sha": "2549a0681e707086aeb16d6dbcadb0386f18852b",
+      "reason": null,
       "attempts": [
         {
           "task_id": "3ca4b5010ecd4f86a09131e05e5d2b10",
           "status": "FAILED",
           "reason": "validate failed: You’ve hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/pro), visit https://chatgpt.com/codex/settings/usage to purchase more credits or try again at 3:17 AM.; no implicit retry/model fallback",
           "head_sha": "9de30c478c0f6f44645fbc830d16ed4d0ec18998"
+        },
+        {
+          "task_id": "1211eb2e4e714349a3be7ed67feadb46",
+          "status": "FAILED",
+          "reason": "Implementer reported no new file edit because prior generic documentation already existed; prior task closed without approval.",
+          "head_sha": "1fa4572d0f9246f254e305aaa69d6a6f6d5ce9a3"
         }
       ],
       "extra_rules": [
-        "packages/engineering-team/validation/portfolio-2026-10-14/fivem-server-monitor-pro/CANDIDATE-EVIDENCE.json"
+        "packages/engineering-team/validation/portfolio-2026-10-14/fivem-server-monitor-pro/CANDIDATE-EVIDENCE.json",
+        "packages/engineering-team/validation/portfolio-2026-10-14/fivem-server-monitor-pro/BASELINE-REGRESSION.json"
       ],
       "original_repository": "/home/leandro/IdeaProjects/lfsolucoes/product-platform/fivem-server-monitor-pro",
-      "original_base_sha": "658dbfb7140df5cb30e7a57384ab5fbb89d05255"
+      "original_base_sha": "658dbfb7140df5cb30e7a57384ab5fbb89d05255",
+      "pr_url": "https://github.com/leandroclf/fivem-server-monitor-pro/pull/3",
+      "github_ci": {
+        "status": "PASS",
+        "checks": [
+          {
+            "__typename": "CheckRun",
+            "completedAt": "2026-10-15T10:16:04Z",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/leandroclf/fivem-server-monitor-pro/actions/runs/38718982511/job/116368547571",
+            "name": "validate",
+            "startedAt": "2026-10-15T10:15:39Z",
+            "status": "COMPLETED",
+            "workflowName": "Validate Server Monitor Pro"
+          }
+        ],
+        "pr_state": "OPEN",
+        "is_draft": true
+      },
+      "pr_description_updated": true
     },
     {
       "product": "professional-english-coach",
       "repository": "/home/leandro/IdeaProjects/lfsolucoes/product-platform/professional-english-coach",
       "base_sha": "ade1d8139e9ac42e7c26d11e842f6789f6b22f50",
-      "status": "WAITING_QUOTA",
-      "task_id": null,
+      "status": "DELIVERED",
+      "task_id": "63a79bdd517b4ce48547a635f0040e7e",
       "test_image": "ai-eng-provider-cli:local",
       "checks": [
         "npm run check",
@@ -332,9 +396,9 @@
         "packages/engineering-team/validation/portfolio-2026-10-14/professional-english-coach/browser-evidence.json"
       ],
       "baseline_exit_code": 0,
-      "phase": "PLAN",
-      "head_sha": null,
-      "reason": "Waiting for native quota reset at 2026-10-15T03:17:53Z before creating a new task",
+      "phase": "COMPLETE",
+      "head_sha": "257cbf684341d7984192c7007184d45f73c91c9b",
+      "reason": null,
       "attempts": [
         {
           "task_id": "87956e223d90464492df175875a863b2",
@@ -342,8 +406,31 @@
           "reason": "plan failed: You’ve hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/pro), visit https://chatgpt.com/codex/settings/usage to purchase more credits or try again at 3:17 AM.; no implicit retry/model fallback",
           "head_sha": null
         }
-      ]
+      ],
+      "pr_url": "https://github.com/leandroclf/professional-english-coach/pull/3",
+      "github_ci": {
+        "status": "PASS",
+        "checks": [
+          {
+            "__typename": "CheckRun",
+            "completedAt": "2026-10-15T10:05:33Z",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/leandroclf/professional-english-coach/actions/runs/38717740311/job/116364439955",
+            "name": "verify",
+            "startedAt": "2026-10-15T10:05:22Z",
+            "status": "COMPLETED",
+            "workflowName": "CI"
+          }
+        ],
+        "pr_state": "OPEN",
+        "is_draft": true
+      },
+      "pr_description_updated": true,
+      "merged_at": "2026-10-15T10:17:43Z",
+      "merge_commit": "59c5b90db712c142d0ceaf138273d942c20cd05f",
+      "base_synced": true
     }
   ],
-  "quota_reset_utc": "2026-10-15T03:17:53+00:00"
+  "quota_reset_utc": "2026-10-15T03:17:53+00:00",
+  "quota_reset_confirmed_utc": "2026-10-15T10:00:07Z"
 }

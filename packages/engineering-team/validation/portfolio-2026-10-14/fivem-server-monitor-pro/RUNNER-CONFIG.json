@@ -3,7 +3,7 @@
   "meaning": "Frozen runner configuration; tests.json separately proves command results. The ai-team host resolves and freezes these same local image references before starting the task.",
   "config": {
     "version": 2,
-    "repository": "/home/leandro/IdeaProjects/lfsolucoes/product-platform/fivem-server-monitor-pro",
+    "repository": "/home/leandro/IdeaProjects/lfsolucoes/product-platform/product-platform/.venv/portfolio-round-20261014/recovery/fivem-server-monitor-pro",
     "provider_image": "sha256:9e28df2e25217e285c5d7e8ed23f6fef74da4eb1a3a971ea95bcb60cb1c3f21a",
     "test_image": "sha256:e8ed5945d838721d55025a62a5853453bba6bd58aed36569702d029f1cbe39a6",
     "checks": [

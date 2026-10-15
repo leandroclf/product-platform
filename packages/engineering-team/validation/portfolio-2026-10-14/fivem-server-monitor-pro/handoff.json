@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0",
   "proposal": {
-    "proposal_id": "portfolio-20261014-fivem-server-monitor-pro-quota-recovery",
+    "proposal_id": "portfolio-20261014-fivem-server-monitor-pro-quota-retry-2",
     "repository": {
       "url": "https://github.com/leandroclf/fivem-server-monitor-pro.git",
       "base_ref": "main",
       "base_sha": "9de30c478c0f6f44645fbc830d16ed4d0ec18998"
     },
-    "objective": "Concluir, documentar e revisar as correções preservadas após esgotamento de cota. Executar testes Lua determinísticos de retenção e recuperação do armazenamento, integrados ao CI, sem depender de cliente FiveM.",
+    "objective": "Validar e concluir as correções Lua contra regressões reproduzidas na base original, documentando o contrato exato de recuperação e falha de persistência.",
     "scope": {
       "allowed_paths": [
         "server/storage.lua",
@@ -27,7 +27,9 @@
         "Expor npm run test:lua e executá-lo no CI depois que lua5.4 estiver instalado. A dependência já é instalada pelo workflow atual; não adicionar biblioteca Lua/Node. Preservar os 12 testes JavaScript e o validador.",
         "Atualizar somente as evidências determinísticas correspondentes no OpenSpec. Manter pendentes cliente interativo, ACE em runtime, frameworks QBCore/Qbox/ESX e execução prolongada real. Não alterar EULA, configuração comercial ou telemetria.",
         "A base desta nova tarefa é o candidato não aprovado 9de30c478c0f6f44645fbc830d16ed4d0ec18998. A validação e a revisão devem cobrir o diff de produto completo desde 658dbfb7140df5cb30e7a57384ab5fbb89d05255, incluindo as correções herdadas, e os novos checks no HEAD final. A falha anterior foi exclusivamente de cota do provedor; não é aprovação nem teste falho. Não reescrever correções já presentes sem defeito demonstrado.",
-        "Adicionar a docs/CONFIGURATION.md uma nota curta sobre recuperação e falha de persistência já corrigidas e os comandos npm run verify / npm run test:lua. Distinguir os testes determinísticos das aceitações pendentes em FXServer real. Não reimplementar a correção herdada nem marcar compatibilidade de frameworks como aceita."
+        "Adicionar a docs/CONFIGURATION.md uma nota curta sobre recuperação e falha de persistência já corrigidas e os comandos npm run verify / npm run test:lua. Distinguir os testes determinísticos das aceitações pendentes em FXServer real. Não reimplementar a correção herdada nem marcar compatibilidade de frameworks como aceita.",
+        "O host executou a suíte Lua candidata contra server/storage.lua e server/utils.lua extraídos da base original 658dbfb7140df5cb30e7a57384ab5fbb89d05255; use BASELINE-REGRESSION.json como evidência comparativa: 9/12 passaram e 3 falharam nos cenários de preservação do backup/dirty. Confirme a correção no HEAD final e revisão independente; não trate o resultado da base como validação do candidato.",
+        "A nota anterior em docs/CONFIGURATION.md já existe e não conta como alteração nesta tentativa. Acrescente nessa seção uma descrição curta e precisa do contrato observado no código corrigido: recuperação usa o backup quando o principal é inválido; somente principal válido pode ser promovido para backup; falha de escrita mantém estado dirty para retry. Mantenha comandos e limitações existentes, sem alterar código de produto se não houver nova falha demonstrada."
       ]
     },
     "risk": {
