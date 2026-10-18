@@ -79,7 +79,7 @@ def render_summary(report):
     """Informational Markdown only; never a go/no-go or approval signal."""
     lines = [
         "## Backlog candidate queue — read-only",
-        f"- Repository: \`{report['repository']}\`",
+        f"- Repository: `{report['repository']}`",
         f"- Eligible issues: {report['eligible_total']}",
         f"- Included in this bounded preview: {len(report['items'])}",
         f"- Rejected candidates: {len(report['rejected'])}",
@@ -93,16 +93,16 @@ def render_summary(report):
         issue_number = item["issue_number"]
         url = item["issue_url"]
         target = item["target_repository"].replace("|", "/")
-        lines.append(f"| {item['priority']} | [#{issue_number}]({url}) | \`{target}\` | {item['risk_claim']} |")
+        lines.append(f"| {item['priority']} | [#{issue_number}]({url}) | `{target}` | {item['risk_claim']} |")
     if not report["items"]:
         lines.append("| — | No eligible issues | — | — |")
     if report["rejected"]:
         lines += ["", "### Excluded issues", ""]
         for item in report["rejected"]:
-            reason = item["reason"].replace("|", "/").replace("\\n", " ")
+            reason = item["reason"].replace("|", "/").replace("\n", " ")
             lines.append(f"- #{item['issue_number']}: {reason}")
     lines += ["", "This is an issue-content snapshot, not a certification of actual risk, evidence or readiness."]
-    return "\\n".join(lines) + "\\n"
+    return "\n".join(lines) + "\n"
 
 def get_json(path):
     result = subprocess.run(["gh", "api", path], check=True, capture_output=True, text=True)
