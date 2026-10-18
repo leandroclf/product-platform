@@ -70,5 +70,11 @@ portal_test_module = importlib.util.module_from_spec(portal_spec)
 portal_spec.loader.exec_module(portal_test_module)
 PortalIntakeTests = portal_test_module.PortalIntakeTests
 
+# The scheduled LF portal coverage watcher must pass the existing platform CI tests.
+portal_live_spec = importlib.util.spec_from_file_location("portal_live_tests", ROOT / "scripts/test_portal_live_catalog_audit.py")
+portal_live_module = importlib.util.module_from_spec(portal_live_spec)
+portal_live_spec.loader.exec_module(portal_live_module)
+PortalLiveAuditTests = portal_live_module.PortalLiveAuditTests
+
 if __name__ == "__main__":
     unittest.main()
