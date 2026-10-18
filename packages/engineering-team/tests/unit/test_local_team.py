@@ -94,6 +94,30 @@ class LocalTeamTests(unittest.TestCase):
         value = review(); value['findings'] = [dict(id='F1', severity='HIGH', status='RESOLVED', verified=False, summary='risk')]
         self.assertFalse(team.review_pass(value, 'a' * 40, 'sentinel'))
 
+    def test_medium_findings_require_verified_resolution(self):
+        for severity in ('MEDIUM', 'HIGH', 'CRITICAL'):
+            with self.subTest(severity=severity):
+                value = review()
+                value['verdict'] = 'PASS_WITH_FINDINGS'
+                value['findings'] = [dict(id='F1', severity=severity, status='OPEN',
+                                          verified=False, summary='Unresolved finding')]
+                self.assertFalse(team.review_pass(value, 'a' * 40, 'sentinel'))
+                value['findings'][0].update(status='RESOLVED', verified=False)
+                self.assertFalse(team.review_pass(value, 'a' * 40, 'sentinel'))
+                value['findings'][0]['verified'] = True
+                self.assertTrue(team.review_pass(value, 'a' * 40, 'sentinel'))
+
+    def test_low_open_findings_allowed_only_as_declared_residual(self):
+        value = review()
+        value['verdict'] = 'PASS_WITH_FINDINGS'
+        value['findings'] = [dict(id='F1', severity='LOW', status='OPEN',
+                                  verified=False, summary='Low residual impact')]
+        self.assertTrue(team.review_pass(value, 'a' * 40, 'sentinel'))
+        value['findings'][0]['status'] = 'RESOLVED'
+        self.assertFalse(team.review_pass(value, 'a' * 40, 'sentinel'))
+        value['findings'][0]['verified'] = True
+        self.assertTrue(team.review_pass(value, 'a' * 40, 'sentinel'))
+
     def test_terminal_or_ambiguous_run_cannot_resume(self):
         path = self.root / 'task'; path.mkdir()
         for status in ('DELIVERY_PENDING', 'REVIEWED', 'STOPPED', 'FAILED'):

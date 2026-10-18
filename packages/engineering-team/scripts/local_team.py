@@ -486,8 +486,12 @@ def review_pass(value, sha, role, plan=None, identifier=None):
             and value['verdict'] in ('PASS', 'PASS_WITH_FINDINGS')
             and all(value['gates'][x] in ('PASS', 'PASS_WITH_FINDINGS') for x in ('quality', 'security'))
             and not any(x in ('FAIL', 'BLOCKED') for x in value['gates'].values())
-            and not any(x['severity'] in ('HIGH', 'CRITICAL') and
-                        (x['status'] != 'RESOLVED' or not x['verified']) for x in value['findings']))
+            # MEDIUM+ findings must be resolved and verified. Even low findings
+            # marked RESOLVED must have evidence, rather than trusting a label.
+            and not any(
+                (x['status'] == 'RESOLVED' and not x['verified']) or
+                (x['severity'] in ('MEDIUM', 'HIGH', 'CRITICAL') and x['status'] != 'RESOLVED')
+                for x in value['findings']))
 
 
 def parse_codex_catalog(text):
