@@ -2,13 +2,14 @@ name: Agent independent review gate
 on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
-  workflow_dispatch:
+  pull_request_review:
+    types: [submitted, dismissed]
 permissions:
   contents: read
   pull-requests: read
 jobs:
   independent-review-gate:
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository }}
+    if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -22,9 +23,4 @@ jobs:
           PR_NUMBER: ${{ github.event.pull_request.number }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           TRUSTED_REVIEWERS: ${{ vars.AGENT_TRUSTED_REVIEWERS }}
-        run: |
-          if [ -z "$PR_NUMBER" ]; then
-            echo "No PR context; gate only applies to pull requests."
-            exit 0
-          fi
-          python3 scripts/agent_review_gate.py
+        run: python3 scripts/agent_review_gate.py
