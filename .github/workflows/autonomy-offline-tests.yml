@@ -18,4 +18,4 @@ jobs:
         with:
           python-version: '3.12'
       - name: Run review gate tests without credentials
-        run: python -m unittest discover -s tests -p 'test_agent_review_gate.py' -v
+        run: python -m unittest discover -s tests -p 'test_*.py' -v
