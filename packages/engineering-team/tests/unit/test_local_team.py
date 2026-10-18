@@ -251,6 +251,9 @@ class LocalTeamTests(unittest.TestCase):
         self.assertEqual(team.read(path / '0-review.json')['head_sha'], state['head_sha'])
         self.assertEqual([x['stage'] for x in state['stage_runs']], ['plan', 'implement', 'validate', 'review'])
         self.assertTrue((path / 'workspace' / 'openspec' / 'changes' / ('ai-team-' + task) / '0' / 'tasks.md').exists())
+        generated = path / 'workspace' / 'openspec' / 'changes' / ('ai-team-' + task) / '0'
+        self.assertEqual(generated.stat().st_mode & 0o002, 0)
+        self.assertEqual((generated / 'tasks.md').stat().st_mode & 0o002, 0)
         self.assertTrue(all(x['resolved_model'] is None for x in state['stage_runs']))
         self.assertIn('after 0-implement', (path / 'handoff-0-review' / 'changes.patch').read_text())
         self.assertFalse((path / 'handoff-0-review' / 'validate.json').exists())
