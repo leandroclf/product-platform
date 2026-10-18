@@ -748,7 +748,7 @@ def record_openspec(workspace, state):
         if directory.is_symlink() or (directory.exists() and not directory.is_dir()):
             raise Blocked('unsafe OpenSpec path')
         directory.mkdir(exist_ok=True, mode=0o755)
-        directory.chmod(0o777)
+        directory.chmod(0o755)
     plan = state['plan']
     contents = {
         'proposal.md': '# Objective\n\n' + plan['objective'] + '\n\n## Original request\n\n' + state['request']
@@ -764,7 +764,10 @@ def record_openspec(workspace, state):
         artifact = directory / name
         with artifact.open('x') as handle:
             handle.write(contents + '\n')
-        artifact.chmod(0o666)
+        artifact.chmod(0o644)
+    # Reapply narrow ACL after chmod: chmod may have reduced the inherited ACL mask.
+    # Never make newly generated OpenSpec files writable by every local user.
+    grant_agent_checkout_access(workspace)
 
 
 def worker(task_id):
