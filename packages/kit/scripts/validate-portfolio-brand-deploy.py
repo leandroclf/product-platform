@@ -59,14 +59,15 @@ def validate(portfolio, deploy, brand):
         or flagship.get("publication_requires_editorial_review") is not True
         or flagship.get("automatic_cross_repo_sync_verified") is not False):
         errors.append("Missing flagship portal publishing contract")
-    entries = [p for p in products if isinstance(p, dict) and p.get("role") == "flagship"]
-    if (len(entries) != 1 or entries[0].get("repository") != "site-lf-solucoes"
-        or entries[0].get("runtime") != "static-github-pages"):
-        errors.append("Corporate flagship must be a registered static GitHub Pages product")
-    portal_deploy = mapped.get("site-lf-solucoes", {})
-    if (portal_deploy.get("adapter") != "github-pages-static"
-        or portal_deploy.get("adoption") != "existing-automatic-pages-deploy-unverified-runtime"):
-        errors.append("Portal deploy must be tracked without invented runtime evidence")
+    if flagship.get("kind") != "flagship-product" or flagship.get("runtime") != "static-github-pages":
+        errors.append("Flagship product type must remain explicit")
+    portal_deploy = deploy.get("flagship_portal", {})
+    if (portal_deploy.get("product") != "site-lf-solucoes"
+        or portal_deploy.get("runtime") != "static-github-pages"
+        or portal_deploy.get("adapter") != "github-pages-static"
+        or portal_deploy.get("adoption") != "existing-automatic-pages-deploy-unverified-runtime"
+        or portal_deploy.get("remote_deploy_verified") is not False):
+        errors.append("Flagship portal deployment must be tracked without invented remote evidence")
     if set(mapped) != set(registered):
         errors.append("Every product must be mapped exactly once")
     d = deploy.get("defaults", {})
