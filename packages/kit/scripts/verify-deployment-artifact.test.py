@@ -12,6 +12,9 @@ ROOT = Path(__file__).resolve().parents[1]
 spec = importlib.util.spec_from_file_location("g6_artifact", ROOT / "scripts/verify-deployment-artifact.py")
 verifier = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(verifier)
+ci_spec = importlib.util.spec_from_file_location("g6_ci_gate", ROOT / "scripts/verify-deployment-ci-context.py")
+ci_gate = importlib.util.module_from_spec(ci_spec)
+ci_spec.loader.exec_module(ci_gate)
 contract_spec = importlib.util.spec_from_file_location("g6_contract_tests", ROOT / "scripts/validate-deployment-plan.test.py")
 contracts = importlib.util.module_from_spec(contract_spec)
 contract_spec.loader.exec_module(contracts)
@@ -86,6 +89,43 @@ class DeploymentArtifactEvidenceTests(unittest.TestCase):
         self.write_plan()
         with self.assertRaisesRegex(ValueError, "G6 plan blocked"):
             verifier.assess(self.plan_path, self.repo, self.artifact)
+
+    def ci_env(self):
+        return {"GITHUB_ACTIONS": "true", "GITHUB_EVENT_NAME": "push",
+                "GITHUB_REF": "refs/heads/main", "GITHUB_REPOSITORY": "leandroclf/vehicle-tracking",
+                "GITHUB_RUN_ID": "123456", "GITHUB_WORKSPACE": str(self.repo),
+                "GITHUB_SHA": self.sha}
+
+    def test_main_push_ci_context_and_real_artifact_pass_without_deploy_permission(self):
+        result = ci_gate.assess(self.plan_path, self.repo, self.artifact,
+                                "leandroclf/vehicle-tracking", self.ci_env())
+        self.assertEqual(result["decision"], "CI_CONTEXT_AND_ARTIFACT_VERIFIED")
+        self.assertFalse(result["authorized_to_deploy"])
+        self.assertFalse(result["approval_identity_verified"])
+
+    def test_ci_rejects_fork_pr_wrong_sha_ref_repository_and_workspace(self):
+        invalid = [
+            ("GITHUB_EVENT_NAME", "pull_request"),
+            ("GITHUB_REF", "refs/heads/feature"),
+            ("GITHUB_REPOSITORY", "attacker/fork"),
+            ("GITHUB_SHA", "d" * 40),
+            ("GITHUB_WORKSPACE", str(self.path)),
+            ("GITHUB_RUN_ID", "none"),
+            ("GITHUB_ACTIONS", "false"),
+        ]
+        for name, value in invalid:
+            with self.subTest(name=name):
+                env = self.ci_env()
+                env[name] = value
+                with self.assertRaises(ValueError):
+                    ci_gate.assess(self.plan_path, self.repo, self.artifact,
+                                   "leandroclf/vehicle-tracking", env)
+
+    def test_ci_rejects_modified_artifact_even_in_valid_push(self):
+        self.artifact.write_bytes(b"modified after build")
+        with self.assertRaisesRegex(ValueError, "artifact SHA"):
+            ci_gate.assess(self.plan_path, self.repo, self.artifact,
+                           "leandroclf/vehicle-tracking", self.ci_env())
 
     def test_cli_emits_redacted_block_without_authority(self):
         cmd = [sys.executable, str(ROOT / "scripts/verify-deployment-artifact.py"),

@@ -38,7 +38,8 @@ def errors(value):
             problems.append("invalid " + field)
     if (not isinstance(value["artifact_ref"], str)
             or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._/@:+-]{0,255}", value["artifact_ref"])
-            or value["artifact_ref"].endswith((":latest", "/latest"))):
+            or value["artifact_ref"].endswith((":latest", "/latest"))
+            or not value["artifact_ref"].endswith("@sha256:" + str(value["artifact_sha256"]))):
         problems.append("artifact must use a pinned, non-latest reference")
     environment = value["environment"]
     if environment not in ENVIRONMENTS:
