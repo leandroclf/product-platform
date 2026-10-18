@@ -10,10 +10,10 @@ Run from a trusted product CI runner after a **staging** deployment:
 
 ```bash
 python3 packages/kit/scripts/verify-post-deploy-health.py \
-  --url "https://staging.example.com/health" --attempts 5 --interval 3 --timeout 5
+  --url "https://staging.example.com/health" --attempts 5 --interval 3 --timeout 5 --consecutive-successes 3
 ```
 
-Exit status 0 indicates that the endpoint returned HTTP 200 at least once;
+Exit status 0 indicates that the endpoint returned the configured number of consecutive HTTP 200 responses (default 1 for backward compatibility; recommend 3 for staging);
 status 2 means block, including malformed input, redirects, 4xx/5xx, timeouts
 and transport failures. Output is machine-readable JSON, no response bodies or
 URL (which could contain sensitive query values) are printed. Only HTTPS on the
@@ -54,3 +54,10 @@ python3 packages/kit/scripts/verify-post-deploy-health.test.py
   monitoring and release-specific smoke tests.
 - Implement rollback in the product's established hosting provider, using a
   verified previous revision and a follow-up health/identity check.
+
+## Stable health threshold
+
+Use `--consecutive-successes 3 --attempts 5` for staging. Any timeout, HTTP
+error or transport failure resets the streak. A single successful probe is not
+evidence of recovery stability. The threshold is bounded by the attempt count
+and is still not proof of the deployed release identity or production readiness.
