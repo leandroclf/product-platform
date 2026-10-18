@@ -1,16 +1,16 @@
 # Skills
 
-The canonical reusable engineering skill source is **`leandroclf/product-platform/packages/kit/skills`**, inside the same monorepo as the `engineering-team`. The local `packages/engineering-team/skills` catalog and skill files are compatibility snapshots consumed by the existing team tooling.
+The canonical reusable engineering skills are in `leandroclf/product-platform/packages/kit/skills`. The `packages/engineering-team/skills` copies are compatibility snapshots until versioned distribution is available.
 
 ## Update contract
 
-1. Update generic skill content in `packages/kit/skills/<skill>/SKILL.md` first.
-2. Refresh the matching `packages/engineering-team/skills/<skill>/SKILL.md` snapshot in the same proposed PR, or provide a reviewed cutover path.
-3. Run `python3 packages/engineering-team/scripts/validate_skills.py` from the repository root (or run the corresponding CI). The validator rejects missing canonical skills or newly divergent snapshots.
-4. Keep both copies only until versioned runtime skill distribution is established. Avoid a second long-term source of truth.
+1. Change the canonical skill in `packages/kit/skills/<skill>/SKILL.md`.
+2. Update the matching team snapshot **in the same PR**, preserving exact file contents.
+3. Run `python3 packages/engineering-team/scripts/validate_skills.py` from the monorepo root or the package CI. The validator fails on missing sources, divergent content, and any new divergence waiver.
+4. Review security-related skill edits as policy-sensitive changes; confirm the kit and team consumers before merge. Snapshot parity does not prove safe behavior by a model.
 
-## Known exception requiring a separate decision
+## Security reconciliation
 
-**`security` is the sole documented divergence**, tracked explicitly in `skills/ownership.yaml`. The canonical kit currently contains a legacy Security Skill document (including conditional Strix guidance), while the engineering-team snapshot has structured frontmatter and `Inputs/Outputs/Boundaries/Validation` contract sections. Blind copying in either direction could break consumers or discard security guidance. The validator blocks *additional* undocumented drift but does not certify this exception as resolved or equivalent.
+The former security exception has been removed. Both consumers now use the same structured security skill with the original kit's threat categories and guarded optional analyzer usage plus the team's Inputs/Outputs/Boundaries/Validation sections. Third-party scanners (including Strix) are never installed or enabled implicitly: verify exact origin/version/permissions and obtain explicit operator authorization. Keep the canonical kit as the only source for subsequent changes.
 
-Reconcile that skill only in a follow-up with affected consumer checks, security review and compatibility tests. The exception is not a waiver to bypass other security policy, GitHub branch protection or human PR review.
+Do not add duplicate generic skill content to the engineering-team without first modifying the kit. Remove snapshots only after a versioned runtime distribution and consumer compatibility validation are in place.

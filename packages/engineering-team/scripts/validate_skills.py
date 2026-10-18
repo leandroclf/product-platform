@@ -29,10 +29,7 @@ def frontmatter(path):
 
 
 def provenance_errors(root, ownership=None):
-    """Catch silent drift between compatibility snapshots and canonical kit.
-
-    Explicit security exception remains visible until deliberately reconciled.
-    """
+    """Reject divergence between team compatibility snapshots and canonical kit."""
     errors = []
     ownership_file = root / "skills" / "ownership.yaml"
     try:
@@ -46,8 +43,8 @@ def provenance_errors(root, ownership=None):
     ):
         errors.append("canonical skill ownership must target product-platform/packages/kit/skills")
     exceptions = owner.get("allowed_divergences", {})
-    if exceptions != {"security": "pending-structured-security-skill-reconciliation"}:
-        errors.append("unexpected skill divergence exception; require a documented review")
+    if exceptions != {}:
+        errors.append("skill snapshots must have no divergence exceptions")
     kit = root.parent / "kit" / "skills"
     team = root / "skills"
     if not kit.is_dir():
@@ -56,13 +53,8 @@ def provenance_errors(root, ownership=None):
         counterpart = kit / skill.parent.name / "SKILL.md"
         if not counterpart.is_file():
             errors.append(f"{skill.parent.name}: canonical kit skill missing")
-        elif skill.read_bytes() != counterpart.read_bytes() and skill.parent.name not in exceptions:
+        elif skill.read_bytes() != counterpart.read_bytes():
             errors.append(f"{skill.parent.name}: snapshot differs from canonical kit skill")
-    # Never allow a disappeared exception to go unnoticed either.
-    for name in exceptions:
-        a, b = team / name / "SKILL.md", kit / name / "SKILL.md"
-        if not a.is_file() or not b.is_file():
-            errors.append(f"{name}: documented divergence has missing source")
     return errors
 
 

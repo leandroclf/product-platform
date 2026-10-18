@@ -1,10 +1,7 @@
 canonical_skill_repository: leandroclf/product-platform
 canonical_skill_path: packages/kit/skills
 mode: compatibility-snapshot
-# The security skill is known to differ: Kit has legacy Strix guidance; Team
-# has a structured contract. Do not overwrite either without consumer review.
-allowed_divergences:
-  security: pending-structured-security-skill-reconciliation
+allowed_divergences: {}
 rules:
   - no-new-generic-skills
   - upstream-changes-to-kit-first
