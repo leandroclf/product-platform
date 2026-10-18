@@ -26,6 +26,20 @@ class ContractTests(unittest.TestCase):
     def test_valid_portfolio(self):
         self.assertEqual(guard.validate(self.portfolio, self.deploy, self.brand), [])
 
+    def test_flagship_portal_is_registered(self):
+        self.assertEqual(self.portfolio["portal"]["repository"], "site-lf-solucoes")
+        self.assertIn("site-lf-solucoes", [p["repository"] for p in self.portfolio["products"]])
+        self.assertEqual(self.deploy["targets"][0]["adapter"], "github-pages-static")
+
+    def test_missing_portal_contract_rejected(self):
+        self.check(lambda a, b, c: a.pop("portal"))
+
+    def test_disabled_publication_requirement_rejected(self):
+        self.check(lambda a, b, c: a["portal"].update(required_for_new_products=False))
+
+    def test_unverified_auto_sync_cannot_be_claimed(self):
+        self.check(lambda a, b, c: a["portal"].update(automatic_cross_repo_sync_verified=True))
+
     def test_missing_product_is_rejected(self):
         self.check(lambda a, b, c: b["targets"].pop())
 
