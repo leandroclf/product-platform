@@ -22,6 +22,7 @@ jobs:
           GH_REPO: ${{ github.repository }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          TRUSTED_REVIEWERS: ${{ vars.AGENT_TRUSTED_REVIEWERS }}
         run: python3 scripts/agent_review_gate.py
       - name: Queue GitHub native auto-merge
         env:
