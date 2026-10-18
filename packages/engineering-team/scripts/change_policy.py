@@ -30,13 +30,15 @@ def classify_path(path):
     if (name in SENSITIVE_FILES or p.suffix.lower() in SENSITIVE_SUFFIXES or
             bool(parts & SENSITIVE_PARTS) or SENSITIVE_WORDS.search(path)):
         return "R2"
+    if p.suffix.lower() in (".md", ".mdx", ".rst", ".txt") and "docs" in parts:
+        return "R0"
     return "R1"
 
 
 def classify_paths(paths):
     if not isinstance(paths, (list, tuple)) or not paths:
         return "R1"
-    return "R2" if any(classify_path(p) == "R2" for p in paths) else "R1"
+    return max((classify_path(p) for p in paths), key=lambda risk: RANK[risk])
 
 
 def ensure_authorized(claim, paths):
