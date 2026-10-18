@@ -9,6 +9,7 @@ import hashlib
 import importlib.util
 import json
 import os
+import stat
 from pathlib import Path
 import subprocess
 import sys
@@ -58,7 +59,7 @@ def verified_artifact(path):
     digest = hashlib.sha256()
     try:
         with os.fdopen(os.open(path, flags), "rb") as handle:
-            if not os.fstat(handle.fileno()).st_mode & 0o170000 == 0o100000:
+            if not stat.S_ISREG(os.fstat(handle.fileno()).st_mode):
                 raise ValueError("artifact must be a regular file")
             while block := handle.read(1024 * 1024):
                 digest.update(block)
