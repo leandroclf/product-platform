@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Conservative GitHub portfolio inventory; never modifies repositories."""
 import json
+from pathlib import Path
+from portal_live_catalog_audit import PORTAL_PATH, audit, decode_github_content, summarize
 import os
 import subprocess
 from datetime import datetime, timezone
@@ -24,7 +26,7 @@ def inventory():
         page += 1
     return sorted(repos, key=lambda x: x["name"].lower())
 
-def render(repos):
+def render(repos, portal_report=None):
     active = [r for r in repos if not r.get("archived")]
     archived = [r for r in repos if r.get("archived")]
     lines = [
@@ -38,6 +40,8 @@ def render(repos):
     for r in repos:
         desc = (r.get("description") or "Não informada").replace("|", "/").replace("\n", " ")[:140]
         lines.append(f"| [{r['name']}]({r['html_url']}) | {'Arquivado' if r.get('archived') else 'Ativo'} | {r.get('pushed_at') or '-'} | {desc} |")
+    lines += ["", "## Cobertura do portal corporativo LF Soluções (leitura remota)"]
+    lines.append(summarize(portal_report or {"state": "UNVERIFIED", "issues": ["Live catalog not checked"]}))
     lines += [
         "", "## Próximas verificações (requerem evidências)",
         "- Confirmar proprietário, domínio, clientes e capacidade reutilizável por repositório.",
@@ -49,7 +53,13 @@ def render(repos):
 
 def main():
     repos = inventory()
-    body = render(repos)
+    try:
+        registry = json.loads((Path(__file__).resolve().parents[1] / "packages/kit/contracts/portfolio-products.json").read_text(encoding="utf-8"))
+        catalog = decode_github_content(gh(PORTAL_PATH))
+        portal_report = audit(registry, catalog)
+    except (ValueError, OSError, KeyError, TypeError, json.JSONDecodeError, subprocess.CalledProcessError) as exc:
+        portal_report = {"state": "UNVERIFIED", "issues": ["Não foi possível confirmar a versão remota do catálogo: " + type(exc).__name__]}
+    body = render(repos, portal_report)
     issues = gh(f"repos/{OWNER}/{REPO}/issues?state=open&per_page=100")
     existing = next((i for i in issues if "pull_request" not in i and MARKER in (i.get("body") or "")), None)
     if existing:
