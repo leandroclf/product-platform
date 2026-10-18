@@ -55,7 +55,7 @@ class ManualReviewPacketTests(unittest.TestCase):
         calls = []
         def getter(url):
             calls.append(url)
-            return changed() * 100 if "page=1" in url else changed()
+            return changed() * 100 if url.endswith("&page=1") else changed()
         files = packet.fetch_files("leandroclf/product-platform", 2, getter)
         self.assertEqual(len(files), 101)
         self.assertEqual(len(calls), 2)
