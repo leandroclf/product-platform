@@ -75,6 +75,35 @@ def build_queue(issues, repo, limit=10):
     }
 
 
+def render_summary(report):
+    """Informational Markdown only; never a go/no-go or approval signal."""
+    lines = [
+        "## Backlog candidate queue — read-only",
+        f"- Repository: \`{report['repository']}\`",
+        f"- Eligible issues: {report['eligible_total']}",
+        f"- Included in this bounded preview: {len(report['items'])}",
+        f"- Rejected candidates: {len(report['rejected'])}",
+        "- **No agent execution, no approval, no merge.**",
+        "",
+        "| Priority | Issue | Target | Claimed risk |",
+        "|---|---|---|---|",
+    ]
+    for item in report["items"]:
+        # Defensively render a normalized GitHub issue URL and repository.
+        issue_number = item["issue_number"]
+        url = item["issue_url"]
+        target = item["target_repository"].replace("|", "/")
+        lines.append(f"| {item['priority']} | [#{issue_number}]({url}) | \`{target}\` | {item['risk_claim']} |")
+    if not report["items"]:
+        lines.append("| — | No eligible issues | — | — |")
+    if report["rejected"]:
+        lines += ["", "### Excluded issues", ""]
+        for item in report["rejected"]:
+            reason = item["reason"].replace("|", "/").replace("\\n", " ")
+            lines.append(f"- #{item['issue_number']}: {reason}")
+    lines += ["", "This is an issue-content snapshot, not a certification of actual risk, evidence or readiness."]
+    return "\\n".join(lines) + "\\n"
+
 def get_json(path):
     result = subprocess.run(["gh", "api", path], check=True, capture_output=True, text=True)
     return json.loads(result.stdout)
@@ -99,6 +128,7 @@ def main():
     parser.add_argument("--repo", default="leandroclf/product-platform")
     parser.add_argument("--limit", type=int, default=10)
     parser.add_argument("--output", type=Path)
+    parser.add_argument("--summary", type=Path)
     args = parser.parse_args()
     # Does not mark ready or start the local ai-team.
     result = build_queue(list_open(args.repo), args.repo, limit=args.limit)
@@ -107,6 +137,8 @@ def main():
         args.output.write_text(output, encoding="utf-8")
     else:
         print(output, end="")
+    if args.summary:
+        args.summary.write_text(render_summary(result), encoding="utf-8")
 
 
 if __name__ == "__main__":
