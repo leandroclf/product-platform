@@ -9,7 +9,7 @@ permissions:
   pull-requests: read
 jobs:
   queue-merge:
-    if: ${{ github.event.pull_request.head.repo.full_name == github.repository && contains(github.event.pull_request.labels.*.name, 'agent-auto-merge') }}
+    if: ${{ vars.AGENT_REVIEW_MODE == 'independent' && github.event.pull_request.head.repo.full_name == github.repository && contains(github.event.pull_request.labels.*.name, 'agent-auto-merge') }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -23,6 +23,7 @@ jobs:
           PR_NUMBER: ${{ github.event.pull_request.number }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           TRUSTED_REVIEWERS: ${{ vars.AGENT_TRUSTED_REVIEWERS }}
+          AGENT_REVIEW_MODE: independent
         run: python3 scripts/agent_review_gate.py
       - name: Queue GitHub native auto-merge
         env:
