@@ -64,5 +64,11 @@ class HandoffContractTest(unittest.TestCase):
                 local_team.platform_inputs(str(path), [], str(vph.REGISTRY), "e" * 40)
 
 
+# Portal intake safety tests are part of the pre-existing platform CI job.
+portal_spec = importlib.util.spec_from_file_location("portal_intake_tests", ROOT / "scripts/test_portal_intake.py")
+portal_test_module = importlib.util.module_from_spec(portal_spec)
+portal_spec.loader.exec_module(portal_test_module)
+PortalIntakeTests = portal_test_module.PortalIntakeTests
+
 if __name__ == "__main__":
     unittest.main()
