@@ -1,0 +1,26 @@
+# LF Soluções — Design System corporativo (versão fonte 0.1.0)
+
+**Fonte canônica:** [site-lf-solucoes](https://github.com/leandroclf/site-lf-solucoes). Paleta extraída diretamente da variável CSS `--brand-*` em `brand-system.css`; os SVGs são cópias **sem modificação** de `assets/lf-logo-horizontal.svg` e `assets/lf-mark.svg`.
+
+## Contrato visual inicial
+
+- Cores oficiais: `#061B4F` navy, `#0757E8` blue, `#008CFF` electric, `#00D4FF` cyan, `#EAF6FF` ice, `#172033` graphite/text, `#526079` muted, `#D8E7F4` border, `#FFFFFF` white, `#14804A` success.
+- Fonte institucional: **Inter**, seguida de system sans.
+- Raio padrão: `14px`.
+- Logotipo original horizontal e marca LF SVG.
+- Proveniência: `tokens.json/source/files` guarda o *Git blob SHA-1* de cada asset na fonte — **não** um SHA-256. A suíte `scripts/test_lf_design_system.py` valida os bytes de cada SVG via hash Git e verifica tokens CSS/JSON.
+- `tokens.css` contém apenas custom properties com prefixo `--lf-`; não altera estilos de `html`, `body`, títulos nem cores funcionais de produtos por padrão.
+
+## Uso opt-in
+
+Copiar/distribuir o pacote sob versão/release imutável aprovada antes de uso em consumidores. Na interface, importar `tokens.css` e renderizar os SVGs locais onde fizer sentido para indicar `Produto LF Soluções`. Não fazer hotlink no domínio institucional, não copiar CSS global inteiro do portal, não forçar aparência idêntica em aplicativos especializados.
+
+Não há ainda publicação externa no npm/registry, pacote React de componentes, garantia WCAG AA para todas as combinações, nem adoção automática nos nove produtos. Este PR entrega **assets e tokens oficiais verificáveis**, não uma mudança visual remota.
+
+## Próximos gates
+
+1. Distribuição versionada com checksum e documentação de instalação;
+2. CSS primitives acessíveis e, conforme demanda, componentes React compatíveis com consumidores Next.js;
+3. Testes de contraste WCAG e regressão visual;
+4. Migração piloto `vehicle-tracking` e `agentic-travel-engine`, sem modificar a semântica de estados; depois HTML e local-first;
+5. Auditoria de licenciamento/publicação do pacote caso seja distribuído fora dos repositórios da LF.

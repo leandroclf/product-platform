@@ -1,10 +1,32 @@
 {
   "version": 1,
-  "description": "Grafo de dependências entre os pacotes da plataforma (ADR 004). O pacote kit é folha; produtos ficam fora deste repositório e consomem harness por artefato de release.",
+  "description": "Grafo de dependências entre os pacotes da plataforma (ADR 004). O Kit é folha; Design System também é independente e tem distribuição visual versionada. Produtos consomem releases imutáveis.",
   "packages": {
-    "kit": {"path": "packages/kit", "depends_on": []},
-    "harness": {"path": "packages/harness", "depends_on": ["kit"]},
-    "cli": {"path": "packages/cli", "depends_on": ["kit"]},
-    "engineering-team": {"path": "packages/engineering-team", "depends_on": ["kit"]}
+    "kit": {
+      "path": "packages/kit",
+      "depends_on": []
+    },
+    "harness": {
+      "path": "packages/harness",
+      "depends_on": [
+        "kit"
+      ]
+    },
+    "cli": {
+      "path": "packages/cli",
+      "depends_on": [
+        "kit"
+      ]
+    },
+    "engineering-team": {
+      "path": "packages/engineering-team",
+      "depends_on": [
+        "kit"
+      ]
+    },
+    "design-system": {
+      "path": "packages/design-system",
+      "depends_on": []
+    }
   }
 }

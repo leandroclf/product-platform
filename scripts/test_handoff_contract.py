@@ -81,5 +81,10 @@ editorial_tests = importlib.util.module_from_spec(editorial_spec)
 editorial_spec.loader.exec_module(editorial_tests)
 EditorialPacketTests = editorial_tests.EditorialPacketTests
 
+lf_ds_spec = importlib.util.spec_from_file_location("lf_design_system_tests", ROOT / "scripts/test_lf_design_system.py")
+lf_ds_module = importlib.util.module_from_spec(lf_ds_spec)
+lf_ds_spec.loader.exec_module(lf_ds_module)
+LFDesignSystemTests = lf_ds_module.LFDesignSystemTests
+
 if __name__ == "__main__":
     unittest.main()
