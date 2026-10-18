@@ -68,6 +68,39 @@ class LocalTeamTests(unittest.TestCase):
         self.assertNotIn('--privileged', cmd)
         self.assertFalse(any('home:/home' in x or 'docker.sock' in x for x in cmd))
 
+    def test_acl_checkout_access_is_narrow_and_excludes_git_metadata(self):
+        workspace = self.root / 'clone'
+        workspace.mkdir()
+        (workspace / '.git').mkdir()
+        (workspace / '.git' / 'config').write_text('private metadata')
+        (workspace / 'src').mkdir()
+        (workspace / 'src' / 'module.py').write_text('print(1)')
+        (workspace / 'symlink').symlink_to(workspace / '.git', target_is_directory=True)
+        calls = []
+        def fake_run(argv, **kwargs):
+            calls.append(argv)
+            return subprocess.CompletedProcess(argv, 0, '', '')
+        with patch.object(team.shutil, 'which', return_value='/usr/bin/setfacl'), \
+             patch.object(team.subprocess, 'run', side_effect=fake_run):
+            team.grant_agent_checkout_access(workspace)
+        self.assertTrue(calls)
+        self.assertTrue(any('-d' in call for call in calls))
+        self.assertTrue(all('u:1001:rwX' in call for call in calls))
+        self.assertFalse(any(str(workspace / '.git') in entry
+                             for call in calls for entry in call))
+        self.assertFalse(any(str(workspace / 'symlink') in entry
+                             for call in calls for entry in call))
+        self.assertTrue(any(str(workspace / 'src' / 'module.py') in call for call in calls))
+        self.assertFalse(any('a+rwX' in entry for call in calls for entry in call))
+
+    def test_acl_missing_dependency_blocks_before_widening_permissions(self):
+        workspace = self.root / 'clone'
+        workspace.mkdir()
+        (workspace / '.git').mkdir()
+        with patch.object(team.shutil, 'which', return_value=None):
+            with self.assertRaises(team.Blocked):
+                team.grant_agent_checkout_access(workspace)
+
     def test_agent_git_metadata_is_read_only_and_reviews_have_no_bash(self):
         volumes = []
         for kind in team.STAGES:
@@ -207,7 +240,7 @@ class LocalTeamTests(unittest.TestCase):
 
     def test_complete_local_workflow_with_controlled_providers_preserves_target(self):
         task, path, target, base = self.setup_run()
-        with patch.object(team, 'image_present'), patch.object(team, 'execute', side_effect=self.controlled_executor):
+        with patch.object(team, 'grant_agent_checkout_access'), patch.object(team, 'image_present'), patch.object(team, 'execute', side_effect=self.controlled_executor):
             team.worker(task)
         state = team.read(path / 'state.json')
         self.assertEqual(state['status'], 'REVIEWED')
@@ -218,6 +251,9 @@ class LocalTeamTests(unittest.TestCase):
         self.assertEqual(team.read(path / '0-review.json')['head_sha'], state['head_sha'])
         self.assertEqual([x['stage'] for x in state['stage_runs']], ['plan', 'implement', 'validate', 'review'])
         self.assertTrue((path / 'workspace' / 'openspec' / 'changes' / ('ai-team-' + task) / '0' / 'tasks.md').exists())
+        generated = path / 'workspace' / 'openspec' / 'changes' / ('ai-team-' + task) / '0'
+        self.assertEqual(generated.stat().st_mode & 0o002, 0)
+        self.assertEqual((generated / 'tasks.md').stat().st_mode & 0o002, 0)
         self.assertTrue(all(x['resolved_model'] is None for x in state['stage_runs']))
         self.assertIn('after 0-implement', (path / 'handoff-0-review' / 'changes.patch').read_text())
         self.assertFalse((path / 'handoff-0-review' / 'validate.json').exists())
@@ -266,7 +302,7 @@ class LocalTeamTests(unittest.TestCase):
         self.plan_decisions = handoff['capabilities']
         state['platform'] = team.freeze_platform(path, team.platform_inputs(str(h), [str(rules)]))
         team.atomic(path / 'state.json', state)
-        with patch.object(team, 'image_present'), patch.object(team, 'execute', side_effect=self.controlled_executor):
+        with patch.object(team, 'grant_agent_checkout_access'), patch.object(team, 'image_present'), patch.object(team, 'execute', side_effect=self.controlled_executor):
             team.worker(task)
         state = team.read(path / 'state.json')
         self.assertEqual(state['status'], 'REVIEWED')
@@ -283,7 +319,7 @@ class LocalTeamTests(unittest.TestCase):
             label = args[3]; calls.append(label)
             code, out = self.controlled_executor(*args, **kwargs)
             return (1 if label == '0-tests' else code), out
-        with patch.object(team, 'image_present'), patch.object(team, 'execute', side_effect=execute):
+        with patch.object(team, 'grant_agent_checkout_access'), patch.object(team, 'image_present'), patch.object(team, 'execute', side_effect=execute):
             team.worker(task)
         self.assertNotIn('0-validate', calls)
         self.assertEqual(calls.count('0-plan'), 1)
@@ -296,7 +332,7 @@ class LocalTeamTests(unittest.TestCase):
         def execute(*args, **kwargs):
             code, out = self.controlled_executor(*args, **kwargs)
             return (1 if args[3].endswith('-tests') else code), out
-        with patch.object(team, 'image_present'), patch.object(team, 'execute', side_effect=execute), self.assertRaises(team.Blocked):
+        with patch.object(team, 'grant_agent_checkout_access'), patch.object(team, 'image_present'), patch.object(team, 'execute', side_effect=execute), self.assertRaises(team.Blocked):
             team.worker(task)
         self.assertEqual(team.read(path / 'state.json')['status'], 'FAILED')
         self.assertEqual(team.read(path / 'state.json')['cycle'], 2)
@@ -310,7 +346,7 @@ class LocalTeamTests(unittest.TestCase):
             if args[3].endswith('-validate'):
                 team.atomic(path / ('staging-' + args[3]) / 'result.json', assessment('sentinel', 'c' * 40, args[1]['plan']))
             return code, out
-        with patch.object(team, 'image_present'), patch.object(team, 'execute', side_effect=execute), self.assertRaises(team.Blocked):
+        with patch.object(team, 'grant_agent_checkout_access'), patch.object(team, 'image_present'), patch.object(team, 'execute', side_effect=execute), self.assertRaises(team.Blocked):
             team.worker(task)
         self.assertEqual(team.read(path / 'state.json')['status'], 'FAILED')
 
@@ -320,13 +356,13 @@ class LocalTeamTests(unittest.TestCase):
             if args[3].endswith('-tests'):
                 raise SystemExit('controlled crash before test launch')
             return self.controlled_executor(*args, **kwargs)
-        with patch.object(team, 'image_present'), patch.object(team, 'execute', side_effect=interrupt), self.assertRaises(SystemExit):
+        with patch.object(team, 'grant_agent_checkout_access'), patch.object(team, 'image_present'), patch.object(team, 'execute', side_effect=interrupt), self.assertRaises(SystemExit):
             team.worker(task)
         self.assertEqual(team.read(path / 'state.json')['phase'], 'TEST')
         calls = []
         def resume(*args, **kwargs):
             calls.append(args[3]); return self.controlled_executor(*args, **kwargs)
-        with patch.object(team, 'image_present'), patch.object(team, 'execute', side_effect=resume):
+        with patch.object(team, 'grant_agent_checkout_access'), patch.object(team, 'image_present'), patch.object(team, 'execute', side_effect=resume):
             team.worker(task)
         self.assertNotIn('0-plan', calls)
         self.assertNotIn('0-implement', calls)
@@ -369,7 +405,7 @@ class LocalTeamTests(unittest.TestCase):
                         value['status'] = 'BLOCKED'
                     team.atomic(path / 'staging-0-plan' / 'result.json', value)
                     return code, out
-                with patch.object(team, 'image_present'), patch.object(team, 'execute', side_effect=execute), self.assertRaises(team.Blocked):
+                with patch.object(team, 'grant_agent_checkout_access'), patch.object(team, 'image_present'), patch.object(team, 'execute', side_effect=execute), self.assertRaises(team.Blocked):
                     team.worker(task)
                 self.assertEqual(calls, ['0-plan'])
                 self.assertEqual(team.git(target, 'rev-parse', 'HEAD'), base)
@@ -410,7 +446,7 @@ class LocalTeamTests(unittest.TestCase):
                 value['verdict'] = 'FAIL'
                 team.atomic(path / 'staging-0-validate' / 'result.json', value)
             return code, out
-        with patch.object(team, 'image_present'), patch.object(team, 'execute', side_effect=execute):
+        with patch.object(team, 'grant_agent_checkout_access'), patch.object(team, 'image_present'), patch.object(team, 'execute', side_effect=execute):
             team.worker(task)
         self.assertEqual(calls, ['0-plan', '0-implement', '0-tests', '0-validate', '0-review',
                                  '1-plan', '1-implement', '1-tests', '1-validate', '1-review'])
@@ -426,13 +462,13 @@ class LocalTeamTests(unittest.TestCase):
             if args[3] == '0-implement':
                 out.write_text(json.dumps({'structured_output': dict(plan_id=args[1]['plan_id'], status='BLOCKED', summary='Need approval')}))
             return code, out
-        with patch.object(team, 'image_present'), patch.object(team, 'execute', side_effect=execute), self.assertRaises(team.Blocked):
+        with patch.object(team, 'grant_agent_checkout_access'), patch.object(team, 'image_present'), patch.object(team, 'execute', side_effect=execute), self.assertRaises(team.Blocked):
             team.worker(task)
         self.assertEqual(calls, ['0-plan', '0-implement'])
 
     def test_delivery_rechecks_persisted_assessment(self):
         task, path, _, _ = self.setup_run()
-        with patch.object(team, 'image_present'), patch.object(team, 'execute', side_effect=self.controlled_executor):
+        with patch.object(team, 'grant_agent_checkout_access'), patch.object(team, 'image_present'), patch.object(team, 'execute', side_effect=self.controlled_executor):
             team.worker(task)
         value = team.read(path / '0-review.json')
         value['plan_id'] = 'c' * 64
@@ -458,7 +494,7 @@ class LocalTeamTests(unittest.TestCase):
             team.validate_config(old)
 
     def test_login_requires_atlas_stage_and_rejects_role_mismatch(self):
-        with patch.object(team, 'image_present'), patch.object(team.subprocess, 'call', return_value=0) as call:
+        with patch.object(team, 'grant_agent_checkout_access'), patch.object(team, 'image_present'), patch.object(team.subprocess, 'call', return_value=0) as call:
             self.assertEqual(team.main(['login', 'atlas', '--stage', 'review']), 0)
             cmd = call.call_args.args[0]
             self.assertIn('ai-team-atlas-review-home:/home/agent', cmd)
@@ -492,7 +528,7 @@ class LocalTeamTests(unittest.TestCase):
                 out.write_text(json.dumps({'structured_output': dict(plan_id=args[1]['plan_id'],
                     status='REPLAN_REQUIRED', summary='Plan needs adjustment')}))
             return code, out
-        with patch.object(team, 'image_present'), patch.object(team, 'execute', side_effect=execute):
+        with patch.object(team, 'grant_agent_checkout_access'), patch.object(team, 'image_present'), patch.object(team, 'execute', side_effect=execute):
             team.worker(task)
         self.assertNotIn('0-tests', calls)
         self.assertIn('1-plan', calls)
@@ -504,10 +540,10 @@ class LocalTeamTests(unittest.TestCase):
             if args[3] == '0-review':
                 raise SystemExit('crash after staging creation')
             return self.controlled_executor(*args, **kwargs)
-        with patch.object(team, 'image_present'), patch.object(team, 'execute', side_effect=execute), self.assertRaises(SystemExit):
+        with patch.object(team, 'grant_agent_checkout_access'), patch.object(team, 'image_present'), patch.object(team, 'execute', side_effect=execute), self.assertRaises(SystemExit):
             team.worker(task)
         self.assertEqual(team.read(path / 'state.json')['phase'], 'REVIEW')
-        with patch.object(team, 'image_present'), patch.object(team, 'execute') as run, self.assertRaises(team.Blocked):
+        with patch.object(team, 'grant_agent_checkout_access'), patch.object(team, 'image_present'), patch.object(team, 'execute') as run, self.assertRaises(team.Blocked):
             team.worker(task)
         run.assert_not_called()
 

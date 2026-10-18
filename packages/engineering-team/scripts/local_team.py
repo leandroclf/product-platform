@@ -328,6 +328,41 @@ def test_command(name, config, workspace):
         'cp -R /source/. /work/;\n' + '\n'.join(config['checks'])]
 
 
+def grant_agent_checkout_access(workspace):
+    """Grant only the container uid access to a disposable clone, excluding Git metadata.
+
+    Requires POSIX ACL tooling on the host. Never changes the original checkout,
+    grants rights to other local users, or grants the agent write access to .git.
+    """
+    if not shutil.which('setfacl'):
+        raise Blocked('setfacl required for safe isolated checkout permissions; install ACL tools on Linux')
+    root = Path(workspace).resolve(strict=True)
+    if not root.is_dir() or root.is_symlink() or not (root / '.git').is_dir():
+        raise Blocked('invalid isolated workspace for agent ACL')
+    batch = []
+
+    def apply(args, paths):
+        for offset in range(0, len(paths), 100):
+            try:
+                subprocess.run(['setfacl', *args, '--', *(str(p) for p in paths[offset:offset+100])],
+                               check=True, capture_output=True, text=True, timeout=30)
+            except (OSError, subprocess.CalledProcessError, subprocess.TimeoutExpired) as exc:
+                raise Blocked('cannot restrict agent checkout access using POSIX ACL') from exc
+
+    directories = [root]
+    files = []
+    for parent, child_dirs, child_files in os.walk(root, followlinks=False):
+        base = Path(parent)
+        child_dirs[:] = [name for name in child_dirs
+                         if name != '.git' and not (base / name).is_symlink()]
+        directories.extend(base / name for name in child_dirs)
+        files.extend(base / name for name in child_files
+                     if name != '.git' and not (base / name).is_symlink())
+    # X adds search/execute only where applicable; default ACL covers newly created files.
+    apply(['-m', 'u:1001:rwX'], directories + files)
+    apply(['-d', '-m', 'u:1001:rwX'], directories)
+
+
 def provider_command(kind, name, config, workspace, stage, prompt, handoff=None):
     role, provider = STAGES[kind]
     profile = config['models'][kind]
@@ -713,7 +748,7 @@ def record_openspec(workspace, state):
         if directory.is_symlink() or (directory.exists() and not directory.is_dir()):
             raise Blocked('unsafe OpenSpec path')
         directory.mkdir(exist_ok=True, mode=0o755)
-        directory.chmod(0o777)
+        directory.chmod(0o755)
     plan = state['plan']
     contents = {
         'proposal.md': '# Objective\n\n' + plan['objective'] + '\n\n## Original request\n\n' + state['request']
@@ -729,7 +764,10 @@ def record_openspec(workspace, state):
         artifact = directory / name
         with artifact.open('x') as handle:
             handle.write(contents + '\n')
-        artifact.chmod(0o666)
+        artifact.chmod(0o644)
+    # Reapply narrow ACL after chmod: chmod may have reduced the inherited ACL mask.
+    # Never make newly generated OpenSpec files writable by every local user.
+    grant_agent_checkout_access(workspace)
 
 
 def worker(task_id):
@@ -764,9 +802,8 @@ def worker(task_id):
                 git(workspace, 'config', 'core.hooksPath', '/dev/null')
                 # Agent git cannot publish back to target or inherit its remote authority.
                 git(workspace, 'remote', 'remove', 'origin')
-                workspace.chmod(0o755)
-                # Provider runtime uses fixed non-root UID; host authorizes only this clone.
-                subprocess.run(['chmod', '-R', 'a+rwX', str(workspace)], check=True)
+                # Fixed container UID gets narrow ACL access; no world-writable checkout.
+                grant_agent_checkout_access(workspace)
                 state['phase'] = 'PLAN'
                 atomic(path / 'state.json', state)
             while state['cycle'] < state['config']['max_cycles']:
