@@ -11,7 +11,7 @@ from pathlib import Path
 
 FIELDS = {"source", "target_repository", "problem", "evidence_url",
           "acceptance_criteria", "risk", "rollback", "max_cycles"}
-REPOSITORY = re.compile(r"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$")
+REPOSITORY = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]*/[A-Za-z0-9][A-Za-z0-9_.-]*$")
 URL = re.compile(r"^https://[^\s<>]+$")
 BLOCK = re.compile(r"```autonomy-task\s*([\s\S]*?)\s*```", re.IGNORECASE)
 
