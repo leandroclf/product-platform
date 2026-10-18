@@ -45,3 +45,7 @@ jobs:
         run: python -m pip install -r ../../requirements-validation.txt
       - name: PlatformHandoff contract and registry validator
         run: python scripts/validate-platform-handoff.test.py
+      - name: G6 release artifact regression tests (offline)
+        run: python scripts/verify-deployment-artifact.test.py
+      - name: G7 post-deploy health regression tests (offline, no network)
+        run: python scripts/verify-post-deploy-health.test.py
