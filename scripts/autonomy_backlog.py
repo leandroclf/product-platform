@@ -12,8 +12,8 @@ from pathlib import Path
 FIELDS = {"source", "target_repository", "problem", "evidence_url",
           "acceptance_criteria", "risk", "rollback", "max_cycles"}
 REPOSITORY = re.compile(r"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$")
-URL = re.compile(r"^https://[^\\s<>]+$")
-BLOCK = re.compile(r"```autonomy-task\\s*([\\s\\S]*?)\\s*```", re.IGNORECASE)
+URL = re.compile(r"^https://[^\s<>]+$")
+BLOCK = re.compile(r"```autonomy-task\s*([\s\S]*?)\s*```", re.IGNORECASE)
 
 
 def parse_issue(body):
@@ -71,7 +71,7 @@ def main():
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
     payload = prepare(args.body_file.read_text(encoding="utf-8"), args.issue_url)
-    data = json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True) + "\\n"
+    data = json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True) + "\n"
     if args.output:
         args.output.write_text(data, encoding="utf-8")
     else:
