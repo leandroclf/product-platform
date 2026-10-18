@@ -120,20 +120,25 @@ def promote(root, versions, fingerprint, state_home):
     run(["docker", "build", "--pull", "--build-arg", "CODEX_VERSION=" + versions["codex"],
          "--build-arg", "CLAUDE_VERSION=" + versions["claude"], "-f",
          str(root / "runtimes" / "Dockerfile"), "-t", candidate, str(root)], timeout=1200)
-    actual = inspect_versions(candidate)
+    # The candidate tag can be reassigned by a parallel process. Resolve its
+    # immutable ID BEFORE any CLI or Docker canary verification.
+    candidate_id = run(["docker", "image", "inspect", "--format", "{{.Id}}", candidate]).stdout.strip()
+    if not re.fullmatch(r"sha256:[0-9a-f]{64}", candidate_id):
+        raise ValueError("Candidate image lacks valid immutable ID")
+    actual = inspect_versions(candidate_id)
     if actual != versions:
         raise ValueError("Candidate image versions differ from approved registry versions")
-    # Exercise all four real container mount boundaries and synthetic adversarial
-    # probes against the candidate, not just CLI help output.
-    env = dict(os.environ, AI_TEAM_SMOKE_IMAGE=candidate)
+    # Exercise all four actual container mount boundaries and adversarial
+    # probes against this exact candidate ID, never a mutable local tag.
+    env = dict(os.environ, AI_TEAM_SMOKE_IMAGE=candidate_id)
     run([sys.executable, str(root / "scripts" / "local_stage_isolation_smoke.py")],
         timeout=300, env=env)
-    # Recheck after the build, since another task may have started meanwhile.
+    # Release versions may have changed during the expensive build. Stop
+    # instead of promoting a candidate which is no longer the latest stable.
+    if {name: latest(name) for name in PACKAGES} != versions:
+        raise ValueError("Stable registry versions changed during build; recheck and reapprove")
     if active_tasks(state_home):
         raise ValueError("Task started during candidate build; refusing promotion")
-    candidate_id = run(["docker", "image", "inspect", "--format", "{{.Id}}", candidate]).stdout.strip()
-    if not candidate_id.startswith("sha256:"):
-        raise ValueError("Candidate image lacks immutable digest")
     run(["docker", "tag", candidate_id, IMAGE])
     return {"promoted": True, "versions": actual, "image_digest": candidate_id,
             "note": "New runs use the tag; existing tasks retain their frozen image ID."}
