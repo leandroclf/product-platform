@@ -1331,20 +1331,23 @@ def main(argv=None):
             from .update_provider_clis import latest, inspect_versions
         except ImportError:
             from update_provider_clis import latest, inspect_versions
-        active_config = validate_config(read(project_path(repo) / 'config.json'))
+        config = validate_config(read(project_path(repo) / 'config.json'))
+        if config['repository'] != str(repo):
+            raise Blocked('provider configuration belongs to another repository')
+        # Resolve the mutable tag ONCE. Validate and execute this same immutable
+        # image ID, even when a maintenance process updates the local tag.
+        config['provider_image'] = image_present(config['provider_image'])
         available = {name: latest(name) for name in ('codex', 'claude')}
-        installed = inspect_versions(active_config['provider_image'])
+        installed = inspect_versions(config['provider_image'])
         if installed != available:
             raise Blocked('provider CLIs are not the current stable versions; run '
                           'python3 scripts/update_provider_clis.py and promote the tested candidate')
         warn_quota()
-        require_valid_models(validate_config(read(project_path(repo) / 'config.json'))['models'])
-        config = validate_config(read(project_path(repo) / 'config.json'))
+        require_valid_models(config['models'])
         if config['repository'] != str(repo) or not args.request.strip() or len(args.request) > 16000:
             raise Blocked('invalid project/request')
         inputs = platform_inputs(args.handoff, args.rules, args.registry, git(repo, 'rev-parse', 'HEAD'))
         # Freeze local image content before creating a task; do not update mid-run.
-        config['provider_image'] = image_present(config['provider_image'])
         config['test_image'] = image_present(config['test_image'])
         task_id = uuid.uuid4().hex
         path = home() / 'runs' / task_id; path.mkdir(parents=True, mode=0o700)
