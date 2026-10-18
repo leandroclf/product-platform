@@ -97,8 +97,12 @@ class CliUpdaterTests(unittest.TestCase):
     def test_candidate_does_not_promote_when_flags_missing(self):
         versions = {"codex": "1.2.3", "claude": "2.3.4"}
         token = updater.plan({}, versions)["approval_fingerprint"]
+        def fake_run(argv, **kwargs):
+            if argv[:3] == ["docker", "image", "inspect"]:
+                return subprocess.CompletedProcess(argv, 0, "sha256:" + "a" * 64, "")
+            return subprocess.CompletedProcess(argv, 0, "", "")
         with tempfile.TemporaryDirectory() as tmp, \
-             patch.object(updater, "run") as command, \
+             patch.object(updater, "run", side_effect=fake_run) as command, \
              patch.object(updater, "inspect_versions", side_effect=ValueError("missing flag")):
             with self.assertRaises(ValueError):
                 updater.promote(Path(tmp), versions, token, Path(tmp))
