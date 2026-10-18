@@ -8,7 +8,7 @@ import re
 
 RANK = {"R0": 0, "R1": 1, "R2": 2, "R3": 3}
 SENSITIVE_SUFFIXES = {".tf", ".tfvars", ".hcl", ".sql", ".prisma", ".lock", ".pem", ".key", ".p12", ".pfx"}
-SENSITIVE_FILES = {"dockerfile", "compose.yaml", "compose.yml", "package.json",
+SENSITIVE_FILES = {"dockerfile", "compose.yaml", "compose.yml", "package.json", "package-lock.json", "pnpm-lock.yaml", "yarn.lock",
                    "pyproject.toml", "requirements.txt", "pom.xml", "build.gradle",
                    "build.gradle.kts", "settings.gradle", ".npmrc", ".pypirc",
                    ".env", ".env.local", ".env.production"}
