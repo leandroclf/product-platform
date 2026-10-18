@@ -82,6 +82,14 @@ class GateTests(unittest.TestCase):
         with self.assertRaises(SystemExit):
             self.run_gate(mode="manual", pr_head="changed", reviews=[])
 
+    def test_manual_mode_protects_gate_script(self):
+        with self.assertRaises(SystemExit):
+            self.run_gate(mode="manual", filename="scripts/agent_review_gate.py", reviews=[])
+
+    def test_independent_mode_protects_gate_script(self):
+        with self.assertRaises(SystemExit):
+            self.run_gate(filename="scripts/agent_review_gate.py")
+
     def test_unknown_mode_fails_closed(self):
         with self.assertRaises(SystemExit):
             self.run_gate(mode="unrecognized")
