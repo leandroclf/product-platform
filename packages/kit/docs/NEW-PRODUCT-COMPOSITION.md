@@ -48,7 +48,17 @@ new-product
 
 No product may source-depend on another product.
 
-## 5. Definition of done
+## 5. Publicação obrigatória no portal corporativo
+
+**`site-lf-solucoes` é o produto principal do portfólio** e a porta de entrada pública para todos os demais produtos. Seu endereço oficial é `https://lfsolucoes.etc.br/`; o catálogo vive em `/produtos/`. O repositório de site mantém `data/product-catalog.json`, de onde são geradas uma página de catálogo e uma página de apresentação para cada produto.
+
+- Cada produto novo registrado em `contracts/portfolio-products.json` deve produzir, **na mesma entrega de onboarding**, um PR correspondente no `leandroclf/site-lf-solucoes` com descrição editorial, categoria, benefícios verificáveis e página individual.
+- A publicação pública é revisada, não pode expor secrets, dados pessoais, endereços internos ou prometer serviço disponível sem evidência.
+- Publicação do portal e deploy dos aplicativos são independentes. A página pode explicar o produto sem anunciar URL de acesso público ainda não verificada.
+- `product-platform` define a obrigação do handoff; o site é o dono do conteúdo comercial e visual. Não duplicar marketing em Kit/Harness ou copiar o runtime do produto para o portal.
+- O fluxo de sincronização cross-repository ainda precisa ser implementado por GitHub App/PR confiável. Até lá, concluir um novo onboarding exige comprovação do PR de catálogo + validação do site.
+
+## 6. Definition of done
 
 A new product is composition-complete when:
 - every requested capability has a resolution;
@@ -56,4 +66,5 @@ A new product is composition-complete when:
 - shared dependencies are immutable/pinned;
 - contract/conformance tests pass;
 - product integration tests pass;
-- deployment follows expand -> deploy -> observe -> later contract.
+- deployment follows expand -> deploy -> observe -> later contract;
+- portal LF has a reviewed product listing/individual page in `site-lf-solucoes` or the onboarding is marked incomplete.
