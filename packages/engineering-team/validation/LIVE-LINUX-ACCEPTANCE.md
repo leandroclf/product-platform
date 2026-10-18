@@ -4,6 +4,8 @@ O item P0 da [auditoria de engenharia](https://github.com/leandroclf/product-pla
 
 ## Pré-requisitos
 
+Antes de conferir as contas e executar tarefas, rode o [preflight de prontidão do host](LINUX-PILOT-PREFLIGHT.md); um resultado positivo do preflight não comprova execução autenticada.
+
 - No Linux do operador, instalar/revalidar o `ai-team` conforme [fluxo local](../docs/LOCAL-LINUX-WORKFLOW.md), incluindo `setfacl` com suporte a POSIX ACL, Docker e imagem de testes offline.
 - Autenticar os quatro estágios separadamente: `ai-team login atlas --stage plan`, `ai-team login argus`, `ai-team login sentinel` e `ai-team login atlas --stage review`. `ai-team doctor` deve retornar sucesso.
 - Configurar `ai-team init` com imagem e **checks reais** na raiz do alvo, branch nomeada, checkout limpo e remoto GitHub verificado; executar `ai-team models` para conferir o catálogo da conta. Não enviar credenciais ou conteúdo dos volumes ao GitHub/chat.
