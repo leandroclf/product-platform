@@ -6,6 +6,7 @@ Structural artifacts never prove authenticated model execution by themselves.
 """
 import argparse
 import json
+import math
 from pathlib import Path
 import re
 import sys
@@ -52,8 +53,8 @@ def assess(path):
             if plan_id(plan) != identifier:
                 raise ValueError("Plan SHA mismatch")
             validate_plan(plan, plan["base_sha"])
-            if plan.get("status") != "READY" or plan.get("risk") == "R3":
-                raise ValueError("Plan is blocked or R3")
+            if plan.get("status") != "READY" or plan.get("risk") not in ("R0", "R1"):
+                raise ValueError("Plan is blocked or not authorized for supervised R0/R1")
         except (ValueError, KeyError, TypeError, ValidationError) as exc:
             blockers.append("Plan integrity: " + str(exc)[:100])
     stage_runs = state.get("stage_runs")
@@ -61,6 +62,25 @@ def assess(path):
     if not isinstance(stage_runs, list):
         blockers.append("Missing stage execution records")
         stage_runs = []
+    durations = {}
+    first_start, last_end = [], []
+    for record in stage_runs:
+        if not isinstance(record, dict):
+            blockers.append("Malformed stage run record")
+            continue
+        started, ended = record.get("started_at"), record.get("ended_at")
+        if (type(started) not in (float, int) or type(ended) not in (float, int)
+                or not math.isfinite(started) or not math.isfinite(ended)
+                or started < 0 or ended < started):
+            blockers.append("Stage run has invalid timestamps")
+            continue
+        stage_name = record.get("stage")
+        if stage_name in EXPECTED_STAGES:
+            durations[stage_name] = round(durations.get(stage_name, 0) + ended - started, 3)
+            first_start.append(started)
+            last_end.append(ended)
+    # These are local event timestamps, not independently attested model activity.
+    elapsed = round(max(last_end) - min(first_start), 3) if first_start and last_end else None
     for stage in EXPECTED_STAGES:
         matching = [record for record in stage_runs
                     if isinstance(record, dict) and record.get("stage") == stage
@@ -100,6 +120,14 @@ def assess(path):
                 blockers.append(f"{stage} assessment missing or malformed")
     else:
         blockers.append("Cannot validate tests and reviews without valid HEAD/cycle")
+    change_surface = state.get("change_surface")
+    if change_surface is not None:
+        if not isinstance(change_surface, dict) or change_surface.get("risk") not in ("R0", "R1"):
+            blockers.append("Actual change surface is missing authorized R0/R1 classification")
+        elif change_surface.get("head_sha") != sha:
+            blockers.append("Change surface was classified for a different HEAD")
+    # Older task formats may omit change_surface; flag the absence as a
+    # limitation without fabricating classification from incomplete artifacts.
     # Artifacts may be simulated. Model response authentication is external evidence.
     return {
         "schema_version": 1,
@@ -108,6 +136,16 @@ def assess(path):
         "head_sha": sha if isinstance(sha, str) and SHA.fullmatch(sha) else None,
         "cycle": cycle if type(cycle) is int else None,
         "stage_summary": stage_summary,
+        "observed_metrics": {
+            "stage_duration_seconds": durations,
+            "elapsed_stage_window_seconds": elapsed,
+            "repair_cycles": cycle if type(cycle) is int and cycle >= 0 else None,
+            "stage_run_records": len(stage_runs),
+            "metric_source": "unattested_local_state",
+            "cost_usd": None,
+            "token_counts": None,
+        },
+        "change_surface_recorded": isinstance(change_surface, dict),
         "artifact_checks_pass": not blockers,
         "blockers": blockers,
         "authenticated_provider_execution_verified": False,

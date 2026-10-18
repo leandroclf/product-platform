@@ -60,6 +60,47 @@ class LivePilotEvidenceTests(unittest.TestCase):
         self.assertEqual(len(value["stage_summary"]), 4)
         self.assertTrue(all(not s["resolved_model_confirmed"] for s in value["stage_summary"]))
 
+    def test_r2_plan_not_accepted_as_supervised_pilot(self):
+        self.fixture()
+        state = json.loads((self.path / "state.json").read_text())
+        state["plan"]["risk"] = "R2"
+        state["plan_id"] = local_team.plan_id(state["plan"])
+        self.write("state.json", state)
+        report = verify_live_pilot.assess(self.path)
+        self.assertFalse(report["artifact_checks_pass"])
+        self.assertTrue(any("R0/R1" in x for x in report["blockers"]))
+
+    def test_timing_metrics_do_not_claim_cost_or_authentication(self):
+        self.fixture()
+        report = verify_live_pilot.assess(self.path)
+        metrics = report["observed_metrics"]
+        self.assertEqual(metrics["stage_run_records"], 4)
+        self.assertEqual(metrics["elapsed_stage_window_seconds"], 2)
+        self.assertEqual(metrics["stage_duration_seconds"]["plan"], 2)
+        self.assertIsNone(metrics["cost_usd"])
+        self.assertIsNone(metrics["token_counts"])
+        self.assertEqual(metrics["metric_source"], "unattested_local_state")
+        self.assertFalse(report["authenticated_provider_execution_verified"])
+
+    def test_timestamp_tampering_fails_closed(self):
+        self.fixture()
+        state = json.loads((self.path / "state.json").read_text())
+        state["stage_runs"][0]["ended_at"] = -1
+        self.write("state.json", state)
+        self.assertFalse(verify_live_pilot.assess(self.path)["artifact_checks_pass"])
+
+    def test_change_surface_must_match_reviewed_head(self):
+        self.fixture()
+        state = json.loads((self.path / "state.json").read_text())
+        state["change_surface"] = {"risk": "R1", "head_sha": "a" * 40}
+        self.write("state.json", state)
+        self.assertFalse(verify_live_pilot.assess(self.path)["artifact_checks_pass"])
+        state["change_surface"]["head_sha"] = "b" * 40
+        self.write("state.json", state)
+        report = verify_live_pilot.assess(self.path)
+        self.assertTrue(report["artifact_checks_pass"])
+        self.assertTrue(report["change_surface_recorded"])
+
     def test_missing_stage_blocks(self):
         self.fixture()
         path = self.path / "state.json"

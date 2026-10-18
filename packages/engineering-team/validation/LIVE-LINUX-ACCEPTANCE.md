@@ -21,7 +21,7 @@ python3 scripts/verify_live_pilot.py \
   --output ~/ai-team-pilot-summary.json
 ```
 
-Um resultado `artifact_checks_pass: true` indica apenas que os **artefatos locais** passaram por validações estruturais: plano, HEAD, quatro estágios registrados, testes e dois pareceres. O relatório **sempre** mantém `authenticated_provider_execution_verified: false` e `production_certified: false`. Uma pessoa deve inspecionar os logins, provedores, modelos efetivamente utilizados e resultados no ambiente onde rodaram. `resolved_model: null` **não** deve ser convertido em modelo confirmado.
+Um resultado `artifact_checks_pass: true` indica apenas que os **artefatos locais** passaram por validações estruturais: plano R0/R1, HEAD, quatro estágios registrados, timestamps coerentes, testes e dois pareceres. O campo `observed_metrics` agrega as durações dos registros por estágio, a janela observada e ciclos de correção; **são registros locais não atestados**. Os campos de custo e tokens permanecem `null` quando não há apuração segura neste verificador. Quando existir `change_surface` no estado da tarefa, a classificação R0/R1 deve coincidir com o HEAD revisado; a ausência desse registro em tarefas antigas não equivale a classificação confirmada. O relatório **sempre** mantém `authenticated_provider_execution_verified: false` e `production_certified: false`. Uma pessoa deve inspecionar os logins, provedores, modelos efetivamente utilizados e resultados no ambiente onde rodaram. `resolved_model: null` **não** deve ser convertido em modelo confirmado.
 
 4. Após conferir diff, evidências e testes, usar `ai-team deliver <task-id> --pr` para publicar um PR draft. Verificar CI e revisar antes de fazer merge **manualmente**. Não realizar deploy neste piloto.
 
