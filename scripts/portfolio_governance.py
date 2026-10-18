@@ -17,8 +17,8 @@ def inventory():
     repos = []
     page = 1
     while True:
-        batch = gh(f"users/{OWNER}/repos?per_page=100&page={page}&type=owner")
-        repos.extend(batch)
+        batch = gh(f"user/repos?per_page=100&page={page}&affiliation=owner")
+        repos.extend(r for r in batch if r.get("owner", {}).get("login", "").lower() == OWNER.lower())
         if len(batch) < 100:
             break
         page += 1
