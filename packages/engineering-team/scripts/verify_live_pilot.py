@@ -11,6 +11,7 @@ import re
 import sys
 
 from local_team import STAGES, plan_id, review_pass, validate_plan
+from jsonschema import ValidationError
 
 TASK_ID = re.compile(r"^[a-f0-9]{32}$")
 SHA = re.compile(r"^[a-f0-9]{40}$")
@@ -53,7 +54,7 @@ def assess(path):
             validate_plan(plan, plan["base_sha"])
             if plan.get("status") != "READY" or plan.get("risk") == "R3":
                 raise ValueError("Plan is blocked or R3")
-        except (ValueError, KeyError, TypeError) as exc:
+        except (ValueError, KeyError, TypeError, ValidationError) as exc:
             blockers.append("Plan integrity: " + str(exc)[:100])
     stage_runs = state.get("stage_runs")
     stage_summary = []
@@ -95,7 +96,7 @@ def assess(path):
                     value, sha, STAGES[stage][0], plan, identifier
                 ):
                     blockers.append(f"{stage} assessment did not pass exact HEAD and plan")
-            except (OSError, ValueError, KeyError, TypeError, json.JSONDecodeError):
+            except (OSError, ValueError, KeyError, TypeError, json.JSONDecodeError, ValidationError):
                 blockers.append(f"{stage} assessment missing or malformed")
     else:
         blockers.append("Cannot validate tests and reviews without valid HEAD/cycle")
