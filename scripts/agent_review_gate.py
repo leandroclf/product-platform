@@ -35,16 +35,30 @@ def main():
         name = f["filename"]
         if name.startswith(BLOCKED_PREFIXES) or name.split("/")[-1] in BLOCKED_NAMES:
             sys.exit(f"Protected path requires separate security policy: {name}")
-    reviews = api(f"repos/{repo}/pulls/{number}/reviews?per_page=100")
+    reviews = []
+    page = 1
+    while True:
+        batch = api(f"repos/{repo}/pulls/{number}/reviews?per_page=100&page={page}")
+        reviews.extend(batch)
+        if len(batch) < 100:
+            break
+        page += 1
+    latest_by_reviewer = {}
+    for review in reviews:
+        login = (review.get("user") or {}).get("login", "").lower()
+        if login and review.get("state") in {"APPROVED", "CHANGES_REQUESTED", "DISMISSED"}:
+            latest_by_reviewer[login] = review
     author = pr["user"]["login"].lower()
     approvals = [
-        r for r in reviews
+        r for r in latest_by_reviewer.values()
         if r.get("state") == "APPROVED"
         and r.get("commit_id") == head
         and r.get("user", {}).get("login", "").lower() != author
     ]
     if not approvals:
         sys.exit("No independent approval for current head SHA")
+    if any(r.get("state") == "CHANGES_REQUESTED" for r in latest_by_reviewer.values()):
+        sys.exit("Unresolved changes requested")
     print("Independent GitHub approval verified for current head")
 
 if __name__ == "__main__":
