@@ -59,6 +59,18 @@ class VerificationTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             module.build_request(preview)
 
+    def test_refuse_noncanonical_issue_url(self):
+        preview = sample()
+        preview["issue_url"] = "https://github.com.evil.test/leandroclf/product-platform/issues/12"
+        with self.assertRaises(ValueError):
+            module.build_request(preview)
+
+    def test_refuse_invalid_issue_path(self):
+        preview = sample()
+        preview["issue_url"] = "https://github.com/leandroclf/product-platform/pull/12"
+        with self.assertRaises(ValueError):
+            module.build_request(preview)
+
     def test_refuse_changed_status(self):
         preview = sample()
         preview["status"] = "ready"
