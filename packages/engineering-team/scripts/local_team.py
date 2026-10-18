@@ -1325,6 +1325,18 @@ def main(argv=None):
         print(path); return 0
     if args.command == 'run':
         repo = target(); clean(repo)
+        # Always check official stable tags before creating a task or spending quota.
+        # No silent upgrade or fallback: operator must promote a tested image explicitly.
+        try:
+            from .update_provider_clis import latest, inspect_versions
+        except ImportError:
+            from update_provider_clis import latest, inspect_versions
+        active_config = validate_config(read(project_path(repo) / 'config.json'))
+        available = {name: latest(name) for name in ('codex', 'claude')}
+        installed = inspect_versions(active_config['provider_image'])
+        if installed != available:
+            raise Blocked('provider CLIs are not the current stable versions; run '
+                          'python3 scripts/update_provider_clis.py and promote the tested candidate')
         warn_quota()
         require_valid_models(validate_config(read(project_path(repo) / 'config.json'))['models'])
         config = validate_config(read(project_path(repo) / 'config.json'))
