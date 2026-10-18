@@ -27,8 +27,47 @@ def frontmatter(path):
     return value, text[match.end():]
 
 
-def main():
+
+def provenance_errors(root, ownership=None):
+    """Catch silent drift between compatibility snapshots and canonical kit.
+
+    Explicit security exception remains visible until deliberately reconciled.
+    """
     errors = []
+    ownership_file = root / "skills" / "ownership.yaml"
+    try:
+        owner = ownership if ownership is not None else yaml.safe_load(ownership_file.read_text(encoding="utf-8"))
+    except (OSError, yaml.YAMLError) as exc:
+        return [f"invalid skill ownership: {exc}"]
+    if not isinstance(owner, dict):
+        return ["skill ownership must be a mapping"]
+    if owner.get("canonical_skill_repository") != "leandroclf/product-platform" or (
+        owner.get("canonical_skill_path") != "packages/kit/skills"
+    ):
+        errors.append("canonical skill ownership must target product-platform/packages/kit/skills")
+    exceptions = owner.get("allowed_divergences", {})
+    if exceptions != {"security": "pending-structured-security-skill-reconciliation"}:
+        errors.append("unexpected skill divergence exception; require a documented review")
+    kit = root.parent / "kit" / "skills"
+    team = root / "skills"
+    if not kit.is_dir():
+        return errors + ["canonical kit skills missing; cannot certify snapshot parity"]
+    for skill in sorted(team.glob("*/SKILL.md")):
+        counterpart = kit / skill.parent.name / "SKILL.md"
+        if not counterpart.is_file():
+            errors.append(f"{skill.parent.name}: canonical kit skill missing")
+        elif skill.read_bytes() != counterpart.read_bytes() and skill.parent.name not in exceptions:
+            errors.append(f"{skill.parent.name}: snapshot differs from canonical kit skill")
+    # Never allow a disappeared exception to go unnoticed either.
+    for name in exceptions:
+        a, b = team / name / "SKILL.md", kit / name / "SKILL.md"
+        if not a.is_file() or not b.is_file():
+            errors.append(f"{name}: documented divergence has missing source")
+    return errors
+
+
+def main():
+    errors = provenance_errors(ROOT)
     try:
         catalog = yaml.safe_load(CATALOG.read_text(encoding="utf-8"))
     except (OSError, yaml.YAMLError) as exc:

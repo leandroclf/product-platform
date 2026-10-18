@@ -10,6 +10,43 @@ class SkillCatalogTests(unittest.TestCase):
     def test_current_catalog_is_publishable(self):
         self.assertEqual(validate_skills.main(), 0)
 
+    def test_skill_snapshots_match_kit_except_documented_security(self):
+        self.assertEqual(validate_skills.provenance_errors(validate_skills.ROOT), [])
+
+    def test_unknown_snapshot_drift_fails_closed(self):
+        with tempfile.TemporaryDirectory() as directory:
+            base = Path(directory)
+            team = base / 'engineering-team'
+            kit = base / 'kit'
+            (team / 'skills' / 'backend').mkdir(parents=True)
+            (kit / 'skills' / 'backend').mkdir(parents=True)
+            (team / 'skills' / 'security').mkdir()
+            (kit / 'skills' / 'security').mkdir()
+            for name in ('backend', 'security'):
+                (team / 'skills' / name / 'SKILL.md').write_text('same')
+                (kit / 'skills' / name / 'SKILL.md').write_text('same')
+            (team / 'skills' / 'backend' / 'SKILL.md').write_text('mutated')
+            ownership = {
+                'canonical_skill_repository': 'leandroclf/product-platform',
+                'canonical_skill_path': 'packages/kit/skills',
+                'allowed_divergences': {
+                    'security': 'pending-structured-security-skill-reconciliation'
+                },
+            }
+            errors = validate_skills.provenance_errors(team, ownership)
+            self.assertTrue(any('backend: snapshot differs' in error for error in errors))
+
+    def test_legacy_repository_ownership_is_rejected(self):
+        legacy = {
+            'canonical_skill_repository': 'leandroclf/ai-kit',
+            'canonical_skill_path': 'packages/kit/skills',
+            'allowed_divergences': {
+                'security': 'pending-structured-security-skill-reconciliation'
+            },
+        }
+        errors = validate_skills.provenance_errors(validate_skills.ROOT, legacy)
+        self.assertTrue(any('canonical skill ownership' in error for error in errors))
+
     def test_cycle_and_unknown_dependency_are_rejected(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
