@@ -245,7 +245,7 @@ def clean(repo):
         raise Blocked('checkout has changes; commit or save them yourself before starting')
 
 
-OPTIONAL_CONFIG = {'implement_parts', 'codex_sandbox', 'test_tmpfs_exec'}
+OPTIONAL_CONFIG = {'implement_parts', 'codex_sandbox', 'test_tmpfs_exec', 'quality_checks'}
 
 
 def validate_config(value):
@@ -269,6 +269,13 @@ def validate_config(value):
         raise Blocked('invalid repository path')
     if not isinstance(value['checks'], list) or not value['checks'] or not all(isinstance(x, str) and 0 < len(x) <= 4096 for x in value['checks']):
         raise Blocked('at least one explicit validation command is required')
+    specialized = value.get('quality_checks', {})
+    if (not isinstance(specialized, dict) or
+            any(key not in ('api_contract', 'database_migration', 'frontend', 'integration',
+                            'infrastructure', 'security_and_approval') or
+                not isinstance(command, str) or not 0 < len(command) <= 4096
+                for key, command in specialized.items())):
+        raise Blocked('invalid named quality checks')
     if value.get('codex_sandbox', 'read-only') not in ('read-only', 'danger-full-access'):
         raise Blocked('codex_sandbox must be read-only or danger-full-access')
     if type(value.get('test_tmpfs_exec', False)) is not bool:
@@ -329,7 +336,7 @@ def test_command(name, config, workspace):
         '--tmpfs', '/home/agent:uid=1001,gid=1001,mode=700',
         '-e', 'HOME=/home/agent', '-v', f'{workspace}:/source:ro', '-w', '/work',
         '--entrypoint', '/bin/sh', config['test_image'], '-eu', '-c',
-        'cp -R /source/. /work/;\n' + '\n'.join(config['checks'])]
+        'cp -R /source/. /work/;\n' + '\n'.join(config['checks'] + list(config.get('quality_checks', {}).values()))]
 
 
 def grant_agent_checkout_access(workspace):
@@ -678,8 +685,13 @@ def verify_change_surface(workspace, state):
         risk = ensure_authorized(state['plan']['risk'], paths)
     except ValueError as exc:
         raise Blocked(str(exc)) from exc
+    gates = required_quality_surfaces(paths)
+    missing = set(gates) - set(state['config'].get('quality_checks', {}))
+    if missing:
+        raise Blocked('Specialized offline quality checks not configured: ' + ', '.join(sorted(missing)) +
+                      '; re-init with --quality-check FAMILY=COMMAND')
     state['change_surface'] = dict(risk=risk, paths=paths,
-                                   required_gates=required_quality_surfaces(paths),
+                                   required_gates=gates,
                                    head_sha=git(workspace, 'rev-parse', 'HEAD'))
     return state['change_surface']
 
@@ -910,7 +922,9 @@ def worker(task_id):
                     started = time.time()
                     code, output = execute(path, state, test_command(name, state['config'], workspace), f'{cycle}-tests', name)
                     state['test_evidence'] = dict(head_sha=sha, exit_code=code, started_at=started, ended_at=time.time(),
-                        checks=state['config']['checks'], output=output.read_text(errors='replace')[-8000:])
+                        checks=state['config']['checks'] + list(state['config'].get('quality_checks', {}).values()),
+                        required_quality_gates=state.get('change_surface', {}).get('required_gates', []),
+                        output=output.read_text(errors='replace')[-8000:])
                     atomic(path / f'{cycle}-tests.json', state['test_evidence'])
                     state['feedback'] = []
                     if code:
@@ -1205,6 +1219,8 @@ def main(argv=None):
     login.add_argument('--stage', choices=STAGES)
     init = sub.add_parser('init'); init.add_argument('--test-image', required=True)
     init.add_argument('--check', action='append', required=True)
+    init.add_argument('--quality-check', action='append', default=[], metavar='FAMILY=COMMAND',
+                      help='register a named offline quality check; repeat for each affected change family')
     init.add_argument('--provider-image', default='ai-eng-provider-cli:local')
     init.add_argument('--timeout', type=int, default=900)
     init.add_argument('--max-cycles', type=int, default=3)
@@ -1286,8 +1302,15 @@ def main(argv=None):
         repo = target()
         models = {kind: dict(model=getattr(args, kind + '_model'), effort=getattr(args, kind + '_effort')) for kind in STAGES}
         require_valid_models(models)
+        specialized = {}
+        for entry in args.quality_check:
+            family, sep, command = entry.partition('=')
+            if not sep or not family or not command.strip() or family in specialized:
+                raise Blocked('quality-check must be unique FAMILY=COMMAND')
+            specialized[family] = command
         config = validate_config(dict(version=2, repository=str(repo), provider_image=args.provider_image,
-            test_image=args.test_image, checks=args.check, timeout=args.timeout, max_cycles=args.max_cycles,
+            test_image=args.test_image, checks=args.check, quality_checks=specialized,
+            timeout=args.timeout, max_cycles=args.max_cycles,
             max_seconds=args.max_seconds, models=models, implement_parts=args.implement_parts,
             codex_sandbox=args.codex_sandbox, test_tmpfs_exec=args.test_exec))
         path = project_path(repo) / 'config.json'
