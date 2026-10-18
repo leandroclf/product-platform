@@ -93,5 +93,15 @@ artifact_suite = importlib.util.module_from_spec(artifact_spec)
 artifact_spec.loader.exec_module(artifact_suite)
 DeploymentArtifactEvidenceTests = artifact_suite.DeploymentArtifactEvidenceTests
 
+# Reuse the existing Kit CI entrypoint for portfolio LF brand and G6 coverage.
+for test_module_name, test_filename, suite_name in (
+    ("portfolio_brand_deploy_tests", "test_portfolio_brand_deploy.py", "ContractTests"),
+    ("lf_brand_inventory_tests", "test_lf_brand_inventory.py", "InventoryTests"),
+):
+    spec = importlib.util.spec_from_file_location(test_module_name, ROOT / "scripts" / test_filename)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    globals()[suite_name] = getattr(module, suite_name)
+
 if __name__ == "__main__":
     unittest.main()

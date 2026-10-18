@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "id": "lf-solucoes",
+  "company": "LF Soluções",
+  "source": {
+    "url": "https://lfsolucoes.etc.br/",
+    "logo_url": "https://lfsolucoes.etc.br/assets/lf-logo-horizontal.svg",
+    "source_kind": "published_corporate_website",
+    "verified_content_date": "2026-10-18"
+  },
+  "editorial": {
+    "tagline": "Tecnologia que gera valor.",
+    "personality": [
+      "Confiável",
+      "Profissional",
+      "Atemporal"
+    ],
+    "positioning": "Engenharia aplicada a negócios",
+    "domain_capabilities": [
+      "IA aplicada",
+      "Automação e orquestração",
+      "Dados e inteligência operacional",
+      "APIs e integrações"
+    ]
+  },
+  "visual": {
+    "status": "AWAITING_VERIFIED_ASSET_EXTRACTION",
+    "colors": null,
+    "fonts": null,
+    "dimensions": null,
+    "logo_checksum_sha256": null
+  },
+  "adoption": {
+    "corporate_attribution": "optional-per-product-surface",
+    "product_brand_preserved": true,
+    "force_rebrand": false,
+    "remote_asset_hotlink": false,
+    "requires_local_approved_assets": true
+  }
+}
