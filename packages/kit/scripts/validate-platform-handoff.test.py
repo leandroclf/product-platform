@@ -81,5 +81,12 @@ class PlatformHandoffTest(unittest.TestCase):
             self.assertEqual(run("--fingerprint").stdout.strip(), vph.fingerprint(vph.REGISTRY))
 
 
+# Reuse the existing kit CI test entry point without modifying protected workflows.
+deployment_spec = importlib.util.spec_from_file_location(
+    "deployment_g6_tests", ROOT / "scripts/validate-deployment-plan.test.py")
+deployment_suite = importlib.util.module_from_spec(deployment_spec)
+deployment_spec.loader.exec_module(deployment_suite)
+DeploymentContractTests = deployment_suite.DeploymentContractTests
+
 if __name__ == "__main__":
     unittest.main()
