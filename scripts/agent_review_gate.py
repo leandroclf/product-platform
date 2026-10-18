@@ -35,6 +35,12 @@ def main():
         name = f["filename"]
         if name.startswith(BLOCKED_PREFIXES) or name.split("/")[-1] in BLOCKED_NAMES:
             sys.exit(f"Protected path requires separate security policy: {name}")
+    mode = os.environ.get("AGENT_REVIEW_MODE", "manual")
+    if mode == "manual":
+        print("Manual transition: structural scope and head SHA passed. Human PR review/merge remains required; no independent approval attested.")
+        return
+    if mode != "independent":
+        sys.exit("Unknown AGENT_REVIEW_MODE; fail closed")
     reviews = []
     page = 1
     while True:
