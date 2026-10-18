@@ -216,7 +216,8 @@ class LocalTeamTests(unittest.TestCase):
         sha = team.snapshot(workspace, {'request': 'change'})
         planned = plan(base)
         team.atomic(path / 'state.json', dict(version=2, repository=str(target), status='REVIEWED',
-                    head_sha=sha, base_sha=base, plan=planned, plan_id=team.plan_id(planned), cycle=0))
+                    head_sha=sha, base_sha=base, plan=planned, plan_id=team.plan_id(planned),
+                    config=config(str(target)), cycle=0))
         team.atomic(path / '0-tests.json', dict(head_sha=sha, exit_code=0))
         for kind in ('validate', 'review'):
             team.atomic(path / f'0-{kind}.json', assessment(team.STAGES[kind][0], sha, planned))
