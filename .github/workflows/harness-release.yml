@@ -35,6 +35,12 @@ jobs:
           python3 -m pip wheel --no-deps ./packages/python --wheel-dir wheel
           cp wheel/*.whl .
       - run: sha256sum *.tgz *.whl > SHA256SUMS
+      - name: Record source commit and package hashes in release manifest
+        run: |
+          python3 ../../scripts/build_release_manifest.py \\
+            --directory . --tag "$GITHUB_REF_NAME" \\
+            --sha "$GITHUB_SHA" --repository "$GITHUB_REPOSITORY" \\
+            --output RELEASE-PROVENANCE.json
       - env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "${GITHUB_REF_NAME}" *.tgz *.whl SHA256SUMS --repo "${GITHUB_REPOSITORY}" --generate-notes --verify-tag
+        run: gh release create "${GITHUB_REF_NAME}" *.tgz *.whl SHA256SUMS RELEASE-PROVENANCE.json --repo "${GITHUB_REPOSITORY}" --generate-notes --verify-tag
