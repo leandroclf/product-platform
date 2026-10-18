@@ -39,7 +39,7 @@ pedido inicial
 | G3 Checks | após IMPLEMENT | Lint, testes, build, conformance de ProductEvent e validação do artefato do harness no container offline | `init --check` do alvo | Manual por projeto |
 | G4 Revisão | após validate | Compatibilidade, segurança, observabilidade e ausência de duplicação de capacidade | gates de review do engineering-team | Automático (qualidade/segurança fixos) |
 | G5 CI | após deliver | CI do alvo verde no SHA revisado | CI do repositório alvo | Externo |
-| G6 Release | separado | Merge/deploy autorizados à parte; deploy expand → deploy → observe → contract | `docs/NEW-PRODUCT-COMPOSITION.md` | Fora do `ai-team` |
+| G6 Release | separado | Merge/deploy autorizados à parte; entrega build → artefato imutável → preview → staging → aprovação → produção → observe/rollback; migrações EXPAND/CONTRACT desacopladas | `docs/DEPLOYMENT-G6.md`, `scripts/validate-deployment-plan.py` | Política G6 e testes offline implementados; integração CI/deploy real por produto ainda pendente |
 
 ## Regras que todo alvo deve cumprir
 
