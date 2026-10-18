@@ -50,7 +50,7 @@ class PilotReadinessTests(unittest.TestCase):
                  patch.object(readiness.subprocess, "run", side_effect=fake_run), \
                  patch.object(Path, "is_file", return_value=True):
                 report = readiness.assess(repo)
-            self.assertTrue(report["ready_for_operator_authenticated_pilot"])
+            self.assertTrue(report["ready_for_operator_authenticated_pilot"], report["blockers"])
             self.assertFalse(report["provider_authenticated"])
             self.assertFalse(report["actual_inference_verified"])
             self.assertTrue(report["checks"]["config_valid"])
