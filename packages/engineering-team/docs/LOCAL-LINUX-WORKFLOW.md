@@ -182,3 +182,9 @@ Erros de instalação: confirme Python com venv/ensurepip, serviço Docker e ace
 Estado/evidências usam `$XDG_STATE_HOME/ai-team` (padrão `~/.local/state/ai-team`), com configuração por projeto e clone/logs por tarefa. Preserve o diretório para recuperação; logs podem conter dados sensíveis e não há expurgo automático. Os volumes de login Docker têm ciclo de vida separado. Faça backup privado das evidências necessárias, sem versionar credenciais.
 
 Planejamento: [tarefas e aceitação](../openspec/changes/local-linux-workflow/tasks.md). Referências registradas na revisão de provedores: [Codex não interativo](https://learn.chatgpt.com/docs/non-interactive-mode), [Claude CLI](https://code.claude.com/docs/en/cli-reference), [Docker run](https://docs.docker.com/engine/containers/run/).
+
+### Permissões do clone isolado no Linux
+
+O executor usa UID fixo `1001` dentro dos containers para modificar **somente o clone temporário**. Anteriormente, o host aplicava `chmod -R a+rwX` no clone, ampliando o acesso de todos os usuários locais. O bootstrap agora exige `setfacl` (pacote de ferramentas ACL do Linux) e concede `u:1001:rwX` somente aos arquivos/diretórios do clone e ACL padrão nos diretórios. **O diretório `.git` e symlinks são excluídos**; o Git continua sob controle do coordenador host, e o mount Git do container permanece somente leitura.
+
+Antes do primeiro piloto, conferir `command -v setfacl` e se o filesystem aceita POSIX ACL; em sistemas que não suportam ACL, a tarefa deve parar com erro sem repetir a antiga ampliação de permissões. As ACLs não provam isolamento entre usuários privilegiados, Docker daemon ou processos que já atuam sob o UID 1001 no host. Conferir também criação de arquivos e atualização de OpenSpec com execução autenticada real. O script não usa sudo nem altera o checkout original.
