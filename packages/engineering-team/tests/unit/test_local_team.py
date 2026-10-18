@@ -43,6 +43,41 @@ class LocalTeamTests(unittest.TestCase):
         self.env = patch.dict(os.environ, {'XDG_STATE_HOME': str(self.root / 'state')})
         self.env.start(); self.addCleanup(self.env.stop)
 
+    def test_quality_family_missing_blocks_before_tests(self):
+        workspace = self.root / 'ws'
+        workspace.mkdir()
+        state = {'base_sha': 'a' * 40, 'plan': {'risk': 'R1'},
+                 'config': config()}
+        def git_response(repo, *args):
+            return 'src/api/routes.py' if 'diff' in args else 'b' * 40
+        with patch.object(team, 'git', side_effect=git_response):
+            with self.assertRaisesRegex(team.Blocked, 'api_contract'):
+                team.verify_change_surface(workspace, state)
+        self.assertNotIn('change_surface', state)
+
+    def test_named_quality_check_runs_in_offline_container(self):
+        configuration = config()
+        configuration['quality_checks'] = {'api_contract': 'python -m unittest tests.test_api'}
+        self.assertEqual(team.validate_config(configuration), configuration)
+        script = team.test_command('quality', configuration, Path('/task/workspace'))[-1]
+        self.assertIn('python -m unittest discover -v', script)
+        self.assertIn('python -m unittest tests.test_api', script)
+        self.assertIn('--network', team.test_command('quality', configuration, Path('/task/workspace')))
+        workspace = self.root / 'ws'
+        workspace.mkdir()
+        state = {'base_sha': 'a' * 40, 'plan': {'risk': 'R1'},
+                 'config': configuration}
+        def git_response(repo, *args):
+            return 'src/api/routes.py' if 'diff' in args else 'b' * 40
+        with patch.object(team, 'git', side_effect=git_response):
+            self.assertEqual(team.verify_change_surface(workspace, state)['required_gates'], ['api_contract'])
+
+    def test_named_quality_checks_require_known_unique_families(self):
+        for bad in ({'bogus': 'echo ok'}, {'api_contract': ''},
+                    {'frontend': 123}, {'infrastructure': None}):
+            with self.subTest(bad=bad), self.assertRaises(team.Blocked):
+                team.validate_config(dict(config(), quality_checks=bad))
+
     def test_invalid_config_rejects_extra_keys_empty_checks_bool_budget(self):
         for change in ({'checks': []}, {'timeout': True}, {'max_cycles': 6}, {'extra': 1}, {'test_image': '--privileged'}):
             with self.subTest(change=change), self.assertRaises(team.Blocked):
