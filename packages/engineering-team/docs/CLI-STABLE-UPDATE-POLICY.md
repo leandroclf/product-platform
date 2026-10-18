@@ -39,3 +39,7 @@ Também não substitui `ai-team doctor`, `ai-team models`, os testes offline rea
 Antes da promoção, o atualizador inspeciona **todas** as pastas de tarefa locais. Diretórios ou arquivos de estado ausentes, ilegíveis, ligados por symlink ou malformados bloqueiam a operação; estados desconhecidos são tratados como execução potencialmente ativa. Somente `REVIEWED`, `DELIVERED`, `FAILED` e `STOPPED` são considerados terminais para a checagem. Indisponibilidade do registro npm gera erro legível e impede iniciar ou atualizar, nunca inferindo a versão atual por cache ou valor fixo.
 
 Esses controles não substituem sincronização transacional entre múltiplos processos do host. A seleção por ID imutável de imagem (PR #48) protege o runtime de uma tarefa contra alterações concorrentes da tag.
+
+## Imutabilidade durante homologação da nova imagem
+
+Após o `docker build`, o atualizador converte a tag candidata para um **ID de imagem SHA-256 imutável** antes de inspecionar os binários e executar os canários de segurança. Nenhum teste de compatibilidade ou isolamento usa a tag candidata, que pode ser alterada por outro processo. Antes de promover esse mesmo ID para a tag local, consulta novamente as versões estáveis oficiais do npm e bloqueia a promoção se alguma mudou durante o build, exigindo nova confirmação. O mecanismo não realiza rollback/merge/deploy nem autentica as CLIs; a verificação de modelos reais e do ambiente do operador continua separada.

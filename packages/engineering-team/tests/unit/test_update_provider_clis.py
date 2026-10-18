@@ -97,13 +97,47 @@ class CliUpdaterTests(unittest.TestCase):
     def test_candidate_does_not_promote_when_flags_missing(self):
         versions = {"codex": "1.2.3", "claude": "2.3.4"}
         token = updater.plan({}, versions)["approval_fingerprint"]
+        def fake_run(argv, **kwargs):
+            if argv[:3] == ["docker", "image", "inspect"]:
+                return subprocess.CompletedProcess(argv, 0, "sha256:" + "a" * 64, "")
+            return subprocess.CompletedProcess(argv, 0, "", "")
         with tempfile.TemporaryDirectory() as tmp, \
-             patch.object(updater, "run") as command, \
+             patch.object(updater, "run", side_effect=fake_run) as command, \
              patch.object(updater, "inspect_versions", side_effect=ValueError("missing flag")):
             with self.assertRaises(ValueError):
                 updater.promote(Path(tmp), versions, token, Path(tmp))
             self.assertTrue(any("build" in call.args[0] for call in command.call_args_list))
             self.assertFalse(any("tag" in call.args[0] for call in command.call_args_list))
+
+    def test_registry_change_during_build_prevents_promotion(self):
+        versions = {"codex": "1.2.3", "claude": "2.3.4"}
+        approved = updater.plan({}, versions)["approval_fingerprint"]
+        def fake_run(argv, **kwargs):
+            if argv[:3] == ["docker", "image", "inspect"]:
+                return subprocess.CompletedProcess(argv, 0, "sha256:" + "a" * 64, "")
+            return subprocess.CompletedProcess(argv, 0, "", "")
+        with tempfile.TemporaryDirectory() as tmp, \
+             patch.object(updater, "run", side_effect=fake_run) as command, \
+             patch.object(updater, "inspect_versions", return_value=versions), \
+             patch.object(updater, "latest", side_effect=lambda name: "9.9.9" if name == "codex" else versions[name]):
+            with self.assertRaisesRegex(ValueError, "changed during build"):
+                updater.promote(Path(tmp), versions, approved, Path(tmp))
+            self.assertFalse(any(call.args[0][:2] == ["docker", "tag"] for call in command.call_args_list))
+
+    def test_invalid_candidate_id_does_not_run_check_or_promote(self):
+        versions = {"codex": "1.2.3", "claude": "2.3.4"}
+        approved = updater.plan({}, versions)["approval_fingerprint"]
+        def fake_run(argv, **kwargs):
+            if argv[:3] == ["docker", "image", "inspect"]:
+                return subprocess.CompletedProcess(argv, 0, "sha256:malformed", "")
+            return subprocess.CompletedProcess(argv, 0, "", "")
+        with tempfile.TemporaryDirectory() as tmp, \
+             patch.object(updater, "run", side_effect=fake_run) as command, \
+             patch.object(updater, "inspect_versions") as versions_check:
+            with self.assertRaisesRegex(ValueError, "valid immutable ID"):
+                updater.promote(Path(tmp), versions, approved, Path(tmp))
+            versions_check.assert_not_called()
+            self.assertFalse(any(call.args[0][:2] == ["docker", "tag"] for call in command.call_args_list))
 
     def test_promotion_only_after_both_checks(self):
         versions = {"codex": "1.2.3", "claude": "2.3.4"}
@@ -114,11 +148,15 @@ class CliUpdaterTests(unittest.TestCase):
             return subprocess.CompletedProcess(argv, 0, "", "")
         with tempfile.TemporaryDirectory() as tmp, \
              patch.object(updater, "run", side_effect=fake_run) as command, \
-             patch.object(updater, "inspect_versions", return_value=versions):
+             patch.object(updater, "inspect_versions", return_value=versions) as checked, \
+             patch.object(updater, "latest", side_effect=lambda name: versions[name]):
             result = updater.promote(Path(tmp), versions, token, Path(tmp))
             self.assertTrue(result["promoted"])
+            checked.assert_called_once_with("sha256:" + "a" * 64)
             commands = [call.args[0] for call in command.call_args_list]
             self.assertTrue(any("local_stage_isolation_smoke.py" in " ".join(cmd) for cmd in commands))
+            canary = next(call for call in command.call_args_list if "local_stage_isolation_smoke.py" in " ".join(call.args[0]))
+            self.assertEqual(canary.kwargs["env"]["AI_TEAM_SMOKE_IMAGE"], "sha256:" + "a" * 64)
             self.assertEqual(commands[-1][0:2], ["docker", "tag"])
 
 
