@@ -27,6 +27,8 @@ jobs:
         run: |
           git fetch --no-tags origin main
           git merge-base --is-ancestor "$GITHUB_SHA" origin/main
+      - name: Test provenance manifest builder
+        run: python3 -m unittest scripts.test_build_release_manifest -v
       - run: npm install
       - run: npm run validate
       - run: npm pack
