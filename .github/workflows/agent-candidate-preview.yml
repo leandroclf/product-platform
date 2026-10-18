@@ -1,0 +1,46 @@
+name: Agent candidate preview
+on:
+  issues:
+    types: [labeled, edited, reopened]
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: 'Existing issue number to validate'
+        required: true
+        type: string
+permissions:
+  contents: read
+  issues: read
+jobs:
+  preview:
+    if: ${{ github.event_name == 'workflow_dispatch' || (github.event.issue.state == 'open' && contains(github.event.issue.labels.*.name, 'agent-candidate')) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate issue and build non-executable preview
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          EVENT_NAME: ${{ github.event_name }}
+          EVENT_ISSUE: ${{ github.event.issue.number }}
+          INPUT_ISSUE: ${{ inputs.issue_number }}
+        run: |
+          case "$EVENT_NAME" in
+            workflow_dispatch) ISSUE_NUMBER="$INPUT_ISSUE";;
+            issues) ISSUE_NUMBER="$EVENT_ISSUE";;
+            *) exit 1;;
+          esac
+          python3 scripts/issue_candidate_preview.py --repository "$GH_REPO" --issue "$ISSUE_NUMBER" --output candidate-preview.json
+      - name: Store private candidate preview for audit (not execution)
+        uses: actions/upload-artifact@v4
+        with:
+          name: candidate-preview
+          path: candidate-preview.json
+          retention-days: 7
+          if-no-files-found: error
