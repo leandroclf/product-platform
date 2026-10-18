@@ -49,3 +49,7 @@ The default for overlapping infrastructure is therefore **do not merge code yet*
 3. Proposal-generation work remains in `product-platform/packages/cli`.
 4. New control-plane infrastructure is frozen unless an end-to-end benchmark exposes a concrete requirement that cannot be solved more simply.
 5. Product repositories are preferred as real workloads for evaluation.
+
+## Skill catalog provenance still under verification
+
+`skills/catalog.yaml` now identifies the consolidated `leandroclf/product-platform` repository. The separate `skills/ownership.yaml` still points at `leandroclf/ai-kit` as the historical canonical upstream for generic skills. **Do not treat that legacy path as a verified, accessible repository** or silently copy skills from it. Before changing the canonical ownership policy, compare the current kit and engineering-team catalogs, confirm the authoritative distribution path and test consumers; keep the snapshot rule in force until that decision is evidenced.
