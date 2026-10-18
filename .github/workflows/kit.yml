@@ -37,6 +37,10 @@ jobs:
         with: { node-version: '20' }
       - name: Validate architecture ownership and versioned contracts
         run: node scripts/validate-architecture.cjs
+      - name: Validate LF brand provenance and G6 deployment mapping for all registered products
+        run: |
+          python3 scripts/validate-portfolio-brand-deploy.py
+          python3 -m unittest discover -s scripts -p test_portfolio_brand_deploy.py
       - name: ProductEvent v1 conformance
         run: python3 scripts/conformance-product-event.py
       - uses: actions/setup-python@v7
