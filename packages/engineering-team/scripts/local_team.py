@@ -16,6 +16,10 @@ import time
 import uuid
 from jsonschema import ValidationError, Draft202012Validator
 try:
+    from .change_policy import ensure_authorized, required_quality_surfaces
+except ImportError:
+    from change_policy import ensure_authorized, required_quality_surfaces
+try:
     from .stage_contract import STAGES, DEFAULT_MODELS, PLAN_SCHEMA, REVIEW_SCHEMA, IMPLEMENT_SCHEMA, validate_plan, plan_id, validate_assessment
 except ImportError:
     from stage_contract import STAGES, DEFAULT_MODELS, PLAN_SCHEMA, REVIEW_SCHEMA, IMPLEMENT_SCHEMA, validate_plan, plan_id, validate_assessment
@@ -665,6 +669,21 @@ def progress_note(workspace, state, groups, part, summaries):
     return '\n'.join(lines) + '\n'
 
 
+def verify_change_surface(workspace, state):
+    """Check actual changed paths against independently enforced R0/R1 limit."""
+    raw = git(workspace, 'diff', '--name-only', '--no-renames',
+              state['base_sha'], 'HEAD')
+    paths = [p for p in raw.splitlines() if p and not p.startswith('openspec/changes/ai-team-')]
+    try:
+        risk = ensure_authorized(state['plan']['risk'], paths)
+    except ValueError as exc:
+        raise Blocked(str(exc)) from exc
+    state['change_surface'] = dict(risk=risk, paths=paths,
+                                   required_gates=required_quality_surfaces(paths),
+                                   head_sha=git(workspace, 'rev-parse', 'HEAD'))
+    return state['change_surface']
+
+
 def snapshot(workspace, state):
     git(workspace, 'add', '-A')
     if git(workspace, 'diff', '--cached', '--name-only'):
@@ -824,7 +843,7 @@ def worker(task_id):
                     if git(workspace, 'rev-parse', 'HEAD') != sha:
                         raise Blocked('checkout changed during planning')
                     atomic(path / f'{cycle}-plan.json', result)
-                    if result['status'] != 'READY' or result['risk'] == 'R3':
+                    if result['status'] != 'READY' or result['risk'] in ('R2', 'R3'):
                         reason = '; '.join(str(x) for x in result.get('assumptions', [])[:2])[:400]
                         raise Blocked('plan blocked by missing context or R3 authorization' + (f': {reason}' if reason else ''))
                     if (path / 'stop').exists():
@@ -878,6 +897,7 @@ def worker(task_id):
                         continue
                     if state['head_sha'] == implementation_base:
                         raise Blocked('no implementation changes produced')
+                    verify_change_surface(workspace, state)
                     state['phase'] = 'TEST'
                     atomic(path / 'state.json', state)
                 if state['phase'] == 'TEST':
@@ -885,6 +905,7 @@ def worker(task_id):
                     clean(workspace)
                     if git(workspace, 'rev-parse', 'HEAD') != sha:
                         raise Blocked('implementation HEAD changed before tests')
+                    verify_change_surface(workspace, state)
                     name = 'ai-team-' + task_id + '-tests'
                     started = time.time()
                     code, output = execute(path, state, test_command(name, state['config'], workspace), f'{cycle}-tests', name)
@@ -982,7 +1003,7 @@ def deliver(task_id, push=False, pr=False):
             raise Blocked('delivery requires the isolated four-stage plan')
         sha = state['head_sha']
         validate_plan(dict(state['plan'], capability_decisions=state['plan'].get('capability_decisions', [])), state['plan']['base_sha'])
-        if state['plan']['status'] != 'READY' or state['plan']['risk'] == 'R3':
+        if state['plan']['status'] != 'READY' or state['plan']['risk'] in ('R2', 'R3'):
             raise Blocked('delivery plan is blocked')
         for kind in ('validate', 'review'):
             if not review_pass(read(path / f'{state["cycle"]}-{kind}.json'), sha,
@@ -993,6 +1014,7 @@ def deliver(task_id, push=False, pr=False):
             raise Blocked('delivery tests are stale or failed')
         repo, workspace = Path(state['repository']), path / 'workspace'
         clean(repo); clean(workspace)
+        verify_change_surface(workspace, state)
         if git(repo, 'rev-parse', 'HEAD') != state['base_sha'] or git(workspace, 'rev-parse', 'HEAD') != state['head_sha']:
             raise Blocked('target or reviewed HEAD changed; revalidate before delivery')
         branch = 'ai-team/' + task_id
