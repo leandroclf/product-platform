@@ -35,6 +35,21 @@ python3 scripts/validate-deployment-plan.test.py
 
 Código de saída: `0` significa somente **READY_FOR_OPERATOR_REVIEW**; `1` indica violação da política; `2` indica documento ilegível/inválido. O campo `authorized_to_deploy` é **sempre false**: o plano e sua identidade de aprovação são declarados pelo chamador e **não autenticados por este script**.
 
+## Verificação independente de artefato no runner de CI
+
+Além da validação estrutural do plano, execute o verificador read-only no checkout exato usado para construir um artefato:
+
+```bash
+python3 packages/kit/scripts/verify-deployment-artifact.py \
+  --plan deployment-plan.json \
+  --checkout . \
+  --artifact dist/release.tgz
+```
+
+O comando comprova localmente que o **HEAD do Git** corresponde ao `source_sha` declarado, que os arquivos rastreados não foram modificados e que o SHA-256 calculado sobre os **bytes reais** do artefato corresponde ao `artifact_sha256`. Ele rejeita plano/artefato via symlink, artefato vazio, arquivo não regular, checkout incorreto ou alterações rastreadas. O relatório não inclui conteúdo de arquivos e mantém `authorized_to_deploy=false`.
+
+**Limites:** o script não verifica se o pacote corresponde semanticamente ao código-fonte, se os testes foram realmente executados pelo CI, se uma identidade aprovou produção, se o artefato remoto tem esses mesmos bytes, nem se um health check de produção passou. Essas evidências exigem vinculação à execução confiável do GitHub Actions, às regras de ambiente e ao provedor de hospedagem. Sua execução em uma máquina não confiável não fornece atestação independente.
+
 ## Separação obrigatória entre política e autoridade
 
 Este validador nunca dispara deploy, cria ambiente, dispara rollback, aprova produção ou executa comandos fornecidos no JSON. **Não** conecta secrets. No CI/CD de cada produto, a identidade de quem aprova, o hash da artefato, a origem do commit, a execução dos testes, a correspondência com o registry e a saúde real da aplicação devem ser verificadas por provedores e runners confiáveis. Um JSON que diga `approval=approved` **não** autoriza uma publicação. Defina regras de ambiente e aprovações humanas próprias no repositório produto.
