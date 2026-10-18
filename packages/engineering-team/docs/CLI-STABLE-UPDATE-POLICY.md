@@ -24,6 +24,10 @@ A atualização constrói uma imagem candidata com **versões exatas**, verifica
 
 A instalação inicial via `scripts/install-local.sh` permanece baseada em versões revisadas/pinadas para bootstrap reproduzível. Em seguida, realize explicitamente a atualização controlada antes da primeira tarefa. Não usar `npm install ...@latest` em volumes ou containers de um estágio ativo.
 
+## Garantia de imagem por tarefa
+
+No início de `ai-team run`, o coordenador converte a tag configurada da imagem de provedores em seu **ID imutável antes de verificar as versões oficiais**. Tanto a inspeção das versões quanto o `state.json` da nova tarefa utilizam esse mesmo ID. Assim, uma promoção concorrente da tag local não pode causar o uso de uma imagem diferente daquela cuja versão foi conferida. A imagem de testes também é congelada pelo ID antes de criar a tarefa.
+
 ## Limites de garantia
 
 A consulta identifica a última publicação estável disponível no registro npm; **não garante que uma atualização seja compatível**. Os testes de CLI e Docker podem rejeitar releases que alterem flags e sandbox. Esse processo não autentica contas, valida todos os comportamentos dos modelos nem atesta a cadeia de suprimentos do registro. Se a nova versão falhar, a imagem ativa permanece preservada e a tarefa não inicia até resolução deliberada. Nenhuma alteração em GitHub branch rules, merge, deploy ou credenciais é executada por esse script.
