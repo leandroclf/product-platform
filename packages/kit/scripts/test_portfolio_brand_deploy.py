@@ -28,8 +28,8 @@ class ContractTests(unittest.TestCase):
 
     def test_flagship_portal_is_registered(self):
         self.assertEqual(self.portfolio["portal"]["repository"], "site-lf-solucoes")
-        self.assertIn("site-lf-solucoes", [p["repository"] for p in self.portfolio["products"]])
-        self.assertEqual(self.deploy["targets"][0]["adapter"], "github-pages-static")
+        self.assertEqual(self.portfolio["portal"]["kind"], "flagship-product")
+        self.assertEqual(self.deploy["flagship_portal"]["adapter"], "github-pages-static")
 
     def test_missing_portal_contract_rejected(self):
         self.check(lambda a, b, c: a.pop("portal"))
