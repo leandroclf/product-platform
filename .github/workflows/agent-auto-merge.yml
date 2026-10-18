@@ -1,0 +1,35 @@
+name: Agent auto-merge (opt-in)
+on:
+  pull_request:
+    types: [labeled, synchronize, reopened]
+  workflow_dispatch:
+permissions:
+  contents: read
+  pull-requests: read
+jobs:
+  queue-merge:
+    if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && contains(github.event.pull_request.labels.*.name, 'agent-auto-merge') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Verify independent approval and protected scope
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: python3 scripts/agent_review_gate.py
+      - name: Queue GitHub native auto-merge
+        env:
+          GH_TOKEN: ${{ secrets.AGENT_MERGE_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          if [ -z "$GH_TOKEN" ]; then
+            echo "::error::AGENT_MERGE_TOKEN not configured; fail closed"
+            exit 1
+          fi
+          gh pr merge "$PR_NUMBER" --repo "$GH_REPO" --auto --squash --delete-branch
