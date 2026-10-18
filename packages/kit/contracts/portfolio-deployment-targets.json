@@ -10,6 +10,13 @@
   },
   "targets": [
     {
+      "product": "site-lf-solucoes",
+      "runtime": "static-github-pages",
+      "adapter": "github-pages-static",
+      "adoption": "existing-automatic-pages-deploy-unverified-runtime",
+      "remote_deploy_verified": false
+    },
+    {
       "product": "vehicle-tracking",
       "runtime": "typescript-server",
       "adapter": "cloudflare-workers-opennext",
