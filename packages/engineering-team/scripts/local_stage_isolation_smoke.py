@@ -55,6 +55,9 @@ pathlib.Path('/output/result.json').write_text('stage output')
             assert marker.read_text() == ('changed' if kind == 'implement' else 'original')
             assert (metadata / 'marker').read_text() == 'immutable'
             marker.write_text('original')
+    # Separate adversarial canaries reuse production Docker restrictions and fail closed.
+    from local_adversarial_isolation_smoke import main as adversarial_main
+    adversarial_main()
     print(json.dumps(dict(status='PASS', stages=list(STAGES), live_provider=False,
                          boundary='Docker mounts only; native CLI sandbox/tool execution requires separate acceptance')))
 
