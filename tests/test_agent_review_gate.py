@@ -71,6 +71,9 @@ class GateTests(unittest.TestCase):
                 {"state": "CHANGES_REQUESTED", "commit_id": "head123", "user": {"login": "security-bot"}},
             ])
 
+    def test_empty_review_mode_is_manual(self):
+        self.run_gate(mode="", trusted="", reviews=[])
+
     def test_manual_mode_allows_missing_bot_approval(self):
         self.run_gate(mode="manual", trusted="", reviews=[])
 
