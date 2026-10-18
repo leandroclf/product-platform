@@ -10,7 +10,7 @@ gate = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(gate)
 
 class GateTests(unittest.TestCase):
-    def run_gate(self, *, reviewer="trusted-bot", state="APPROVED", commit="head123", filename="src/app.py", trusted="trusted-bot", author="executor", pr_head="head123", reviews=None):
+    def run_gate(self, *, reviewer="trusted-bot", state="APPROVED", commit="head123", filename="src/app.py", trusted="trusted-bot", author="executor", pr_head="head123", reviews=None, mode="independent"):
         def fake_api(path):
             if path.endswith("/pulls/7"):
                 return {"head": {"sha": pr_head}, "user": {"login": author}}
@@ -19,7 +19,7 @@ class GateTests(unittest.TestCase):
             if "/reviews?" in path:
                 return reviews if reviews is not None else [{"state": state, "commit_id": commit, "user": {"login": reviewer}}]
             raise AssertionError(path)
-        env = {"GH_REPO": "owner/repo", "PR_NUMBER": "7", "HEAD_SHA": "head123", "TRUSTED_REVIEWERS": trusted}
+        env = {"GH_REPO": "owner/repo", "PR_NUMBER": "7", "HEAD_SHA": "head123", "TRUSTED_REVIEWERS": trusted, "AGENT_REVIEW_MODE": mode}
         with patch.dict(os.environ, env), patch.object(gate, "api", fake_api):
             gate.main()
 
@@ -70,6 +70,29 @@ class GateTests(unittest.TestCase):
                 {"state": "APPROVED", "commit_id": "head123", "user": {"login": "trusted-bot"}},
                 {"state": "CHANGES_REQUESTED", "commit_id": "head123", "user": {"login": "security-bot"}},
             ])
+
+    def test_manual_mode_allows_missing_bot_approval(self):
+        self.run_gate(mode="manual", trusted="", reviews=[])
+
+    def test_manual_mode_still_blocks_workflow_modifications(self):
+        with self.assertRaises(SystemExit):
+            self.run_gate(mode="manual", filename=".github/workflows/change.yml", reviews=[])
+
+    def test_manual_mode_still_blocks_stale_sha(self):
+        with self.assertRaises(SystemExit):
+            self.run_gate(mode="manual", pr_head="changed", reviews=[])
+
+    def test_manual_mode_protects_gate_script(self):
+        with self.assertRaises(SystemExit):
+            self.run_gate(mode="manual", filename="scripts/agent_review_gate.py", reviews=[])
+
+    def test_independent_mode_protects_gate_script(self):
+        with self.assertRaises(SystemExit):
+            self.run_gate(filename="scripts/agent_review_gate.py")
+
+    def test_unknown_mode_fails_closed(self):
+        with self.assertRaises(SystemExit):
+            self.run_gate(mode="unrecognized")
 
     def test_workflow_change_rejected(self):
         with self.assertRaises(SystemExit):

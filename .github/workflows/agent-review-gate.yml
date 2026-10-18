@@ -23,4 +23,5 @@ jobs:
           PR_NUMBER: ${{ github.event.pull_request.number }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           TRUSTED_REVIEWERS: ${{ vars.AGENT_TRUSTED_REVIEWERS }}
+          AGENT_REVIEW_MODE: ${{ vars.AGENT_REVIEW_MODE }}
         run: python3 scripts/agent_review_gate.py
