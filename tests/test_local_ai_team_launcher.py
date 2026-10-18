@@ -28,6 +28,17 @@ def candidate():
                    "https://github.com/leandroclf/product-platform/issues/12")
 
 
+def live_issue(preview=None, state="open", labeled=True):
+    preview = preview or candidate()
+    task = preview["task"]
+    return {
+        "number": 12, "state": state,
+        "labels": [{"name": "agent-candidate"}] if labeled else [],
+        "html_url": preview["issue_url"],
+        "body": "\u0060\u0060\u0060autonomy-task\n" + json.dumps(task) + "\n\u0060\u0060\u0060",
+    }
+
+
 class LauncherTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
@@ -75,16 +86,71 @@ class LauncherTests(unittest.TestCase):
     def test_rejects_wrong_hash_without_running(self):
         with patch.object(module.shutil, "which", return_value="/usr/bin/ai-team"):
             with self.assertRaises(ValueError):
-                module.execute(candidate(), self.root, "wrong", run=self.fake)
+                module.execute(candidate(), self.root, "wrong", run=self.fake,
+                               get_issue=lambda _: live_issue())
         self.assertFalse(any(x[0] == "ai-team" for x in self.calls))
 
     def test_explicit_confirmation_runs_doctor_then_ai_team(self):
         verified = module.build_request(candidate())
         with patch.object(module.shutil, "which", return_value="/usr/bin/ai-team"):
-            result = module.execute(candidate(), self.root, verified["task_sha256"], run=self.fake)
+            result = module.execute(candidate(), self.root, verified["task_sha256"], run=self.fake,
+                                    get_issue=lambda _: live_issue())
         self.assertEqual(result, "REVIEWED")
         self.assertIn(["ai-team", "doctor"], self.calls)
         self.assertTrue(any(x[:2] == ["ai-team", "run"] for x in self.calls))
+
+    def test_execute_blocks_closed_issue_before_doctor(self):
+        preview = candidate()
+        digest = module.build_request(preview)["task_sha256"]
+        with patch.object(module.shutil, "which", return_value="/usr/bin/ai-team"):
+            with self.assertRaises(ValueError):
+                module.execute(preview, self.root, digest, run=self.fake,
+                               get_issue=lambda _: live_issue(preview, state="closed"))
+        self.assertFalse(any(args[0] == "ai-team" for args in self.calls))
+
+    def test_execute_blocks_candidate_label_removed(self):
+        preview = candidate()
+        digest = module.build_request(preview)["task_sha256"]
+        with patch.object(module.shutil, "which", return_value="/usr/bin/ai-team"):
+            with self.assertRaises(ValueError):
+                module.execute(preview, self.root, digest, run=self.fake,
+                               get_issue=lambda _: live_issue(preview, labeled=False))
+        self.assertFalse(any(args[0] == "ai-team" for args in self.calls))
+
+    def test_execute_blocks_changed_task_body(self):
+        preview = candidate()
+        digest = module.build_request(preview)["task_sha256"]
+        altered = live_issue(preview)
+        altered["body"] = altered["body"].replace("outdated link", "different link")
+        with patch.object(module.shutil, "which", return_value="/usr/bin/ai-team"):
+            with self.assertRaisesRegex(ValueError, "changed"):
+                module.execute(preview, self.root, digest, run=self.fake,
+                               get_issue=lambda _: altered)
+        self.assertFalse(any(args[0] == "ai-team" for args in self.calls))
+
+    def test_execute_rechecks_after_doctor_before_run(self):
+        preview = candidate()
+        digest = module.build_request(preview)["task_sha256"]
+        calls = []
+        def issue_reader(_):
+            calls.append(True)
+            return live_issue(preview, state="open" if len(calls) == 1 else "closed")
+        with patch.object(module.shutil, "which", return_value="/usr/bin/ai-team"):
+            with self.assertRaises(ValueError):
+                module.execute(preview, self.root, digest, run=self.fake, get_issue=issue_reader)
+        self.assertEqual(len(calls), 2)
+        self.assertIn(["ai-team", "doctor"], self.calls)
+        self.assertFalse(any(args[:2] == ["ai-team", "run"] for args in self.calls))
+
+    def test_execute_fails_closed_if_issue_query_unavailable(self):
+        preview = candidate()
+        digest = module.build_request(preview)["task_sha256"]
+        def denied(_):
+            raise OSError("GitHub temporarily unavailable")
+        with patch.object(module.shutil, "which", return_value="/usr/bin/ai-team"):
+            with self.assertRaises(OSError):
+                module.execute(preview, self.root, digest, run=self.fake, get_issue=denied)
+        self.assertFalse(any(args[0] == "ai-team" for args in self.calls))
 
     def test_rejects_tampering_before_git(self):
         p = candidate()

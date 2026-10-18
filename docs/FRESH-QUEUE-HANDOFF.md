@@ -36,3 +36,9 @@ A execução posterior exige `--execute` e `--confirm-hash`, com `ai-team doctor
 - Mesmo com validação recente, a issue pode mudar antes da execução no Linux; para tarefas sensíveis, reconsultar a origem e refazer a prévia imediatamente antes do `--execute`.
 - A coleta de fila é somente leitura; a issue #28 demonstra o contrato, e este PR implementa seu critério de aceite.
 - A execução autenticada dos modelos segue pendente até validação operacional do Linux. Revisão e merge dos PRs continuam manuais.
+
+## Proteção adicional antes de `ai-team run`
+
+Ao usar `scripts/local_ai_team_launcher.py --execute --confirm-hash ...`, o launcher agora consulta **novamente a issue original no GitHub** duas vezes: antes de executar `ai-team doctor` e logo antes de `ai-team run`. Exige issue aberta, label `agent-candidate`, URL canônica e SHA256 da tarefa idêntico ao preview. Se a consulta falhar, a issue for encerrada ou a tarefa mudar, nenhuma etapa de implementação será iniciada.
+
+O modo padrão sem `--execute` continua offline e somente informativo. Essa verificação reduz o intervalo entre validação e uso; não torna o artefato confiável por si só e não protege contra alterações posteriores ao último GET. Não requer token de escrita e **não aciona merge nem revisão automática**.

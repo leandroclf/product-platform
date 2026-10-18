@@ -12,6 +12,9 @@ import shutil
 import subprocess
 
 from verified_ai_team_handoff import build_request
+from issue_candidate_preview import candidate
+
+ISSUE_URL = re.compile(r"^https://github[.]com/([A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+)/issues/([1-9][0-9]*)$")
 
 GITHUB_ORIGIN = re.compile(
     r"^(?:https://github[.]com/|git@github[.]com:)([A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+?)(?:[.]git)?$"
@@ -57,16 +60,38 @@ def plan(preview, target, run=command):
     }
 
 
-def execute(preview, target, confirm_hash, run=command):
+
+def github_issue(endpoint):
+    return json.loads(subprocess.run(["gh", "api", endpoint], capture_output=True,
+                                     text=True, check=True).stdout)
+
+
+def verify_live(preview, get_issue=github_issue):
+    """Read live issue; reject closed, unlabeled and edited tasks before agents run."""
+    local = build_request(preview)
+    match = ISSUE_URL.fullmatch(local["issue_url"])
+    if not match:
+        raise ValueError("Invalid source issue URL")
+    repository, number = match.groups()
+    current = candidate(repository, number, get_issue)
+    if current["issue_url"] != local["issue_url"]:
+        raise ValueError("Current issue URL differs from preview")
+    if current["task_sha256"] != local["task_sha256"]:
+        raise ValueError("Issue changed since candidate preview; refresh queue and handoff")
+    return current
+
+def execute(preview, target, confirm_hash, run=command, get_issue=github_issue):
     summary = plan(preview, target, run=run)
     if confirm_hash != summary["task_sha256"]:
         raise ValueError("Explicit SHA256 confirmation does not match")
+    verify_live(preview, get_issue=get_issue)
     if not shutil.which("ai-team"):
         raise ValueError("ai-team is not installed in PATH")
     # The user's local doctor checks authenticated CLIs, Docker and project readiness.
     run(["ai-team", "doctor"], Path(summary["target"]))
     # Recheck target just before execution to prevent use after a changed checkout.
     inspect_target(summary["target"], summary["repository"], run=run)
+    verify_live(preview, get_issue=get_issue)
     return run(summary["command"], Path(summary["target"]))
 
 
@@ -86,7 +111,7 @@ def main():
         else:
             output = plan(request, args.target)
             print(json.dumps(output, ensure_ascii=False, indent=2))
-    except (ValueError, subprocess.CalledProcessError, OSError) as exc:
+    except (ValueError, subprocess.CalledProcessError, OSError, KeyError, TypeError) as exc:
         parser.error(str(exc))
 
 
