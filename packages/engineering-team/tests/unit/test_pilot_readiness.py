@@ -25,6 +25,7 @@ class PilotReadinessTests(unittest.TestCase):
                       "provider_image": "provider@sha256:" + "a" * 64,
                       "test_image": "python:3.12",
                       "checks": ["python -m unittest"],
+                      "models": readiness.team.DEFAULT_MODELS,
                       "quality_checks": {"api_contract": "python -m unittest tests.test_api"}}
             def fake_run(args, **kwargs):
                 if args[:3] == ["git", "-C", str(repo)]:
