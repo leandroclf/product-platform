@@ -50,6 +50,24 @@ O comando comprova localmente que o **HEAD do Git** corresponde ao `source_sha` 
 
 **Limites:** o script não verifica se o pacote corresponde semanticamente ao código-fonte, se os testes foram realmente executados pelo CI, se uma identidade aprovou produção, se o artefato remoto tem esses mesmos bytes, nem se um health check de produção passou. Essas evidências exigem vinculação à execução confiável do GitHub Actions, às regras de ambiente e ao provedor de hospedagem. Sua execução em uma máquina não confiável não fornece atestação independente.
 
+## Integração G6 no contexto de CI do produto
+
+No pipeline de **push da branch principal** de um produto, após construir o artefato e preparar o plano G6, o runner pode executar:
+
+```bash
+python3 vendor/product-platform-kit/scripts/verify-deployment-ci-context.py \
+  --plan deployment-plan.json \
+  --checkout "$GITHUB_WORKSPACE" \
+  --artifact dist/release.tgz \
+  --repository "$GITHUB_REPOSITORY"
+```
+
+`vendor/product-platform-kit` é apenas um exemplo: fixe o Kit por **commit completo/release imutável** e revise o script antes de integrá-lo, sem baixar código flutuante de `main` durante um job de deploy. O verificador exige `GITHUB_ACTIONS=true`, evento `push`, ref `refs/heads/main`, repositório esperado, ID de execução, SHA do evento idêntico ao HEAD e checkout idêntico ao `GITHUB_WORKSPACE`; também executa o gate G6 e calcula SHA-256 dos bytes reais do artefato. PRs, forks, tags inesperadas, HEAD divergente e artefato modificado são bloqueados.
+
+**É uma verificação local de consistência do contexto, não atestação criptográfica do GitHub**: variáveis de ambiente podem ser falsificadas em um runner não confiável. Para uma decisão de deploy, use contexto autenticado pelo GitHub, permissions mínimas, ambientes protegidos, artefatos vinculados a um run confiável, approvals reais e verificações da plataforma. A saída `CI_CONTEXT_AND_ARTIFACT_VERIFIED` ainda mantém `authorized_to_deploy=false`; nunca faça `deploy` automaticamente apenas pelo código de saída desse script.
+
+A referência `artifact_ref` deve terminar com `@sha256:<digest exato do plano>`, eliminando aliases flutuantes. Isso confirma só a forma da referência; a integridade **remota** do registry ainda precisa ser verificada pelo adapter do produto.
+
 ## Separação obrigatória entre política e autoridade
 
 Este validador nunca dispara deploy, cria ambiente, dispara rollback, aprova produção ou executa comandos fornecidos no JSON. **Não** conecta secrets. No CI/CD de cada produto, a identidade de quem aprova, o hash da artefato, a origem do commit, a execução dos testes, a correspondência com o registry e a saúde real da aplicação devem ser verificadas por provedores e runners confiáveis. Um JSON que diga `approval=approved` **não** autoriza uma publicação. Defina regras de ambiente e aprovações humanas próprias no repositório produto.
