@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "policy_owner": "packages/kit/docs/DEPLOYMENT-G6.md",
+  "defaults": {
+    "deploy_authorized": false,
+    "production_requires_independent_approval": true,
+    "artifact_immutable": true,
+    "rollback_required_in_production": true,
+    "credentials_in_repository": false
+  },
+  "targets": [
+    {
+      "product": "vehicle-tracking",
+      "runtime": "typescript-server",
+      "adapter": "cloudflare-workers-opennext",
+      "adoption": "offline-staging-dry-run-verified",
+      "evidence_run": "https://github.com/leandroclf/vehicle-tracking/actions/runs/39159440993",
+      "remote_deploy_verified": false
+    },
+    {
+      "product": "bussola-financeira",
+      "runtime": "python-server",
+      "adapter": "python-container-or-serverless",
+      "adoption": "discovery-required",
+      "remote_deploy_verified": false
+    },
+    {
+      "product": "ai-docs",
+      "runtime": "python-server",
+      "adapter": "python-container-or-serverless",
+      "adoption": "discovery-required",
+      "remote_deploy_verified": false
+    },
+    {
+      "product": "lf-worldbank-risk-pricing",
+      "runtime": "python-server",
+      "adapter": "rapidapi-or-python-service",
+      "adoption": "discovery-required",
+      "remote_deploy_verified": false
+    },
+    {
+      "product": "lf-openalex-enrichment-mvp",
+      "runtime": "python-server",
+      "adapter": "rapidapi-or-python-service",
+      "adoption": "discovery-required",
+      "remote_deploy_verified": false
+    },
+    {
+      "product": "lf-wikidata-entity-graph",
+      "runtime": "python-server",
+      "adapter": "rapidapi-or-python-service",
+      "adoption": "discovery-required",
+      "remote_deploy_verified": false
+    },
+    {
+      "product": "agentic-travel-engine",
+      "runtime": "python-server",
+      "adapter": "python-api-plus-web-frontend",
+      "adoption": "discovery-required",
+      "remote_deploy_verified": false
+    },
+    {
+      "product": "fivem-server-monitor-pro",
+      "runtime": "self-hosted-fxserver",
+      "adapter": "fxserver-distribution",
+      "adoption": "discovery-required",
+      "remote_deploy_verified": false
+    },
+    {
+      "product": "professional-english-coach",
+      "runtime": "local-first-browser",
+      "adapter": "static-web-or-local-package",
+      "adoption": "discovery-required",
+      "remote_deploy_verified": false
+    }
+  ]
+}
