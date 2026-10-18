@@ -54,6 +54,46 @@ class CliUpdaterTests(unittest.TestCase):
                     updater.promote(home, versions, fingerprint, home)
                 command.assert_not_called()
 
+    def test_unknown_and_missing_task_states_fail_closed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            folder = root / "runs" / ("b" * 32)
+            folder.mkdir(parents=True)
+            with self.assertRaisesRegex(ValueError, "Missing"):
+                updater.active_tasks(root)
+            for bad in ('{"status":"UNRECOGNIZED"}', '{"status":null}', '{"oops":true}', '[]'):
+                (folder / "state.json").write_text(bad)
+                if bad == '{"status":"UNRECOGNIZED"}':
+                    self.assertEqual(updater.active_tasks(root), ["b" * 32])
+                else:
+                    with self.assertRaisesRegex(ValueError, "Malformed"):
+                        updater.active_tasks(root)
+            (folder / "state.json").write_text('{"status":"REVIEWED"}')
+            self.assertEqual(updater.active_tasks(root), [])
+            (folder / "state.json").unlink()
+            (folder / "state.json").symlink_to(root / "missing")
+            with self.assertRaisesRegex(ValueError, "linked"):
+                updater.active_tasks(root)
+
+    def test_unavailable_registry_fails_closed_without_version_guess(self):
+        import urllib.error
+        with patch.object(updater.urllib.request, "urlopen", side_effect=urllib.error.URLError("offline")):
+            with self.assertRaisesRegex(ValueError, "registry unavailable"):
+                updater.latest("codex")
+
+    def test_promotion_rejects_unknown_state_before_docker_build(self):
+        versions = {"codex": "1.2.3", "claude": "2.3.4"}
+        fingerprint = updater.plan({}, versions)["approval_fingerprint"]
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            folder = root / "runs" / ("c" * 32)
+            folder.mkdir(parents=True)
+            (folder / "state.json").write_text('{"status":"UNKNOWN"}')
+            with patch.object(updater, "run") as runner:
+                with self.assertRaisesRegex(ValueError, "Active"):
+                    updater.promote(root, versions, fingerprint, root)
+                runner.assert_not_called()
+
     def test_candidate_does_not_promote_when_flags_missing(self):
         versions = {"codex": "1.2.3", "claude": "2.3.4"}
         token = updater.plan({}, versions)["approval_fingerprint"]
