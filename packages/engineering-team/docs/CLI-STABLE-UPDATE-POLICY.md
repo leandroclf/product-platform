@@ -33,3 +33,9 @@ No início de `ai-team run`, o coordenador converte a tag configurada da imagem 
 A consulta identifica a última publicação estável disponível no registro npm; **não garante que uma atualização seja compatível**. Os testes de CLI e Docker podem rejeitar releases que alterem flags e sandbox. Esse processo não autentica contas, valida todos os comportamentos dos modelos nem atesta a cadeia de suprimentos do registro. Se a nova versão falhar, a imagem ativa permanece preservada e a tarefa não inicia até resolução deliberada. Nenhuma alteração em GitHub branch rules, merge, deploy ou credenciais é executada por esse script.
 
 Também não substitui `ai-team doctor`, `ai-team models`, os testes offline reais da aplicação nem a revisão humana.
+
+## Atualização fail-closed diante de estado desconhecido
+
+Antes da promoção, o atualizador inspeciona **todas** as pastas de tarefa locais. Diretórios ou arquivos de estado ausentes, ilegíveis, ligados por symlink ou malformados bloqueiam a operação; estados desconhecidos são tratados como execução potencialmente ativa. Somente `REVIEWED`, `DELIVERED`, `FAILED` e `STOPPED` são considerados terminais para a checagem. Indisponibilidade do registro npm gera erro legível e impede iniciar ou atualizar, nunca inferindo a versão atual por cache ou valor fixo.
+
+Esses controles não substituem sincronização transacional entre múltiplos processos do host. A seleção por ID imutável de imagem (PR #48) protege o runtime de uma tarefa contra alterações concorrentes da tag.
