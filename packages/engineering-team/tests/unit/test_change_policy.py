@@ -1,0 +1,53 @@
+import unittest
+from scripts import change_policy
+
+
+class RiskAndQualityPolicyTests(unittest.TestCase):
+    def test_sensitive_paths_escalate_without_trusting_issue(self):
+        paths = [
+            '.github/workflows/deploy.yml',
+            'src/auth/login.ts',
+            'prisma/schema.prisma',
+            'infra/main.tf',
+            'Dockerfile',
+            '.env.production',
+            'package-lock.json',
+            'src/security/access.py',
+        ]
+        for path in paths:
+            with self.subTest(path=path):
+                self.assertEqual(change_policy.classify_path(path), 'R2')
+                with self.assertRaisesRegex(ValueError, 'R2'):
+                    change_policy.ensure_authorized('R1', [path])
+
+    def test_safe_scope_passes_and_docs_are_r0(self):
+        self.assertEqual(change_policy.classify_paths(['docs/README.md']), 'R0')
+        self.assertEqual(change_policy.ensure_authorized('R0', ['docs/README.md']), 'R0')
+        self.assertEqual(change_policy.ensure_authorized('R1', ['src/parser.py']), 'R1')
+
+    def test_claimed_r0_cannot_mutate_code(self):
+        with self.assertRaises(ValueError):
+            change_policy.ensure_authorized('R0', ['src/parser.py'])
+
+    def test_untrusted_paths_fail_closed(self):
+        for path in ('../etc/shadow', '/root/key', 'a\\evil', '', None):
+            with self.subTest(path=path):
+                self.assertEqual(change_policy.classify_path(path), 'R2')
+
+    def test_r2_r3_require_separate_authorization(self):
+        for risk in ('R2', 'R3', 'unexpected'):
+            with self.assertRaises(ValueError):
+                change_policy.ensure_authorized(risk, ['README.md'])
+
+    def test_change_families_select_relevant_required_gates(self):
+        result = change_policy.required_quality_surfaces([
+            'src/api/routes.py', 'src/database/migration_1.sql',
+            'src/components/App.tsx', 'src/integration/queue.py', 'infra/main.tf'
+        ])
+        for expected in ('api_contract', 'database_migration', 'frontend',
+                         'integration', 'infrastructure', 'security_and_approval'):
+            self.assertIn(expected, result)
+
+
+if __name__ == '__main__':
+    unittest.main()
