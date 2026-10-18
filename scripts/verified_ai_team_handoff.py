@@ -6,6 +6,7 @@ No subprocess, agent invocation, network request, GitHub write, or merge.
 import argparse
 import hashlib
 import json
+import re
 from pathlib import Path
 
 from autonomy_backlog import parse_issue
@@ -14,7 +15,7 @@ EXPECTED_ENVELOPE = {
     "schema_version", "mode", "status", "issue_url", "task_sha256",
     "task", "execution_allowed", "note",
 }
-GITHUB_ISSUE_PREFIX = "https://github.com/"
+GITHUB_ISSUE_URL = re.compile(r"^https://github[.]com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+/issues/[1-9][0-9]*$")
 
 
 def verify_preview(preview):
@@ -27,7 +28,7 @@ def verify_preview(preview):
     ) or type(preview["execution_allowed"]) is not bool:
         raise ValueError("Preview must remain non-executable")
     url = preview["issue_url"]
-    if not isinstance(url, str) or not url.startswith(GITHUB_ISSUE_PREFIX):
+    if not isinstance(url, str) or not GITHUB_ISSUE_URL.fullmatch(url):
         raise ValueError("Issue must be a GitHub URL")
     if not isinstance(preview["note"], str):
         raise ValueError("Invalid note")
