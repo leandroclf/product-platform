@@ -76,5 +76,10 @@ portal_live_module = importlib.util.module_from_spec(portal_live_spec)
 portal_live_spec.loader.exec_module(portal_live_module)
 PortalLiveAuditTests = portal_live_module.PortalLiveAuditTests
 
+editorial_spec = importlib.util.spec_from_file_location("editorial_tests", ROOT / "scripts/test_portal_editorial_packet.py")
+editorial_tests = importlib.util.module_from_spec(editorial_spec)
+editorial_spec.loader.exec_module(editorial_tests)
+EditorialPacketTests = editorial_tests.EditorialPacketTests
+
 if __name__ == "__main__":
     unittest.main()
