@@ -18,6 +18,6 @@ Manter um inventário rastreável dos repositórios da empresa como primeiro pas
 5. Gates de aprovação e avaliação do piloto autenticado antes de automatizar mudanças em múltiplos repositórios.
 
 ## Limitações
-A API `users/{owner}/repos` lista repositórios públicos. Para inventariar também repositórios privados do proprietário, alterar a consulta para endpoint autenticado `user/repos?affiliation=owner` com token autorizado e filtrar pelo proprietário. A configuração atual não deve ser considerada inventário completo de repositórios privados.
+A consulta usa `user/repos?affiliation=owner` e filtra pelo proprietário. A cobertura de repositórios privados depende das permissões concedidas ao token; repositórios não autorizados não aparecerão no inventário.
 
 Não expor credenciais em logs ou conceder acesso de escrita a outros repositórios na fase de descoberta.
