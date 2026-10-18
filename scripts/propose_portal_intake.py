@@ -92,6 +92,11 @@ def main():
         if not candidates:
             print("PORTAL_INTAKE_UP_TO_DATE: no PR needed")
             return 0
+        # Prevent stale catalog snapshots from manufacturing irrelevant intake PRs.
+        remote = github("GET", "/repos/" + PORTAL_REPO + "/contents/data/product-catalog.json?ref=main", token)
+        remote_bytes = base64.b64decode(remote["content"])
+        if json.loads(remote_bytes.decode("utf-8")) != site_catalog:
+            raise ValueError("Local catalog differs from remote main; refresh before applying")
         # The base SHA is obtained from authenticated GitHub, never assumed.
         base = github("GET", "/repos/" + PORTAL_REPO + "/git/ref/heads/main", token)
         sha = base["object"]["sha"]
