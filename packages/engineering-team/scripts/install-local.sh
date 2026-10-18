@@ -30,7 +30,15 @@ if [ "$MODE" = --check ]; then
 fi
 python3 -m venv "$ROOT/.venv"
 "$ROOT/.venv/bin/python" -m pip install -r "$ROOT/requirements-validation.txt"
-docker build -f "$ROOT/runtimes/Dockerfile" -t ai-eng-provider-cli:local "$ROOT"
+# The updater owns promotion of an existing provider runtime. Re-running the
+# installer must never downgrade that approved image to Dockerfile defaults.
+if docker image inspect ai-eng-provider-cli:local >/dev/null 2>&1; then
+  echo 'Preserving existing provider CLI image. Use scripts/update_provider_clis.py to check/promote versions.'
+else
+  # Fresh bootstrap only. These reviewed defaults are not guaranteed to be
+  # latest; ai-team run still enforces latest stable before executing.
+  docker build -f "$ROOT/runtimes/Dockerfile" -t ai-eng-provider-cli:local "$ROOT"
+fi
 chmod +x "$ROOT/bin/ai-team"
 mkdir -p "$BIN_DIR"
 # Recheck after the build: never replace a destination created during installation.

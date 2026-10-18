@@ -27,9 +27,12 @@ class BootstrapTests(unittest.TestCase):
         self.destination = self.root / 'user-bin'
         self.env = dict(os.environ, AI_TEAM_BIN_DIR=str(self.destination),
                         PATH=str(self.commands) + ':' + os.environ['PATH'],
-                        EFFECTS=str(self.log), BUILD_FAIL='0', DAEMON_FAIL='0')
+                        EFFECTS=str(self.log), BUILD_FAIL='0', DAEMON_FAIL='0', IMAGE_PRESENT='0')
         self.executable('docker', '''#!/bin/bash
 if [ "$1" = info ]; then exit "$DAEMON_FAIL"; fi
+if [ "$1" = image ] && [ "$2" = inspect ]; then
+  exit "$([ "$IMAGE_PRESENT" = 1 ] && echo 0 || echo 1)"
+fi
 echo build >> "$EFFECTS"
 exit "$BUILD_FAIL"
 ''')
@@ -91,6 +94,19 @@ else:
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertEqual((self.destination / 'ai-team').resolve(), self.framework / 'bin/ai-team')
         self.assertEqual(self.log.read_text().splitlines(), ['venv', 'pip', 'build'] * 2)
+
+    def test_reinstall_preserves_promoted_runtime_image(self):
+        self.env['IMAGE_PRESENT'] = '1'
+        result = self.run_install()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn('Preserving existing provider CLI image', result.stdout)
+        self.assertEqual(self.log.read_text().splitlines(), ['venv', 'pip'])
+        self.assertTrue((self.destination / 'ai-team').is_symlink())
+        # A second install may update framework dependencies but must not
+        # rebuild or replace the previously promoted provider runtime.
+        result = self.run_install()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(self.log.read_text().splitlines(), ['venv', 'pip', 'venv', 'pip'])
 
     def test_destination_created_during_build_is_preserved(self):
         self.executable('docker', '''#!/bin/bash
