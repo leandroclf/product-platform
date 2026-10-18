@@ -87,6 +87,11 @@ deployment_spec = importlib.util.spec_from_file_location(
 deployment_suite = importlib.util.module_from_spec(deployment_spec)
 deployment_spec.loader.exec_module(deployment_suite)
 DeploymentContractTests = deployment_suite.DeploymentContractTests
+artifact_spec = importlib.util.spec_from_file_location(
+    "g6_artifact_tests", ROOT / "scripts/verify-deployment-artifact.test.py")
+artifact_suite = importlib.util.module_from_spec(artifact_spec)
+artifact_spec.loader.exec_module(artifact_suite)
+DeploymentArtifactEvidenceTests = artifact_suite.DeploymentArtifactEvidenceTests
 
 if __name__ == "__main__":
     unittest.main()
