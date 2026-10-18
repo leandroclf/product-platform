@@ -1,0 +1,28 @@
+name: Portfolio governance
+on:
+  schedule:
+    - cron: '20 11 * * 1-5'
+  workflow_dispatch:
+permissions:
+  contents: read
+  issues: write
+concurrency:
+  group: portfolio-governance
+  cancel-in-progress: false
+jobs:
+  inventory:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generate portfolio inventory
+        env:
+          GH_TOKEN: ${{ secrets.PORTFOLIO_READ_TOKEN }}
+          GH_OWNER: leandroclf
+          GH_REPO: product-platform
+        run: |
+          if [ -z "$GH_TOKEN" ]; then
+            echo "::error::Configure PORTFOLIO_READ_TOKEN with read access to the portfolio and issue write access to product-platform"
+            exit 1
+          fi
+          python3 scripts/portfolio_governance.py
