@@ -12,6 +12,17 @@
 
 **Limite deliberado:** ainda não há cópia verificável do SVG/CSS original no repositório nem leitura auditável dos valores de cor, tipografia, grid, ícones e geometria do símbolo. Os campos `visual.*` ficam nulos. Não inferir RGB/HEX, fonte ou redesenhar o logotipo a partir de conteúdo textual da página. Não usar hotlink do ativo remoto nos produtos: baixar, registrar proveniência, conferir licença de uso, conteúdo e SHA-256 e publicar uma versão imutável de assets.
 
+## Extração verificável dos arquivos originais
+
+Quando os arquivos autorizados `lf-logo-horizontal.svg` e as folhas CSS do site estiverem disponíveis localmente, execute a ferramenta read-only (nenhum acesso externo ou publicação):
+
+```bash
+cd packages/kit
+python3 scripts/inventory-lf-brand-assets.py /caminho/lf-logo-horizontal.svg /caminho/site.css
+```
+
+O inventário em JSON lista hashes SHA-256 de cada arquivo, cores, variáveis e famílias tipográficas **candidatas**. A saída sempre declara `REVIEW_REQUIRED_NOT_APPROVED`: cores detectadas em um CSS podem ser utilitárias ou de terceiros e não constituem automaticamente paleta oficial. O ativo e o CSS aprovados precisam ser versionados no futuro pacote de Design System com referência a esse inventário, testes de contraste e revisão independente.
+
 ## Estratégia de distribuição
 
 1. **Kit** mantém o contrato da fonte, política de composição visual e regras de consistência.
