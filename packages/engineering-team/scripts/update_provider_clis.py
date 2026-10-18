@@ -13,6 +13,7 @@ import re
 import subprocess
 import sys
 import urllib.request
+import urllib.error
 
 PACKAGES = {"codex": "@openai/codex", "claude": "@anthropic-ai/claude-code"}
 VERSION = re.compile(r"^[0-9]+\.[0-9]+\.[0-9]+$")
@@ -30,10 +31,13 @@ def latest(name):
     # Official npm registry stable dist-tag; do not rely on a pre-release/latest string from a mirror.
     url = "https://registry.npmjs.org/" + package.replace("/", "%2f") + "/latest"
     request = urllib.request.Request(url, headers={"Accept": "application/json", "User-Agent": "ai-team-cli-updater"})
-    with urllib.request.urlopen(request, timeout=12) as response:
-        if response.status != 200:
-            raise ValueError("Registry returned non-200")
-        payload = response.read(512 * 1024 + 1)
+    try:
+        with urllib.request.urlopen(request, timeout=12) as response:
+            if response.status != 200:
+                raise ValueError("Registry returned non-200")
+            payload = response.read(512 * 1024 + 1)
+    except (urllib.error.URLError, TimeoutError, OSError) as exc:
+        raise ValueError("Official npm registry unavailable; refuse to guess latest version") from exc
     if len(payload) > 512 * 1024:
         raise ValueError("Oversized registry result")
     data = json.loads(payload)
@@ -75,18 +79,28 @@ def inspect_versions(image):
 
 def active_tasks(home):
     runs = Path(home) / "runs"
-    if not runs.is_dir():
+    if runs.is_symlink():
+        raise ValueError("Task directory symlink; cannot safely promote")
+    if not runs.exists():
         return []
+    if not runs.is_dir():
+        raise ValueError("Invalid tasks directory; cannot safely promote")
     active = []
-    for file in runs.glob("*/state.json"):
-        if file.is_symlink():
-            raise ValueError("Task-state symlink; cannot safely promote")
+    safe_statuses = {"REVIEWED", "DELIVERED", "FAILED", "STOPPED"}
+    for directory in runs.iterdir():
+        if directory.is_symlink() or not directory.is_dir():
+            raise ValueError("Unexpected entry in task directory; cannot safely promote")
+        file = directory / "state.json"
+        if file.is_symlink() or not file.is_file():
+            raise ValueError("Missing or linked task state; cannot safely promote")
         try:
-            state = json.loads(file.read_text())
+            state = json.loads(file.read_text(encoding="utf-8"))
         except (OSError, ValueError):
             raise ValueError("Unreadable task state; cannot safely promote") from None
-        if state.get("status") in ("RUNNING", "INTERRUPTED", "DELIVERY_PENDING"):
-            active.append(file.parent.name)
+        if not isinstance(state, dict) or not isinstance(state.get("status"), str):
+            raise ValueError("Malformed task state; cannot safely promote")
+        if state["status"] not in safe_statuses:
+            active.append(directory.name)
     return active
 
 
