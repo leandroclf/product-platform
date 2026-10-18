@@ -11,7 +11,7 @@ Permitir merges sem revisão humana rotineira, usando um revisor especializado i
 - Auditor: registra evidências, resultados e rollback.
 
 ## Limites desta entrega
-O gate de aprovação independente está implementado. A identidade do agente revisor, sua execução autenticada, as credenciais GitHub App, o auto-merge e a adoção nos demais repositórios **ainda não estão configurados**. A presença de uma aprovação GitHub não demonstra, por si só, qualidade da revisão: é necessário integrar o avaliador especializado e seus testes.
+O gate de aprovação independente e o workflow opt-in de solicitação de auto-merge estão implementados. A identidade do agente revisor, sua execução autenticada, as credenciais GitHub App, a configuração de branch protection, a habilitação de auto-merge no GitHub e a adoção nos demais repositórios **ainda não estão configuradas**. O workflow só solicita auto-merge em PRs rotulados `agent-auto-merge`, após verificar aprovação independente e caminhos protegidos. O GitHub deve impor os demais checks obrigatórios. A presença de uma aprovação GitHub não demonstra, por si só, qualidade da revisão: é necessário integrar o avaliador especializado e seus testes.
 
 ## Política de risco
 - R0: documentação e análise; podem ser automatizadas.
@@ -29,3 +29,10 @@ O gate de aprovação independente está implementado. A identidade do agente re
 7. Adotar workflows por repositório após inspecionar os checks e as políticas de cada produto.
 
 A autorização operacional do proprietário não substitui as proteções de segurança nem comprova que os pré-requisitos foram satisfeitos.
+
+## Configuração do integrador (pendente)
+- Criar `AGENT_MERGE_TOKEN` com permissões mínimas para solicitar merge e permitir apenas identidades confiáveis aplicarem `agent-auto-merge`.
+- Habilitar GitHub auto-merge e branch protection/rulesets exigindo CI, aprovação independente e bloqueio de bypass.
+- Configurar agente revisor real com identidade separada; revisar diff e evidências antes de emitir APPROVED.
+- O workflow atual não substitui análise semântica do agente e não opera sem essas configurações.
+- **Atenção:** mudanças nos próprios workflows, políticas, infraestrutura e arquivos `AGENTS.md` são bloqueadas pelo gate R1; sua adoção inicial requer processo específico de bootstrap.
