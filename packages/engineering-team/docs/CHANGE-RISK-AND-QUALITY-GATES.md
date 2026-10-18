@@ -20,7 +20,20 @@ O `ai-team` é atualmente um executor local supervisionado para alterações R0/
 | Infraestrutura/IAM/segurança | revisão especializada, autorização R2/R3, validação de políticas |
 | Mudança geral | teste focado, regressão, verificação de diff, checks reais da stack |
 
-O classificador `change_policy.required_quality_surfaces` fornece **alertas** das famílias especializadas detectadas. Ainda não comprova execução dessas suítes; elas devem ser configuradas como checks efetivos do alvo e comprovadas na aceitação. Ausência de check não é sucesso.
+O classificador `change_policy.required_quality_surfaces` agora também atua como **gate obrigatório**: para cada família detectada no diff real, é necessário existir um comando correspondente em `quality_checks`. Se faltar, o host bloqueia antes de testar ou entregar. Os comandos são executados junto dos checks gerais, no container de testes offline sem contas dos provedores. A presença do comando não garante sua adequação: o operador deve fornecer testes reais da stack, e o resultado integra `tests.json`.
+
+Exemplo de configuração inicial ou atualização deliberada (substitua os comandos pelos testes do projeto):
+
+```bash
+ai-team init --upgrade --test-image python:3.12-slim \
+  --check 'python -m unittest discover -v' \
+  --quality-check 'api_contract=python -m unittest tests.test_api_contracts' \
+  --quality-check 'integration=python -m unittest tests.test_integrations'
+```
+
+`--upgrade` exige configuração existente e preserva um backup; na primeira configuração, omita-o. As famílias suportadas são `api_contract`, `database_migration`, `frontend`, `integration`, `infrastructure` e `security_and_approval`. As duas últimas podem representar risco R2 e **não autorizam** o fluxo supervisionado R0/R1, mesmo com checks configurados. Nenhum check é implicitamente marcado como executado quando não foi rodado.
+
+A classificação por nomes de arquivo é heurística: testes e revisão humana continuam necessários para detectar mudanças semânticas fora das pastas esperadas.
 
 ## Limites importantes
 
