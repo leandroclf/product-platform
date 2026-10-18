@@ -6,6 +6,7 @@ No provider login/inference; no live running task can change runtime mid-stage.
 """
 import argparse
 import hashlib
+import os
 import json
 from pathlib import Path
 import re
@@ -41,9 +42,9 @@ def latest(name):
     return data["version"]
 
 
-def run(args, *, timeout=240, capture=True):
+def run(args, *, timeout=240, capture=True, env=None):
     try:
-        return subprocess.run(args, check=True, capture_output=capture, text=True, timeout=timeout)
+        return subprocess.run(args, check=True, capture_output=capture, text=True, timeout=timeout, env=env)
     except (OSError, subprocess.CalledProcessError, subprocess.TimeoutExpired) as exc:
         raise ValueError("CLI update check/build failed; active runtime preserved") from exc
 
@@ -108,6 +109,11 @@ def promote(root, versions, fingerprint, state_home):
     actual = inspect_versions(candidate)
     if actual != versions:
         raise ValueError("Candidate image versions differ from approved registry versions")
+    # Exercise all four real container mount boundaries and synthetic adversarial
+    # probes against the candidate, not just CLI help output.
+    env = dict(os.environ, AI_TEAM_SMOKE_IMAGE=candidate)
+    run([sys.executable, str(root / "scripts" / "local_stage_isolation_smoke.py")],
+        timeout=300, env=env)
     # Recheck after the build, since another task may have started meanwhile.
     if active_tasks(state_home):
         raise ValueError("Task started during candidate build; refusing promotion")
