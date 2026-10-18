@@ -15,7 +15,7 @@ MAX_INPUT_BYTES = 2 * 1024 * 1024
 ALLOWED_EXTENSIONS = {".svg", ".css"}
 COLORS = re.compile(r"(?<![\w-])#[0-9a-fA-F]{3,8}\b|(?:rgb|rgba|hsl|hsla)\([^)]{1,110}\)", re.I)
 CSS_VAR = re.compile(r"--[\w-]*(?:color|brand|primary|secondary|accent|surface|background|foreground)[\w-]*\s*:\s*([^;{}]+)", re.I)
-FONT_FAMILY = re.compile(r"font-family\s*:\s*([^;{}]{1,250})", re.I)
+FONT_FAMILY = re.compile(r"font-family\s*:\s*([^;{}<]{1,250})", re.I)
 SVG_ATTR_COLOR = re.compile(r'\b(?:fill|stroke|stop-color)\s*=\s*["\x27]([^"\x27]{1,150})["\x27]', re.I)
 
 
