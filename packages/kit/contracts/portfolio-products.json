@@ -77,5 +77,17 @@
       "product-platform-cli": "packages/cli",
       "product-platform-engineering-team": "packages/engineering-team"
     }
+  },
+  "portal": {
+    "repository": "site-lf-solucoes",
+    "website": "https://lfsolucoes.etc.br/",
+    "catalog_manifest": "data/product-catalog.json",
+    "catalog_route": "/produtos/",
+    "required_for_new_products": true,
+    "publication_requires_editorial_review": true,
+    "automatic_cross_repo_sync_verified": false,
+    "kind": "flagship-product",
+    "runtime": "static-github-pages",
+    "deployment_adapter": "github-pages-static"
   }
 }

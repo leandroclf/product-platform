@@ -14,9 +14,9 @@ BRAND = ROOT / "contracts/lf-brand-source.json"
 ADAPTERS = {
     "cloudflare-workers-opennext", "python-container-or-serverless",
     "rapidapi-or-python-service", "python-api-plus-web-frontend",
-    "fxserver-distribution", "static-web-or-local-package",
+    "fxserver-distribution", "static-web-or-local-package", "github-pages-static",
 }
-STATES = {"discovery-required", "offline-staging-dry-run-verified"}
+STATES = {"discovery-required", "offline-staging-dry-run-verified", "existing-automatic-pages-deploy-unverified-runtime"}
 
 
 def validate(portfolio, deploy, brand):
@@ -51,6 +51,23 @@ def validate(portfolio, deploy, brand):
         if entry.get("adoption") == "offline-staging-dry-run-verified":
             if name != "vehicle-tracking" or entry.get("evidence_run") != "https://github.com/leandroclf/vehicle-tracking/actions/runs/39159440993":
                 errors.append("Unsupported staging evidence for " + name)
+    flagship = portfolio.get("portal", {})
+    if (flagship.get("repository") != "site-lf-solucoes"
+        or flagship.get("website") != "https://lfsolucoes.etc.br/"
+        or flagship.get("catalog_manifest") != "data/product-catalog.json"
+        or flagship.get("required_for_new_products") is not True
+        or flagship.get("publication_requires_editorial_review") is not True
+        or flagship.get("automatic_cross_repo_sync_verified") is not False):
+        errors.append("Missing flagship portal publishing contract")
+    if flagship.get("kind") != "flagship-product" or flagship.get("runtime") != "static-github-pages":
+        errors.append("Flagship product type must remain explicit")
+    portal_deploy = deploy.get("flagship_portal", {})
+    if (portal_deploy.get("product") != "site-lf-solucoes"
+        or portal_deploy.get("runtime") != "static-github-pages"
+        or portal_deploy.get("adapter") != "github-pages-static"
+        or portal_deploy.get("adoption") != "existing-automatic-pages-deploy-unverified-runtime"
+        or portal_deploy.get("remote_deploy_verified") is not False):
+        errors.append("Flagship portal deployment must be tracked without invented remote evidence")
     if set(mapped) != set(registered):
         errors.append("Every product must be mapped exactly once")
     d = deploy.get("defaults", {})
