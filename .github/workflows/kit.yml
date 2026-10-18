@@ -40,7 +40,7 @@ jobs:
       - name: Validate LF brand provenance and G6 deployment mapping for all registered products
         run: |
           python3 scripts/validate-portfolio-brand-deploy.py
-          python3 -m unittest discover -s scripts -p test_portfolio_brand_deploy.py
+          python3 -m unittest discover -s scripts -p 'test_*brand*.py'
       - name: ProductEvent v1 conformance
         run: python3 scripts/conformance-product-event.py
       - uses: actions/setup-python@v7
