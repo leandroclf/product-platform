@@ -22,7 +22,7 @@ O resultado informa `installed`, `available`, necessidade de atualização e `ap
 
 A atualização constrói uma imagem candidata com **versões exatas**, verifica em containers sem login os binários, as flags exigidas e os limites dos quatro estágios, incluindo canários adversariais de Docker. Reconsulta o registro antes de promover. A imagem é publicada na tag local `ai-eng-provider-cli:local` apenas após todas as verificações. Se houver tarefa `RUNNING`, `INTERRUPTED` ou `DELIVERY_PENDING`, a promoção é bloqueada antes e depois do build. Todas as tarefas antigas usam seus IDs de imagem já congelados.
 
-A instalação inicial via `scripts/install-local.sh` permanece baseada em versões revisadas/pinadas para bootstrap reproduzível. Em seguida, realize explicitamente a atualização controlada antes da primeira tarefa. Não usar `npm install ...@latest` em volumes ou containers de um estágio ativo.
+A instalação inicial via `scripts/install-local.sh` utiliza versões revisadas/pinadas **apenas quando ainda não há imagem de provedores instalada**. Ao reinstalar, o instalador preserva `ai-eng-provider-cli:local`, mesmo que uma imagem mais recente tenha sido promovida pelo atualizador. Em seguida, realize explicitamente a atualização controlada antes da primeira tarefa. Não usar `npm install ...@latest` em volumes ou containers de um estágio ativo. Para reconstruir uma imagem já existente, utilize o atualizador com promoção testada; nunca remova a imagem aprovada como parte de um upgrade rotineiro.
 
 ## Garantia de imagem por tarefa
 
