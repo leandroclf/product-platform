@@ -8,6 +8,7 @@ import sys
 BLOCKED_PREFIXES = (
     ".github/workflows/", ".github/actions/", "infra/", "terraform/",
     "migrations/", "database/migrations/", "security/", "secrets/",
+    "scripts/agent_review_gate.py", "scripts/audit_autonomy_readiness.py",
 )
 BLOCKED_NAMES = {"CODEOWNERS", "AGENTS.md"}
 
