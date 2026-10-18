@@ -20,3 +20,11 @@ A saída registra SHA256 da tarefa, URL, repositório-alvo, prioridade e ciclos 
 Para cada issue elegível, a rotina `Agent candidate preview` já existente pode gerar o artefato próprio; depois, `verified_ai_team_handoff.py` e `local_ai_team_launcher.py` preparam e, somente com autorização explícita no Linux, iniciam o `ai-team`. Este seletor **não** promove issues a `ready` nem inicia os modelos. Deve-se revalidar o estado e o conteúdo da issue no momento de usá-la, pois o snapshot pode ficar obsoleto.
 
 Não existe conexão automática dos agendamentos ChatGPT a este script, nem execução autenticada dos CLIs nesta sessão. Sua revisão humana dos PRs continua obrigatória. Consulte `docs/MANUAL-REVIEW-TRANSITION.md` e a issue central #12.
+
+## Publicação automática no GitHub Actions
+
+O workflow `Backlog candidate queue` executa nos dias úteis (11:40 UTC, sem dependência de timezone do runner) e também permite execução manual por **Actions → Backlog candidate queue → Run workflow**. Publica um sumário Markdown da fila e um artefato JSON `backlog-candidate-queue` com retenção de sete dias. Usa token nativo de leitura para issues e código da branch principal; não requer `PORTFOLIO_READ_TOKEN` ou credenciais de modelos.
+
+Caso não haja issues abertas com a label `agent-candidate` e contrato válido, o resultado será uma fila vazia, não uma tentativa de executar o backlog estratégico #12. O agendamento é uma coleta de estado, não um sistema que cria trabalho por conta própria. Não concede labels, não cria issues, não invoca `ai-team`, não aprova e não faz merge.
+
+Os campos de problema, origem e risco são dados não confiáveis. Confira a issue original antes de preparar a execução local. O sumário apresenta apenas uma classificação declarada na issue, não uma avaliação independente.

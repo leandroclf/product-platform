@@ -1,0 +1,52 @@
+name: Backlog candidate queue
+on:
+  schedule:
+    - cron: '40 11 * * 1-5'
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: Maximum candidates in queue, between 1 and 25
+        required: false
+        default: '10'
+        type: string
+permissions:
+  contents: read
+  issues: read
+concurrency:
+  group: backlog-candidate-queue
+  cancel-in-progress: false
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Checkout trusted default branch
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Build read-only queue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          INPUT_LIMIT: ${{ inputs.limit }}
+        run: |
+          LIMIT="${INPUT_LIMIT:-10}"
+          case "$LIMIT" in
+            ''|*[!0-9]*) echo "::error::Invalid candidate limit"; exit 1 ;;
+          esac
+          if [ "$LIMIT" -lt 1 ] || [ "$LIMIT" -gt 25 ]; then
+            echo "::error::Candidate limit must be 1-25"
+            exit 1
+          fi
+          python3 scripts/backlog_candidate_queue.py --repo "$REPOSITORY" --limit "$LIMIT" --output candidate-queue.json --summary "$GITHUB_STEP_SUMMARY"
+      - name: Upload queue artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: backlog-candidate-queue
+          path: candidate-queue.json
+          retention-days: 7
+          if-no-files-found: error
