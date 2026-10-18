@@ -8,6 +8,14 @@
   ],
   "products": [
     {
+      "repository": "site-lf-solucoes",
+      "domain": "corporate_portal",
+      "runtime": "static-github-pages",
+      "wave": 0,
+      "role": "flagship",
+      "is_corporate_portal": true
+    },
+    {
       "repository": "vehicle-tracking",
       "domain": "vehicle_tracking",
       "runtime": "typescript-server",
@@ -77,5 +85,14 @@
       "product-platform-cli": "packages/cli",
       "product-platform-engineering-team": "packages/engineering-team"
     }
+  },
+  "portal": {
+    "repository": "site-lf-solucoes",
+    "website": "https://lfsolucoes.etc.br/",
+    "catalog_manifest": "data/product-catalog.json",
+    "catalog_route": "/produtos/",
+    "required_for_new_products": true,
+    "publication_requires_editorial_review": true,
+    "automatic_cross_repo_sync_verified": false
   }
 }
