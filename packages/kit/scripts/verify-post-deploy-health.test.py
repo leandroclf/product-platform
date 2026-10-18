@@ -41,6 +41,28 @@ class G7Tests(unittest.TestCase):
         self.assertFalse(result["authorized_to_deploy"])
         self.assertFalse(result["release_identity_verified"])
 
+    def test_requires_stable_consecutive_successes(self):
+        opener = FakeOpener([200, 503, 200, 200])
+        result = module.observe("https://example.com/health", attempts=4,
+                                consecutive_successes=2, opener=opener,
+                                interval=0, sleeper=lambda _: None)
+        self.assertTrue(result["endpoint_health_verified"])
+        self.assertEqual(result["http_statuses"], [200, 503, 200, 200])
+        self.assertEqual(result["observed_consecutive_successes"], 2)
+        self.assertFalse(result["authorized_to_deploy"])
+
+    def test_interrupted_streak_blocks(self):
+        opener = FakeOpener([200, 503, 200])
+        result = module.observe("https://example.com/health", attempts=3,
+                                consecutive_successes=2, opener=opener,
+                                interval=0, sleeper=lambda _: None)
+        self.assertEqual(result["decision"], "BLOCK")
+        self.assertEqual(result["observed_consecutive_successes"], 1)
+
+    def test_impossible_streak_rejected(self):
+        with self.assertRaises(ValueError):
+            module.observe("https://example.com/health", attempts=2, consecutive_successes=3)
+
     def test_failure_closed(self):
         opener = FakeOpener([URLError("unavailable"), 503, 503])
         result = module.observe("https://example.com/health", opener=opener,
