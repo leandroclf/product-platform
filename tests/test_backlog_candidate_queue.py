@@ -40,6 +40,19 @@ class QueueTests(unittest.TestCase):
         self.assertFalse(result["execution_allowed"])
         self.assertTrue(all(not x["execution_allowed"] for x in result["items"]))
 
+    def test_summary_reports_empty_queue_without_execution(self):
+        report = module.build_queue([], "leandroclf/product-platform")
+        md = module.render_summary(report)
+        self.assertIn("No eligible issues", md)
+        self.assertIn("no merge", md)
+        self.assertIn("\n| Priority |", md)
+
+    def test_summary_reports_rejection(self):
+        report = module.build_queue([issue(2, risk="R3")], "leandroclf/product-platform")
+        md = module.render_summary(report)
+        self.assertIn("#2", md)
+        self.assertIn("Rejected candidates: 1", md)
+
     def test_label_missing_excluded(self):
         result = module.build_queue([issue(label=False)], "leandroclf/product-platform")
         self.assertEqual(result["items"], [])
