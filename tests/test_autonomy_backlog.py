@@ -23,7 +23,7 @@ def body(**changes):
         "max_cycles": 2,
     }
     task.update(changes)
-    return "```autonomy-task\\n" + json.dumps(task) + "\\n```"
+    return "```autonomy-task\n" + json.dumps(task) + "\n```"
 
 
 class TaskContractTests(unittest.TestCase):
@@ -62,7 +62,7 @@ class TaskContractTests(unittest.TestCase):
 
     def test_rejects_duplicate_task_blocks(self):
         with self.assertRaises(ValueError):
-            module.parse_issue(body() + "\\n" + body())
+            module.parse_issue(body() + "\n" + body())
 
     def test_rejects_missing_acceptance(self):
         with self.assertRaises(ValueError):
