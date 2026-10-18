@@ -49,11 +49,15 @@ def main():
         if login and review.get("state") in {"APPROVED", "CHANGES_REQUESTED", "DISMISSED"}:
             latest_by_reviewer[login] = review
     author = pr["user"]["login"].lower()
+    trusted = {x.strip().lower() for x in os.environ.get("TRUSTED_REVIEWERS", "").split(",") if x.strip()}
+    if not trusted:
+        sys.exit("TRUSTED_REVIEWERS not configured; fail closed")
     approvals = [
         r for r in latest_by_reviewer.values()
         if r.get("state") == "APPROVED"
         and r.get("commit_id") == head
         and r.get("user", {}).get("login", "").lower() != author
+        and r.get("user", {}).get("login", "").lower() in trusted
     ]
     if not approvals:
         sys.exit("No independent approval for current head SHA")
