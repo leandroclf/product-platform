@@ -54,7 +54,7 @@ routine_finding:
 
 ### Fluxo de promoção
 
-`Routine finding → GitHub Issue (new) → triagem humana (accepted) → OmniCLI/PlatformHandoff → ai-team → checks/CI → PR → merge/deploy autorizados separadamente → verificação → resolved`.
+`Routine finding → GitHub Issue (new) → triagem humana (accepted) → product-platform-cli/PlatformHandoff → ai-team → checks/CI → PR → merge/deploy autorizados separadamente → verificação → resolved`.
 
 Um achado ou issue **não substitui** `PlatformHandoff`, `registry_fingerprint`, checks do alvo nem aprovação. Automação pode recomendar e registrar; jamais deve executar código, alterar branch, commitar, criar PR de implementação, fazer merge ou deploy por inferência.
 
