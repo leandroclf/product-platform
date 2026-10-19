@@ -8,6 +8,7 @@ Repositório único da plataforma de produtos: contratos e políticas, runtime r
 | [`packages/harness`](packages/harness) | Runtime embutido nos produtos: identidade, planos, entitlements, eventos, pagamentos, economics, observabilidade | kit | `harness-v*` (artefato com `SHA256SUMS`) |
 | [`packages/cli`](packages/cli) | Transforma uma ideia em proposta revisável e gera o handoff de capacidades | kit | `cli-v*` |
 | [`packages/engineering-team`](packages/engineering-team) | `ai-team`: plan, implement, validate e review isolados no repositório alvo | kit | `engineering-team-v*` (quando houver) |
+| [`packages/design-system`](packages/design-system) | Tokens e ativos visuais institucionais, adotados opt-in pelos produtos | nenhum | Distribuição versionada pendente |
 
 ## Regras
 
