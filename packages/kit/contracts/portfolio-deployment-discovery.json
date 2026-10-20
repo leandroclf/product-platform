@@ -1,0 +1,226 @@
+{
+  "schema_version": 1,
+  "observed_at_utc": "2026-10-20T10:03:20Z",
+  "scope": "Read-only GitHub source metadata and selected build/deployment configuration; no provider calls, credential reads, deploys, or migrations.",
+  "interpretation": "Source files and workflow history are evidence of declarations and attempted automation only. They do not prove current provider state, a completed deployment, artifact identity, health, rollback, approval, or secret isolation.",
+  "products": [
+    {
+      "repository": "vehicle-tracking",
+      "source": {
+        "branch": "main",
+        "commit_sha": "e54d912d7529e9a4bf424378fd7675404264a23f",
+        "files": [
+          {"path": ".github/workflows/staging-bundle-dry-run.yml", "git_blob_sha1": "b0318b9bef1f2662e5eb7e5d1c32d07df1449b67"},
+          {"path": ".github/workflows/deploy-staging.yml", "git_blob_sha1": "06a17c7903f0e6b4f4f383338ce4fa7b6bef971b"},
+          {"path": "wrangler.toml", "git_blob_sha1": "5670db3db8b3fd7364503dc4f5dee952aadfcf77"},
+          {"path": "package.json", "git_blob_sha1": "9ffa6e5ac7c1545be3839adc47fd6733e031b947"}
+        ]
+      },
+      "declarations": {
+        "runtime": "TypeScript/Next.js with Cloudflare Workers OpenNext build",
+        "provider_configuration": "Cloudflare configuration declared in wrangler.toml",
+        "build_and_checks": ["pnpm install --frozen-lockfile", "pnpm validate", "python3 -m unittest discover -s tests -p test_staging_dry_run.py", "pnpm build:worker"],
+        "staging_command": "pnpm exec wrangler deploy --env staging --dry-run --outdir .g6-staging-dry-run",
+        "artifact": "Dry-run workflow declares artifact upload; remote artifact identity not verified",
+        "health_path": null,
+        "deploy_workflows": ["deploy.yml", "deploy-staging.yml"]
+      },
+      "observed_github_state": {
+        "staging_deploy_runs_found": false,
+        "latest_deploy_run": {"run_id": 38725278399, "event": "push", "branch": "main", "conclusion": "failure", "deploy_job": "skipped"},
+        "environments": [{"name": "production", "protection_rule_types": [], "required_reviewer_count": 0}]
+      },
+      "verification": {"source_configuration": true, "provider_runtime": false, "remote_deploy": false, "release_identity": false, "health": false, "rollback": false, "approval": false, "secret_isolation": false}
+    },
+    {
+      "repository": "bussola-financeira",
+      "source": {
+        "branch": "main",
+        "commit_sha": "f2bd971f907362d494596f47c5fb3f29c7444626",
+        "files": [
+          {"path": ".github/workflows/ci.yml", "git_blob_sha1": "4f0bdee2ecfbd17cd07d028a6db8ad4206cdca86"},
+          {"path": "Dockerfile", "git_blob_sha1": "bba5a4f190128f44dd466997ff9a631fc7d2014d"},
+          {"path": "frontend/Dockerfile", "git_blob_sha1": "15d07dd956beaff1382a56bb5afa3e0f653b5658"},
+          {"path": "pyproject.toml", "git_blob_sha1": "92c22e925fc07cb033e3e21679e2e65eb9471a1f"},
+          {"path": "requirements.txt", "git_blob_sha1": "b635eaac33dd8fb9c51a0774977f000f920307fe"}
+        ]
+      },
+      "declarations": {
+        "runtime": "Python 3.11 API container plus separate nginx frontend container",
+        "provider_configuration": null,
+        "provider_configuration_search": "No provider manifest found among inspected root build/deployment files",
+        "build_and_checks": ["Dockerfile installs requirements.txt", "frontend/Dockerfile copies static frontend into nginx"],
+        "start_command": "uvicorn bussola_financeira.main:app --host 0.0.0.0 --port 8000",
+        "health_path": null,
+        "deploy_workflows": []
+      },
+      "verification": {"source_configuration": true, "provider_runtime": false, "remote_deploy": false, "release_identity": false, "health": false, "rollback": false, "approval": false, "secret_isolation": false}
+    },
+    {
+      "repository": "ai-docs",
+      "source": {
+        "branch": "main",
+        "commit_sha": "563173adf666caf3a3c7d02906d4ee23bbb0c211",
+        "files": [
+          {"path": ".github/workflows/ci.yml", "git_blob_sha1": "1309008488dedb55c126c625648fce0b5ff40410"},
+          {"path": "Dockerfile", "git_blob_sha1": "749cae92edbe78e0c981ea673bd6180c1cd90875"},
+          {"path": "requirements.txt", "git_blob_sha1": "e8368e67bb410156e957908668ed3798d886a9cc"}
+        ]
+      },
+      "declarations": {
+        "runtime": "Python 3.12 API container",
+        "provider_configuration": null,
+        "provider_configuration_search": "No provider manifest found among inspected root build/deployment files",
+        "build_and_checks": ["Dockerfile installs requirements.txt"],
+        "start_command": "uvicorn app.main:app --host 0.0.0.0 --port 8000 --timeout-keep-alive 300 --timeout-graceful-shutdown 300 --workers 1 --limit-concurrency 10 --backlog 100",
+        "health_path": null,
+        "deploy_workflows": []
+      },
+      "verification": {"source_configuration": true, "provider_runtime": false, "remote_deploy": false, "release_identity": false, "health": false, "rollback": false, "approval": false, "secret_isolation": false}
+    },
+    {
+      "repository": "lf-worldbank-risk-pricing",
+      "source": {
+        "branch": "main",
+        "commit_sha": "d37957a92f063ac2fe74c729d79958d6daaad99f",
+        "files": [
+          {"path": ".github/workflows/rapidapi-publish.yml", "git_blob_sha1": "573ea8079d5dd358b0e3a40ceff2c3ed73d5293b"},
+          {"path": "render.yaml", "git_blob_sha1": "e2db82b08dc1e2af8ab87d3e68207dd62dce56d7"},
+          {"path": "requirements.txt", "git_blob_sha1": "e3ef3fbb342e8c05ef3f8fd6c000e124234352a1"}
+        ]
+      },
+      "declarations": {
+        "runtime": "Python",
+        "provider_configuration": "Render blueprint declared in render.yaml; separate RapidAPI publish workflow",
+        "build_command": "pip install -r requirements.txt",
+        "start_command": "python3 -m backend.src.http_server",
+        "health_path": "/health",
+        "rapidapi_publish_workflow": true
+      },
+      "observed_github_state": {"latest_publish_run": {"run_id": 24629819950, "event": "workflow_dispatch", "conclusion": "failure"}},
+      "verification": {"source_configuration": true, "provider_runtime": false, "remote_deploy": false, "release_identity": false, "health": false, "rollback": false, "approval": false, "secret_isolation": false}
+    },
+    {
+      "repository": "lf-openalex-enrichment-mvp",
+      "source": {
+        "branch": "main",
+        "commit_sha": "eca1933645e86444206c3b3d58769abb81d78619",
+        "files": [
+          {"path": ".github/workflows/rapidapi-publish.yml", "git_blob_sha1": "573ea8079d5dd358b0e3a40ceff2c3ed73d5293b"},
+          {"path": "render.yaml", "git_blob_sha1": "762f31fda426fe94bfd06af8e8d9381afea1cceb"},
+          {"path": "requirements.txt", "git_blob_sha1": "7dd5882da509edd99d3df0a3231ff5b86b66b674"}
+        ]
+      },
+      "declarations": {
+        "runtime": "Python",
+        "provider_configuration": "Render blueprint declared in render.yaml; separate RapidAPI publish workflow",
+        "build_command": "pip install -r requirements.txt",
+        "start_command": "python3 -m backend.src.http_server",
+        "health_path": "/health",
+        "rapidapi_publish_workflow": true
+      },
+      "observed_github_state": {"latest_publish_run": {"run_id": 38725332442, "event": "push", "branch": "main", "conclusion": "failure", "head_sha": "eca1933645e86444206c3b3d58769abb81d78619"}},
+      "verification": {"source_configuration": true, "provider_runtime": false, "remote_deploy": false, "release_identity": false, "health": false, "rollback": false, "approval": false, "secret_isolation": false}
+    },
+    {
+      "repository": "lf-wikidata-entity-graph",
+      "source": {
+        "branch": "main",
+        "commit_sha": "453501b7aff8969434a4341d88ccabf87b387257",
+        "files": [
+          {"path": ".github/workflows/rapidapi-publish.yml", "git_blob_sha1": "573ea8079d5dd358b0e3a40ceff2c3ed73d5293b"},
+          {"path": "render.yaml", "git_blob_sha1": "0351be6c597e3f25e829858ed3ac99964830e299"},
+          {"path": "requirements.txt", "git_blob_sha1": "a478803563ac85d80554fc78b94c0eaa2d40abea"}
+        ]
+      },
+      "declarations": {
+        "runtime": "Python",
+        "provider_configuration": "Render blueprint declared in render.yaml; separate RapidAPI publish workflow",
+        "build_command": "pip install -r requirements.txt",
+        "start_command": "python3 -m backend.src.http_server",
+        "health_path": "/health",
+        "rapidapi_publish_workflow": true
+      },
+      "observed_github_state": {"latest_publish_run": {"run_id": 38725254543, "event": "push", "branch": "main", "conclusion": "failure", "head_sha": "453501b7aff8969434a4341d88ccabf87b387257"}},
+      "verification": {"source_configuration": true, "provider_runtime": false, "remote_deploy": false, "release_identity": false, "health": false, "rollback": false, "approval": false, "secret_isolation": false}
+    },
+    {
+      "repository": "agentic-travel-engine",
+      "source": {
+        "branch": "main",
+        "commit_sha": "65389a88eb80f7ae1997de112ffcb417d11c0f9b",
+        "files": [
+          {"path": ".github/workflows/ci.yml", "git_blob_sha1": "716b5b4f0cb2e542535c4120ffdb0b3adb081ddd"},
+          {"path": "Dockerfile", "git_blob_sha1": "a84cd906e04396b05eb17f5d074c6bf9d9249378"},
+          {"path": "frontend/package.json", "git_blob_sha1": "b31cc1dcc1ff43275d4456205e05956f00d34ff3"},
+          {"path": "pyproject.toml", "git_blob_sha1": "ab3db173c4fca70657926c7e040916da22241e80"}
+        ]
+      },
+      "declarations": {
+        "runtime": "Python API container plus Next.js frontend",
+        "provider_configuration": null,
+        "provider_configuration_search": "No provider manifest found among inspected root build/deployment files",
+        "build_and_checks": ["Dockerfile installs requirements.txt", "frontend/package.json declares next build"],
+        "start_command": "uvicorn src.interface.api.main:app --host 0.0.0.0 --port 8000",
+        "health_path": null,
+        "deploy_workflows": []
+      },
+      "verification": {"source_configuration": true, "provider_runtime": false, "remote_deploy": false, "release_identity": false, "health": false, "rollback": false, "approval": false, "secret_isolation": false}
+    },
+    {
+      "repository": "fivem-server-monitor-pro",
+      "source": {
+        "branch": "main",
+        "commit_sha": "ca793ce31ccffbd0615abc3f695667ffec29ade2",
+        "files": [
+          {"path": ".github/workflows/ci.yml", "git_blob_sha1": "049b9e38ef8ac29f60222e828c7a985502384ff4"},
+          {"path": "docker/Dockerfile", "git_blob_sha1": "f4129495bd858e98bb484916fe30bfe797e98654"},
+          {"path": "package.json", "git_blob_sha1": "ed412e31b549162536cd68ef3f25777f03974388"}
+        ]
+      },
+      "declarations": {
+        "runtime": "Self-hosted FXServer distribution with Docker packaging",
+        "provider_configuration": null,
+        "provider_configuration_search": "No cloud provider manifest found among inspected root build/deployment files",
+        "build_and_checks": ["npm run verify", "npm run test:lua", "docker compose config --quiet"],
+        "declared_ports": ["30120/tcp", "30120/udp"],
+        "health_path": null,
+        "deploy_workflows": []
+      },
+      "verification": {"source_configuration": true, "provider_runtime": false, "remote_deploy": false, "release_identity": false, "health": false, "rollback": false, "approval": false, "secret_isolation": false}
+    },
+    {
+      "repository": "professional-english-coach",
+      "source": {
+        "branch": "main",
+        "commit_sha": "59c5b90db712c142d0ceaf138273d942c20cd05f",
+        "files": [
+          {"path": ".github/workflows/ci.yml", "git_blob_sha1": "c05390bd98981c6f0e565e4a74532ff791f3db6c"},
+          {"path": "package.json", "git_blob_sha1": "4987c5a0bff137e09b8211d99908da2e5da77c0b"}
+        ]
+      },
+      "declarations": {
+        "runtime": "JavaScript application with a static-site build script",
+        "provider_configuration": null,
+        "provider_configuration_search": "No cloud provider manifest found among inspected root build/deployment files",
+        "build_and_checks": ["node scripts/build-static.mjs", "npm run check", "npm test"],
+        "health_path": null,
+        "deploy_workflows": []
+      },
+      "verification": {"source_configuration": true, "provider_runtime": false, "remote_deploy": false, "release_identity": false, "health": false, "rollback": false, "approval": false, "secret_isolation": false}
+    }
+  ],
+  "flagship_portal": {
+    "repository": "site-lf-solucoes",
+    "source": {
+      "branch": "main",
+      "commit_sha": "d85d2e622e3ebbcd23ae73c279ba7ef9bf09fac8",
+      "files": [
+        {"path": ".github/workflows/quality-smoke.yml", "git_blob_sha1": "d731abae3c5eb1dffd5eeaa465c3642ac28a38f9"},
+        {"path": ".github/workflows/lighthouse-observe.yml", "git_blob_sha1": "6f0de46ab57a9ff756a593141d7463efe2fe6a91"}
+      ]
+    },
+    "declarations": {"runtime": "Static site repository", "provider_configuration": null, "github_pages_configured": false, "health_path": null, "deploy_workflows": []},
+    "verification": {"source_configuration": true, "provider_runtime": false, "remote_deploy": false, "release_identity": false, "health": false, "rollback": false, "approval": false, "secret_isolation": false}
+  }
+}

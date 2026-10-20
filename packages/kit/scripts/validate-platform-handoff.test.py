@@ -96,6 +96,7 @@ DeploymentArtifactEvidenceTests = artifact_suite.DeploymentArtifactEvidenceTests
 # Reuse the existing Kit CI entrypoint for portfolio LF brand and G6 coverage.
 for test_module_name, test_filename, suite_name in (
     ("portfolio_brand_deploy_tests", "test_portfolio_brand_deploy.py", "ContractTests"),
+    ("portfolio_deployment_discovery_tests", "test_portfolio_deployment_discovery.py", "DiscoveryContractTests"),
     ("lf_brand_inventory_tests", "test_lf_brand_inventory.py", "InventoryTests"),
 ):
     spec = importlib.util.spec_from_file_location(test_module_name, ROOT / "scripts" / test_filename)
