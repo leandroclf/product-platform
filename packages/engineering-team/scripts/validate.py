@@ -104,7 +104,7 @@ for token in ["scenario_id", "environment", "agent_name", "head_sha", "status", 
         errors.append(f"run manifest missing: {token}")
 
 fixture_required = [
-    "validation/fixtures/s01-doc-task/target.md",
+    "validation/fixtures/s01-doc-task/docs/target.md",
     "validation/fixtures/s03-precedence/AGENTS.md",
     "validation/fixtures/s04-failure/README.md",
     "validation/fixtures/s05-r3/DO-NOT-TOUCH.sentinel",
