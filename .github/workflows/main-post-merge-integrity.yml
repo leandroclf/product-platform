@@ -1,0 +1,49 @@
+name: Post-merge main integrity
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+concurrency:
+  group: main-integrity-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  verify-integrated-main:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Checkout exact integrated main commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - name: Verify checked-out SHA is the event commit
+        env:
+          EXPECTED_SHA: ${{ github.sha }}
+        run: |
+          test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
+          test "$(git status --porcelain)" = ""
+      - name: Test canonical package boundaries on integrated main
+        run: |
+          python3 scripts/test_check_package_boundaries.py
+          python3 scripts/check-package-boundaries.py
+      - name: Test shared-contract handoff with pinned Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: "3.12"
+      - run: |
+          python -m pip install -r requirements-validation.txt
+          python3 scripts/test_handoff_contract.py
+      - name: Report exactly what was verified
+        env:
+          COMMIT: ${{ github.sha }}
+        run: |
+          {
+            echo "## Integrated main verification"
+            echo ""
+            echo "Commit: \`$COMMIT\`"
+            echo ""
+            echo "- SHA and clean checkout: pass"
+            echo "- Package boundaries: pass"
+            echo "- Platform handoff contracts: pass"
+            echo "- Does not claim deployment, business acceptance, or authenticated model execution."
+          } >> "$GITHUB_STEP_SUMMARY"
