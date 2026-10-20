@@ -35,7 +35,7 @@ def acl_canary():
         if not command(["setfacl", "-m", "u:1001:rw-", "--", str(candidate)]):
             return False
         try:
-            result = subprocess.run(["getfacl", "-cp", "--", str(candidate)],
+            result = subprocess.run(["getfacl", "-cpn", "--", str(candidate)],
                                     capture_output=True, text=True, timeout=10)
             return (result.returncode == 0 and
                     any(re.fullmatch(r"user:1001:rw-", line.strip())
