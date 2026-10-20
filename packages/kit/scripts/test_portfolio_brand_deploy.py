@@ -58,6 +58,17 @@ class ContractTests(unittest.TestCase):
     def test_unverified_brand_color_rejected(self):
         self.check(lambda a, b, c: c["visual"].update(colors={"primary": "#ffffff"}))
 
+    def test_brand_source_revision_and_digests_are_pinned(self):
+        self.check(lambda a, b, c: c["source"].update(commit_sha="0" * 40))
+        self.check(lambda a, b, c: c["source"]["files"]["assets/lf-logo-horizontal.svg"].update(sha256="0" * 64))
+
+    def test_site_layout_is_not_promoted_to_shared_brand_grid(self):
+        self.check(lambda a, b, c: c["visual"]["grid"].update(shared_brand_grid="approved"))
+
+    def test_redistribution_and_product_adoption_remain_unapproved(self):
+        self.check(lambda a, b, c: c["adoption"].update(redistribution_approved=True))
+        self.check(lambda a, b, c: c["adoption"].update(product_adoption_approved=True))
+
     def test_remote_logo_hotlink_rejected(self):
         self.check(lambda a, b, c: c["adoption"].update(remote_asset_hotlink=True))
 

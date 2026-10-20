@@ -17,6 +17,44 @@ ADAPTERS = {
     "fxserver-distribution", "static-web-or-local-package", "github-pages-static",
 }
 STATES = {"discovery-required", "offline-staging-dry-run-verified", "existing-automatic-pages-deploy-unverified-runtime"}
+BRAND_SOURCE_COMMIT = "d85d2e622e3ebbcd23ae73c279ba7ef9bf09fac8"
+BRAND_COLORS = {
+    "navy": "#061B4F", "blue": "#0757E8", "electric": "#008CFF",
+    "cyan": "#00D4FF", "ice": "#EAF6FF", "graphite": "#172033",
+    "text": "#172033", "muted": "#526079", "border": "#D8E7F4",
+    "white": "#FFFFFF", "success": "#14804A",
+}
+BRAND_FONTS = [
+    "Inter", "ui-sans-serif", "system-ui", "-apple-system",
+    "BlinkMacSystemFont", "Segoe UI", "sans-serif",
+]
+BRAND_DIMENSIONS = {
+    "lf-logo-horizontal.svg": {"width_px": 620, "height_px": 150, "view_box": "0 0 620 150"},
+    "lf-mark.svg": {"width_px": 120, "height_px": 120, "view_box": "0 0 120 120"},
+}
+BRAND_GRID = {
+    "status": "SITE_LAYOUT_NOT_BRAND_TOKEN",
+    "layout_patterns": [
+        ".nav-solutions-grid: repeat(3, 1fr); max-width 920px: 1fr",
+        ".brand-hero-layout: minmax(0, .9fr) minmax(0, 1.1fr); max-width 920px: 1fr",
+        ".section-heading: .72fr 1.28fr; max-width 920px: 1fr",
+    ],
+    "shared_brand_grid": "not_declared",
+}
+BRAND_FILES = {
+    "brand-system.css": {
+        "git_blob_sha1": "02a646af52d899935f1d28214d449bf1f5965c5f",
+        "sha256": "a2094af1d4799838bd041c0ee78203187d6b47df3d13776e61a0bfb237deb93b",
+    },
+    "assets/lf-logo-horizontal.svg": {
+        "git_blob_sha1": "536ee44d1e4b3601894eaa349d03e30635136a2d",
+        "sha256": "b2d5fccc716a37e493832b7822a82143e442785bb77a48ce962ae209270da0a7",
+    },
+    "assets/lf-mark.svg": {
+        "git_blob_sha1": "0d3ed77bfb9fb3183a704f158be25ff3ee4cea82",
+        "sha256": "0f62def35ce80650cdfe4a975efba5cf93940a5df4a93a343a3e2897280d95da",
+    },
+}
 
 
 def validate(portfolio, deploy, brand):
@@ -87,19 +125,29 @@ def validate(portfolio, deploy, brand):
         errors.append("Unapproved brand source")
     if source.get("logo_url") != "https://lfsolucoes.etc.br/assets/lf-logo-horizontal.svg":
         errors.append("Unapproved logo source")
+    if (source.get("repository") != "leandroclf/site-lf-solucoes"
+        or source.get("commit_sha") != BRAND_SOURCE_COMMIT
+        or source.get("files") != BRAND_FILES):
+        errors.append("Brand source revision or digests are not pinned")
     editorial = brand.get("editorial", {})
     if editorial.get("tagline") != "Tecnologia que gera valor.":
         errors.append("Institutional tagline not sourced")
     visual = brand.get("visual", {})
-    if visual.get("status") != "AWAITING_VERIFIED_ASSET_EXTRACTION" or any(
-        visual.get(field) is not None for field in ("colors", "fonts", "dimensions", "logo_checksum_sha256")
-    ):
-        errors.append("Unverified design tokens must not be represented as extracted")
+    if (visual.get("status") != "SOURCE_VERIFIED_NOT_APPROVED"
+        or visual.get("colors") != BRAND_COLORS
+        or visual.get("fonts") != BRAND_FONTS
+        or visual.get("dimensions") != BRAND_DIMENSIONS
+        or visual.get("grid") != BRAND_GRID
+        or visual.get("logo_checksum_sha256") != BRAND_FILES["assets/lf-logo-horizontal.svg"]["sha256"]):
+        errors.append("Brand visual extraction does not match pinned source facts")
     adoption = brand.get("adoption", {})
     if (adoption.get("product_brand_preserved") is not True
         or adoption.get("force_rebrand") is not False
         or adoption.get("remote_asset_hotlink") is not False
-        or adoption.get("requires_local_approved_assets") is not True):
+        or adoption.get("requires_local_approved_assets") is not True
+        or adoption.get("redistribution_license") != "not_declared"
+        or adoption.get("redistribution_approved") is not False
+        or adoption.get("product_adoption_approved") is not False):
         errors.append("Unsafe brand adoption policy")
     return errors
 
@@ -110,7 +158,7 @@ def main():
     if errors:
         print("PORTFOLIO_CONTRACT_BLOCKED:", "; ".join(errors))
         raise SystemExit(1)
-    print("PORTFOLIO_BRAND_AND_DEPLOY_CONTRACTS_VALID (offline only; no authorization or visual token extraction)")
+    print("PORTFOLIO_BRAND_AND_DEPLOY_CONTRACTS_VALID (pinned source facts; no redistribution, product-use, or deploy authorization)")
 
 
 if __name__ == "__main__":

@@ -10,7 +10,9 @@
 - Posicionamento editorial confirmado: **Engenharia aplicada a negócios**.
 - Referência contratual versionada: `../contracts/lf-brand-source.json`.
 
-**Limite deliberado:** ainda não há cópia verificável do SVG/CSS original no repositório nem leitura auditável dos valores de cor, tipografia, grid, ícones e geometria do símbolo. Os campos `visual.*` ficam nulos. Não inferir RGB/HEX, fonte ou redesenhar o logotipo a partir de conteúdo textual da página. Não usar hotlink do ativo remoto nos produtos: baixar, registrar proveniência, conferir licença de uso, conteúdo e SHA-256 e publicar uma versão imutável de assets.
+**Estado verificado:** os bytes de `brand-system.css`, `assets/lf-logo-horizontal.svg` e `assets/lf-mark.svg`, a paleta CSS, a fonte e as dimensões dos SVGs foram conferidos no commit `d85d2e622e3ebbcd23ae73c279ba7ef9bf09fac8` do repositório `leandroclf/site-lf-solucoes`. O CSS também define layouts específicos do portal (`.nav-solutions-grid`, `.brand-hero-layout` e `.section-heading`, com quebra em 920px); não declara um grid corporativo reutilizável. O contrato `../contracts/lf-brand-source.json` registra hashes e separa esses padrões do portal dos tokens corporativos; os SVGs locais passam por comparação de hash.
+
+**Limite deliberado:** o repositório-fonte não declara licença de redistribuição. O status `SOURCE_VERIFIED_NOT_APPROVED` registra fatos de origem, não aprovação legal, de distribuição ou adoção. Não publicar o pacote nem adotá-lo em produtos até essas aprovações. Não usar hotlink remoto; preserve as marcas e cores funcionais dos produtos.
 
 ## Extração verificável dos arquivos originais
 
@@ -21,12 +23,12 @@ cd packages/kit
 python3 scripts/inventory-lf-brand-assets.py /caminho/lf-logo-horizontal.svg /caminho/site.css
 ```
 
-O inventário em JSON lista hashes SHA-256 de cada arquivo, cores, variáveis e famílias tipográficas **candidatas**. A saída sempre declara `REVIEW_REQUIRED_NOT_APPROVED`: cores detectadas em um CSS podem ser utilitárias ou de terceiros e não constituem automaticamente paleta oficial. O ativo e o CSS aprovados precisam ser versionados no futuro pacote de Design System com referência a esse inventário, testes de contraste e revisão independente.
+Para verificar outra revisão da fonte, o inventário em JSON lista hashes SHA-256, cores, variáveis e famílias tipográficas **candidatas**. A saída declara `REVIEW_REQUIRED_NOT_APPROVED`: inventário não aprova tokens nem licença. Faça a revisão contra o CSS/SVG oficial e atualize os hashes fixados no contrato e no pacote apenas depois de verificar a origem.
 
 ## Estratégia de distribuição
 
 1. **Kit** mantém o contrato da fonte, política de composição visual e regras de consistência.
-2. Criar o futuro módulo **`packages/design-system`** após a extração auditada. Ele será dono de ativos e design tokens; não inserir componentes de UI no Harness (bibliotecas de comércio/observabilidade).
+2. `packages/design-system` já contém SVGs e tokens com proveniência fixada. Ele é dono dos ativos e tokens da marca corporativa; não inserir componentes de UI no Harness (bibliotecas de comércio/observabilidade).
 3. Publicar um pacote versionado com:
    - tokens de cores, tipografia, espaços, raios e estados em JSON + CSS custom properties;
    - ativos corporativos aprovados e variantes de logo;
@@ -50,7 +52,7 @@ O inventário em JSON lista hashes SHA-256 de cada arquivo, cores, variáveis e 
 | lf-wikidata-entity-graph | HTML estático | Idem |
 | ai-docs | serviço/API | Documentação/portal somente se existir UI; nenhum pacote visual de runtime obrigatório |
 
-**Este gate não altera visualmente os nove produtos**: registra a fonte e bloqueia a falsa afirmação de cores ou logotipo já extraídos. A adoção visual exige extração do design real, PR por consumidor e validação.
+**Este gate não altera visualmente os nove produtos**: registra fatos verificados da fonte e mantém redistribuição e adoção bloqueadas sem aprovação. A adoção visual exige PR por consumidor e validação.
 
 ## Critérios de aceite do módulo visual
 
