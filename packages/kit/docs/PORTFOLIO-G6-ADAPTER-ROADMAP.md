@@ -8,6 +8,20 @@ Política única: [DEPLOYMENT-G6.md](DEPLOYMENT-G6.md). Inventário executável:
 - Manifesto offline no artifact do run; status `OFFLINE_STAGING_BUNDLE_VERIFIED`.
 - Não foram validados tokens Cloudflare, proteção real de environment, migração, health remoto, rollback nem produção.
 
+## Descoberta read-only dos runtimes — 2026-10-20
+
+O snapshot [`portfolio-deployment-discovery.json`](../contracts/portfolio-deployment-discovery.json) fixa os SHAs de `main` e os blobs dos manifests/workflows consultados para os nove produtos e o portal. Ele registra declarações de configuração e o estado observado do GitHub; não executa builds nos repositórios nem transforma CI em prova de deploy.
+
+Achados que mudam a sequência de trabalho:
+
+- `vehicle-tracking` declara Cloudflare Workers/OpenNext e tem dry-run offline. O workflow de staging não tem execução registrada; a última execução do workflow `deploy.yml` em `main` terminou com o job `deploy` ignorado. O environment `production` existe no GitHub, mas a API reportou zero regras de proteção e zero revisores obrigatórios.
+- `bussola-financeira` declara dois containers Docker (API Python 3.11 e frontend nginx); não foi encontrado manifest de provedor nos arquivos de build/deploy consultados. `ai-docs` declara container Python 3.12, também sem manifest de provedor nos arquivos consultados.
+- `lf-worldbank-risk-pricing`, `lf-openalex-enrichment-mvp` e `lf-wikidata-entity-graph` declaram Render (`render.yaml`) e endpoint `/health`; todos também declaram publicação RapidAPI. Os runs consultados terminaram em falha, sem logs retidos que permitam atribuir causa. O step usa `RapidAPI/create_or_update_rapidapi_listing@main`, uma referência móvel que precisa ser fixada antes de confiar nessa automação.
+- `agentic-travel-engine` separa API Python e frontend Next.js, sem provedor de deploy encontrado nos manifests consultados. FiveM declara empacotamento Docker para FXServer self-hosted, sem health check remoto. English Coach declara build estático em JavaScript, sem provedor de publicação encontrado.
+- `site-lf-solucoes` tem workflows de qualidade/Lighthouse, mas GitHub Pages não está configurado na consulta atual (`has_pages=false`). Não há prova de publicação remota do portal.
+
+Os contratos continuam com `remote_deploy_verified=false` para todos os alvos. Os próximos passos com maior valor são corrigir/pinar e diagnosticar as publicações RapidAPI; levantar provider, armazenamento, health e rollback dos dois produtos Python ainda sem manifest; e configurar proteção real antes de qualquer promoção de `vehicle-tracking`. Não habilitei workflow, environment, Pages, segredo ou deployment.
+
 ## Adapter planeado por runtime (sem criar deploy implícito)
 
 | Adapter | Produtos | Próxima implementação |
