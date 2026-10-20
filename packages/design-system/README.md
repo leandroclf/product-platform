@@ -1,6 +1,6 @@
 # LF Soluções — Design System corporativo (versão fonte 0.1.0)
 
-**Fonte canônica:** [site-lf-solucoes](https://github.com/leandroclf/site-lf-solucoes). Paleta extraída diretamente da variável CSS `--brand-*` em `brand-system.css`; os SVGs são cópias **sem modificação** de `assets/lf-logo-horizontal.svg` e `assets/lf-mark.svg`.
+**Fonte canônica:** repositório `leandroclf/site-lf-solucoes`, commit [`d85d2e6`](https://github.com/leandroclf/site-lf-solucoes/commit/d85d2e622e3ebbcd23ae73c279ba7ef9bf09fac8). Paleta extraída diretamente das variáveis CSS `--brand-*` em `brand-system.css`; os SVGs são cópias byte a byte de `assets/lf-logo-horizontal.svg` e `assets/lf-mark.svg`.
 
 ## Contrato visual inicial
 
@@ -8,14 +8,14 @@
 - Fonte institucional: **Inter**, seguida de system sans.
 - Raio padrão: `14px`.
 - Logotipo original horizontal e marca LF SVG.
-- Proveniência: `tokens.json/source/files` guarda o *Git blob SHA-1* de cada asset na fonte — **não** um SHA-256. A suíte `scripts/test_lf_design_system.py` valida os bytes de cada SVG via hash Git e verifica tokens CSS/JSON.
+- Proveniência: `tokens.json/source` fixa o commit de origem, os Git blob SHA-1 e SHA-256 do CSS e dos SVGs. A suíte `scripts/test_lf_design_system.py` verifica localmente os dois hashes de cada SVG e os tokens CSS/JSON.
 - `tokens.css` contém apenas custom properties com prefixo `--lf-`; não altera estilos de `html`, `body`, títulos nem cores funcionais de produtos por padrão.
 
 ## Uso opt-in
 
 Copiar/distribuir o pacote sob versão/release imutável aprovada antes de uso em consumidores. Na interface, importar `tokens.css` e renderizar os SVGs locais onde fizer sentido para indicar `Produto LF Soluções`. Não fazer hotlink no domínio institucional, não copiar CSS global inteiro do portal, não forçar aparência idêntica em aplicativos especializados.
 
-Não há ainda publicação externa no npm/registry, pacote React de componentes, garantia WCAG AA para todas as combinações, nem adoção automática nos nove produtos. Este PR entrega **assets e tokens oficiais verificáveis**, não uma mudança visual remota.
+O código-fonte do site não declara uma licença de redistribuição. Portanto, a procedência e a integridade dos bytes estão verificadas, mas a aprovação de redistribuição continua pendente. Também não há publicação externa no npm/registry, pacote React de componentes, garantia WCAG AA para todas as combinações, nem adoção automática nos nove produtos. Este pacote privado não autoriza publicação nem mudança visual remota.
 
 ## Próximos gates
 

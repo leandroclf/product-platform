@@ -16,6 +16,12 @@ SOURCE_BLOBS = {
     "assets/lf-logo-horizontal.svg": "536ee44d1e4b3601894eaa349d03e30635136a2d",
     "assets/lf-mark.svg": "0d3ed77bfb9fb3183a704f158be25ff3ee4cea82",
 }
+SOURCE_COMMIT = "d85d2e622e3ebbcd23ae73c279ba7ef9bf09fac8"
+SOURCE_SHA256 = {
+    "brand-system.css": "a2094af1d4799838bd041c0ee78203187d6b47df3d13776e61a0bfb237deb93b",
+    "assets/lf-logo-horizontal.svg": "b2d5fccc716a37e493832b7822a82143e442785bb77a48ce962ae209270da0a7",
+    "assets/lf-mark.svg": "0f62def35ce80650cdfe4a975efba5cf93940a5df4a93a343a3e2897280d95da",
+}
 
 def git_blob_sha(content):
     return hashlib.sha1(b"blob " + str(len(content)).encode() + b"\0" + content).hexdigest()
@@ -26,7 +32,9 @@ class LFDesignSystemTests(unittest.TestCase):
         data = json.loads((ROOT / "tokens.json").read_text(encoding="utf-8"))
         self.assertEqual(data["colors"], COLORS)
         self.assertEqual(data["source"]["repository"], "leandroclf/site-lf-solucoes")
+        self.assertEqual(data["source"]["commit_sha"], SOURCE_COMMIT)
         self.assertEqual(data["source"]["source_hash_type"], "git-blob-sha1")
+        self.assertEqual(data["source"]["source_sha256"], SOURCE_SHA256)
         self.assertFalse(data["distribution"]["automatic_product_adoption"])
         css = (ROOT / "tokens.css").read_text(encoding="utf-8")
         for name, color in COLORS.items():
@@ -39,6 +47,7 @@ class LFDesignSystemTests(unittest.TestCase):
             asset = (ROOT / path).read_bytes()
             self.assertEqual(git_blob_sha(asset), sha, path)
             self.assertEqual(data["source"]["files"][path], sha)
+            self.assertEqual(hashlib.sha256(asset).hexdigest(), SOURCE_SHA256[path], path)
             self.assertNotRegex(asset.decode("utf-8"), r"(?i)<script\b|<!DOCTYPE|<!ENTITY|<foreignObject\b|https?://(?!www\.w3\.org/2000/svg)")
 
     def test_css_stays_namespaced_and_brand_not_product_status(self):
