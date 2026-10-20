@@ -1,6 +1,8 @@
 # Portfolio capability resolution gate
 
-Before PLAN for a new product or cross-cutting capability, resolve requested capabilities against the canonical product-platform-kit capability registry.
+Before PLAN for a new product or cross-cutting capability, resolve requested capabilities against the canonical registry at `product-platform/packages/kit/contracts/capability-registry.yaml`.
+
+`product-platform` is a monorepo: `packages/kit`, `packages/harness`, `packages/cli`, `packages/engineering-team` and `packages/design-system` are packages, not separate Git repositories. The historical repositories `leandroclf/product-platform-kit` and `leandroclf/product-platform-harness` are archived; use the corresponding package paths in this repository as the current source of truth.
 
 Decision order:
 1. REUSE canonical capability.
@@ -19,10 +21,10 @@ Stop before implementation when:
 
 ## Cross-repository execution
 
-A bounded change may require multiple repositories. Treat each repository mutation as an isolated work item with its own branch/validation/PR. Sequence canonical-owner changes before consumer adoption. Do not copy code temporarily into the consumer as an integration shortcut.
+A bounded change may span this platform repository and one or more product repositories. Changes among platform packages belong to this repository and can share one branch and PR. Treat each product-repository mutation as a separate work item with its own branch, validation and PR. Sequence canonical-owner changes before consumer adoption. Do not copy code temporarily into a consumer as an integration shortcut.
 
-Typical sequence:
+Typical sequence when a product needs a new reusable capability:
 
-product-platform-kit contract (if needed) -> product-platform-harness capability -> immutable release -> product consumer -> remove superseded local copy.
+`product-platform/packages/kit` contract (if needed) -> `product-platform/packages/harness` capability -> immutable harness release -> product-repository consumer -> remove superseded local copy.
 
-Ver também a esteira completa e os gates G0-G6 em `product-platform-kit/docs/PLATFORM-DELIVERY-FLOW.md`.
+See the delivery flow and G0–G6 gates in `packages/kit/docs/PLATFORM-DELIVERY-FLOW.md`.
