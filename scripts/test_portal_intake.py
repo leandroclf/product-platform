@@ -51,6 +51,55 @@ class PortalIntakeTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             mod.plan(reg, CATALOG)
 
+    def test_draft_commit_is_prepared_before_branch_ref_and_pr(self):
+        calls = []
+        responses = {
+            ("GET", "/git/ref/heads/main"): {"object": {"sha": "a" * 40}},
+            ("GET", "/git/commits/" + "a" * 40): {"tree": {"sha": "b" * 40}},
+            ("POST", "/git/blobs"): {"sha": "c" * 40},
+            ("POST", "/git/trees"): {"sha": "d" * 40},
+            ("POST", "/git/commits"): {"sha": "e" * 40},
+            ("POST", "/git/refs"): {},
+            ("POST", "/pulls"): {"html_url": "https://github.com/leandroclf/site-lf-solucoes/pull/99"},
+        }
+
+        def api(method, endpoint, token, payload=None):
+            calls.append((method, endpoint, payload))
+            suffix = endpoint.removeprefix("/repos/" + mod.PORTAL_REPO)
+            return responses[(method, suffix)]
+
+        result = mod.create_draft_intake([mod.plan(REGISTRY, CATALOG)[0]], "test-token", api=api)
+        endpoints = [call[1] for call in calls]
+        self.assertEqual(result["status"], "DRAFT_INTAKE_PR_CREATED")
+        self.assertLess(endpoints.index("/repos/" + mod.PORTAL_REPO + "/git/blobs"),
+                        endpoints.index("/repos/" + mod.PORTAL_REPO + "/git/refs"))
+        self.assertLess(endpoints.index("/repos/" + mod.PORTAL_REPO + "/git/commits"),
+                        endpoints.index("/repos/" + mod.PORTAL_REPO + "/git/refs"))
+        self.assertEqual(calls[-2][2]["sha"], "e" * 40)
+        self.assertTrue(calls[-1][2]["draft"])
+
+    def test_failed_blob_does_not_create_branch_or_pull_request(self):
+        calls = []
+
+        def api(method, endpoint, token, payload=None):
+            calls.append((method, endpoint))
+            if endpoint.endswith("/git/ref/heads/main"):
+                return {"object": {"sha": "a" * 40}}
+            if endpoint.endswith("/git/commits/" + "a" * 40):
+                return {"tree": {"sha": "b" * 40}}
+            raise RuntimeError("simulated blob failure")
+
+        with self.assertRaisesRegex(RuntimeError, "blob failure"):
+            mod.create_draft_intake([mod.plan(REGISTRY, CATALOG)[0]], "test-token", api=api)
+        self.assertFalse(any(endpoint.endswith("/git/refs") or endpoint.endswith("/pulls")
+                             for _, endpoint in calls))
+
+    def test_empty_intake_is_network_noop(self):
+        def fail_if_called(*_args, **_kwargs):
+            self.fail("empty intake must not call GitHub")
+        result = mod.create_draft_intake([], "test-token", api=fail_if_called)
+        self.assertEqual(result, {"status": "PORTAL_INTAKE_UP_TO_DATE", "products": []})
+
 
 if __name__ == "__main__":
     unittest.main()

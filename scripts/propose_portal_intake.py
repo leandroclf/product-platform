@@ -72,6 +72,66 @@ def github(method, endpoint, token, payload=None):
         return json.load(response)
 
 
+def create_draft_intake(candidates, token, *, api=github):
+    """Create a single-commit review branch, then open a draft PR.
+
+    Git objects are prepared before the branch ref is created so a failed blob,
+    tree, or commit request cannot leave a partially populated remote branch.
+    """
+    if not candidates:
+        return {"status": "PORTAL_INTAKE_UP_TO_DATE", "products": []}
+
+    base = api("GET", "/repos/" + PORTAL_REPO + "/git/ref/heads/main", token)
+    base_sha = base["object"]["sha"]
+    if not re.fullmatch(r"[0-9a-f]{40}", base_sha):
+        raise ValueError("Portal main returned an invalid commit SHA")
+    branch = "automation/portal-intake-" + base_sha[:12]
+
+    commit = api("GET", "/repos/" + PORTAL_REPO + "/git/commits/" + base_sha, token)
+    base_tree = commit["tree"]["sha"]
+    if not re.fullmatch(r"[0-9a-f]{40}", base_tree):
+        raise ValueError("Portal main returned an invalid tree SHA")
+
+    entries = []
+    for product in candidates:
+        path = "data/portal-intake/" + product["id"] + ".json"
+        content = json.dumps(product, ensure_ascii=False, indent=2) + "\n"
+        blob = api("POST", "/repos/" + PORTAL_REPO + "/git/blobs", token,
+                   {"content": base64.b64encode(content.encode("utf-8")).decode("ascii"),
+                    "encoding": "base64"})
+        blob_sha = blob["sha"]
+        if not re.fullmatch(r"[0-9a-f]{40}", blob_sha):
+            raise ValueError("GitHub returned an invalid blob SHA")
+        entries.append({"path": path, "mode": "100644", "type": "blob", "sha": blob_sha})
+
+    tree = api("POST", "/repos/" + PORTAL_REPO + "/git/trees", token,
+               {"base_tree": base_tree, "tree": entries})
+    tree_sha = tree["sha"]
+    if not re.fullmatch(r"[0-9a-f]{40}", tree_sha):
+        raise ValueError("GitHub returned an invalid tree SHA")
+    new_commit = api("POST", "/repos/" + PORTAL_REPO + "/git/commits", token,
+                     {"message": "chore(portal): queue editorial review for new products",
+                      "tree": tree_sha, "parents": [base_sha]})
+    commit_sha = new_commit["sha"]
+    if not re.fullmatch(r"[0-9a-f]{40}", commit_sha):
+        raise ValueError("GitHub returned an invalid commit SHA")
+
+    # The first mutable ref is created only after all immutable Git objects exist.
+    try:
+        api("POST", "/repos/" + PORTAL_REPO + "/git/refs", token,
+            {"ref": "refs/heads/" + branch, "sha": commit_sha})
+    except urllib.error.HTTPError as exc:
+        if exc.code == 422:
+            raise ValueError("Portal intake branch already exists, review its prior PR") from None
+        raise
+    pull = api("POST", "/repos/" + PORTAL_REPO + "/pulls", token,
+               {"title": "chore(portal): review new portfolio product intake",
+                "head": branch, "base": "main", "draft": True,
+                "body": "Automatically proposed **non-public editorial intake only** for products newly registered in product-platform. This PR does NOT publish catalog pages. Review each intake, verify marketing claims and product URLs, then open a separate catalog/page update PR with platform snapshot refresh. No release/deploy authorized. Source product-platform registry."})
+    return {"status": "DRAFT_INTAKE_PR_CREATED", "url": pull["html_url"],
+            "products": [p["id"] for p in candidates]}
+
+
 def main():
     args_parser = argparse.ArgumentParser()
     args_parser.add_argument("--catalog", type=Path, required=True,
@@ -97,31 +157,10 @@ def main():
         remote_bytes = base64.b64decode(remote["content"])
         if json.loads(remote_bytes.decode("utf-8")) != site_catalog:
             raise ValueError("Local catalog differs from remote main; refresh before applying")
-        # The base SHA is obtained from authenticated GitHub, never assumed.
-        base = github("GET", "/repos/" + PORTAL_REPO + "/git/ref/heads/main", token)
-        sha = base["object"]["sha"]
-        branch = "automation/portal-intake-" + sha[:12]
-        branch_ref = "refs/heads/" + branch
-        try:
-            github("POST", "/repos/" + PORTAL_REPO + "/git/refs", token,
-                   {"ref": branch_ref, "sha": sha})
-        except urllib.error.HTTPError as exc:
-            if exc.code != 422:
-                raise
-            # Fail closed rather than overwrite a prior intake branch.
-            raise ValueError("Portal intake branch already exists, review its prior PR") from None
-        for p in candidates:
-            content = json.dumps(p, ensure_ascii=False, indent=2) + "\n"
-            github("PUT", "/repos/" + PORTAL_REPO + "/contents/data/portal-intake/" + p["id"] + ".json", token,
-                   {"message": "chore(portal): queue editorial review for " + p["id"],
-                    "branch": branch,
-                    "content": base64.b64encode(content.encode("utf-8")).decode("ascii")})
-        issue = github("POST", "/repos/" + PORTAL_REPO + "/pulls", token,
-                       {"title": "chore(portal): review new portfolio product intake",
-                        "head": branch, "base": "main", "draft": True,
-                        "body": "Automatically proposed **non-public editorial intake only** for products newly registered in product-platform. This PR does NOT publish catalog pages. Review each intake, verify marketing claims and product URLs, then open a separate catalog/page update PR with platform snapshot refresh. No release/deploy authorized. Source product-platform registry."})
-        print(json.dumps({"status": "DRAFT_INTAKE_PR_CREATED", "url": issue["html_url"],
-                          "products": [p["id"] for p in candidates]}))
+        # Git objects are prepared before a branch is created; the source SHA is
+        # obtained from authenticated GitHub and never assumed.
+        result = create_draft_intake(candidates, token)
+        print(json.dumps(result))
         return 0
     except (ValueError, OSError, KeyError, json.JSONDecodeError, urllib.error.HTTPError,
             urllib.error.URLError) as exc:
