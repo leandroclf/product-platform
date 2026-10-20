@@ -1,4 +1,5 @@
 import unittest
+from pathlib import Path
 from scripts import change_policy
 
 
@@ -24,6 +25,13 @@ class RiskAndQualityPolicyTests(unittest.TestCase):
         self.assertEqual(change_policy.classify_paths(['docs/README.md']), 'R0')
         self.assertEqual(change_policy.ensure_authorized('R0', ['docs/README.md']), 'R0')
         self.assertEqual(change_policy.ensure_authorized('R1', ['src/parser.py']), 'R1')
+
+    def test_s01_r0_fixture_target_exists_under_docs_path(self):
+        team_root = Path(__file__).resolve().parents[2]
+        target = team_root / 'validation/fixtures/s01-doc-task/docs/target.md'
+        self.assertTrue(target.is_file(), 'S01 R0 target must exist under a docs/ path')
+        relative = target.relative_to(team_root).as_posix()
+        self.assertEqual(change_policy.classify_path(relative), 'R0')
 
     def test_claimed_r0_cannot_mutate_code(self):
         with self.assertRaises(ValueError):
