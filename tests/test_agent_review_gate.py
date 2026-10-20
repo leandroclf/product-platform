@@ -105,5 +105,11 @@ class GateTests(unittest.TestCase):
         with self.assertRaises(SystemExit):
             self.run_gate(filename="infra/main.tf")
 
+    def test_review_workflow_reruns_gate_on_submitted_and_dismissed_reviews(self):
+        workflow = (Path(__file__).resolve().parents[1] / ".github" / "workflows" / "agent-review-gate.yml").read_text()
+        self.assertRegex(workflow, r"(?m)^  pull_request_review:\s*$")
+        self.assertRegex(workflow, r"(?m)^    types: \[submitted, dismissed\]$")
+        self.assertIn("github.event.pull_request.head.sha", workflow)
+
 if __name__ == "__main__":
     unittest.main()
