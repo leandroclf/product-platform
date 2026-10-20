@@ -68,6 +68,7 @@ class PilotReadinessTests(unittest.TestCase):
             run.return_value = readiness.subprocess.CompletedProcess(
                 ["getfacl"], 0, "user::rw-\nuser:1001:rw-\ngroup::---\nother::---\n", "")
             self.assertTrue(readiness.acl_canary())
+            self.assertIn("-cpn", run.call_args.args[0])
             run.return_value = readiness.subprocess.CompletedProcess(
                 ["getfacl"], 0, "user::rw-\ngroup::---\nother::---\n", "")
             self.assertFalse(readiness.acl_canary())
