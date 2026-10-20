@@ -97,6 +97,12 @@ ai-team run --handoff capacidades.json \
 - As regras têm precedência sobre o `AGENTS.md` do alvo, que só pode endurecê-las. Sem as flags, o comportamento anterior não muda.
 - O plano do Atlas inclui `capability_decisions`; o host exige que sejam exatamente as capacidades, decisões e donos do handoff (faltante, extra, duplicada ou divergente bloqueia o plano). Passe `--registry <registry do kit>` para exigir que o SHA-256 do arquivo seja igual ao `registry_fingerprint` do handoff; registry alterado depois da proposta bloqueia o `run` como contexto defasado. O host confere a decisão declarada, não a qualidade da implementação: isso continua com Sentinel e a revisão.
 - Tarefas criadas antes desta versão não têm `capability_decisions`; a entrega delas continua válida.
+- O gate de capacidades (`docs/CAPABILITY-RESOLUTION-GATE.md`) é obrigatório antes do PLAN em trabalho de novo produto ou capacidade transversal: nesses casos, resolva as capacidades contra o registry do kit (REUSE, depois EXTEND, e CREATE só sem capacidade compatível) e passe o resultado com `--handoff`, como no exemplo acima.
+- Tarefa local que não muda capacidades (por exemplo, ajuste de documentação, correção ou melhoria dentro de um produto já existente) pode omitir `--handoff`. Sem handoff não há `/handoff/capabilities.json`, o Atlas declara `capability_decisions` vazio (`[]`) e o host não bloqueia o plano apenas pela ausência de capacidades. Se a tarefa passar a exigir uma capacidade nova ou transversal, pare e use o fluxo com `--handoff`.
+
+```bash
+ai-team run 'Corrija o texto de erro do formulário de contato e atualize o teste correspondente'
+```
 
 ## Pedir trabalho
 
