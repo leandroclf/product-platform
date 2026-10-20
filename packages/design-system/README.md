@@ -11,6 +11,11 @@
 - Proveniência: `tokens.json/source` fixa o commit de origem, os Git blob SHA-1 e SHA-256 do CSS e dos SVGs. A suíte `scripts/test_lf_design_system.py` verifica localmente os dois hashes de cada SVG e os tokens CSS/JSON.
 - `tokens.css` contém apenas custom properties com prefixo `--lf-`; não altera estilos de `html`, `body`, títulos nem cores funcionais de produtos por padrão.
 
+## Contrato de tema
+
+- `themes.corporate` oferece tokens semânticos namespaced para superfície, texto, ação primária, destaque e sucesso. As seis combinações de texto declaradas passam WCAG AA para texto normal (contraste mínimo 4.5:1); isso não certifica outros pares, tamanhos, estados, componentes ou telas.
+- `themes.product` mantém a identidade e as cores funcionais de cada produto sob responsabilidade do consumidor. A assinatura corporativa é opt-in e os aliases CSS não aplicam regras visuais nem sobrescrevem seletores globais.
+
 ## Uso opt-in
 
 Copiar/distribuir o pacote sob versão/release imutável aprovada antes de uso em consumidores. Na interface, importar `tokens.css` e renderizar os SVGs locais onde fizer sentido para indicar `Produto LF Soluções`. Não fazer hotlink no domínio institucional, não copiar CSS global inteiro do portal, não forçar aparência idêntica em aplicativos especializados.

@@ -22,9 +22,46 @@ SOURCE_SHA256 = {
     "assets/lf-logo-horizontal.svg": "b2d5fccc716a37e493832b7822a82143e442785bb77a48ce962ae209270da0a7",
     "assets/lf-mark.svg": "0f62def35ce80650cdfe4a975efba5cf93940a5df4a93a343a3e2897280d95da",
 }
+CORPORATE_THEME = {
+    "surface": "white",
+    "surface_subtle": "ice",
+    "text": "graphite",
+    "text_muted": "muted",
+    "primary": {"background": "blue", "foreground": "white"},
+    "accent": {"background": "electric", "foreground": "navy"},
+    "success": {"background": "success", "foreground": "white"},
+}
+PRODUCT_THEME = {
+    "brand_attribution": "opt-in",
+    "product_identity": "consumer-owned",
+    "functional_status_colors": "consumer-owned",
+}
+CSS_THEME_ALIASES = {
+    "--lf-corporate-surface": "--lf-white",
+    "--lf-corporate-surface-subtle": "--lf-ice",
+    "--lf-corporate-text": "--lf-graphite",
+    "--lf-corporate-text-muted": "--lf-muted",
+    "--lf-corporate-primary": "--lf-blue",
+    "--lf-corporate-on-primary": "--lf-white",
+    "--lf-corporate-accent": "--lf-electric",
+    "--lf-corporate-on-accent": "--lf-navy",
+    "--lf-corporate-success": "--lf-success",
+    "--lf-corporate-on-success": "--lf-white",
+}
 
 def git_blob_sha(content):
     return hashlib.sha1(b"blob " + str(len(content)).encode() + b"\0" + content).hexdigest()
+
+
+def luminance(color):
+    channels = [int(color[i:i + 2], 16) / 255 for i in (1, 3, 5)]
+    linear = [v / 12.92 if v <= 0.04045 else ((v + 0.055) / 1.055) ** 2.4 for v in channels]
+    return sum(weight * channel for weight, channel in zip((0.2126, 0.7152, 0.0722), linear))
+
+
+def contrast_ratio(foreground, background):
+    lighter, darker = sorted((luminance(foreground), luminance(background)), reverse=True)
+    return (lighter + 0.05) / (darker + 0.05)
 
 
 class LFDesignSystemTests(unittest.TestCase):
@@ -57,6 +94,25 @@ class LFDesignSystemTests(unittest.TestCase):
         self.assertNotIn("!important", css)
         self.assertNotIn("body {", css)
         self.assertNotIn("html {", css)
+
+    def test_corporate_theme_pairs_meet_wcag_aa_and_product_theme_stays_owned(self):
+        data = json.loads((ROOT / "tokens.json").read_text(encoding="utf-8"))
+        self.assertEqual(data["themes"]["corporate"], CORPORATE_THEME)
+        self.assertEqual(data["themes"]["product"], PRODUCT_THEME)
+        css = (ROOT / "tokens.css").read_text(encoding="utf-8")
+        for alias, source in CSS_THEME_ALIASES.items():
+            self.assertIn(f"{alias}: var({source});", css)
+
+        pairs = [
+            (CORPORATE_THEME["text"], CORPORATE_THEME["surface"]),
+            (CORPORATE_THEME["text"], CORPORATE_THEME["surface_subtle"]),
+            (CORPORATE_THEME["text_muted"], CORPORATE_THEME["surface"]),
+            (CORPORATE_THEME["primary"]["foreground"], CORPORATE_THEME["primary"]["background"]),
+            (CORPORATE_THEME["accent"]["foreground"], CORPORATE_THEME["accent"]["background"]),
+            (CORPORATE_THEME["success"]["foreground"], CORPORATE_THEME["success"]["background"]),
+        ]
+        for foreground, background in pairs:
+            self.assertGreaterEqual(contrast_ratio(COLORS[foreground], COLORS[background]), 4.5)
 
     def test_package_is_consumer_opt_in(self):
         package = json.loads((ROOT / "package.json").read_text(encoding="utf-8"))
