@@ -5,8 +5,24 @@
   "source": {
     "url": "https://lfsolucoes.etc.br/",
     "logo_url": "https://lfsolucoes.etc.br/assets/lf-logo-horizontal.svg",
+    "repository": "leandroclf/site-lf-solucoes",
+    "commit_sha": "d85d2e622e3ebbcd23ae73c279ba7ef9bf09fac8",
+    "files": {
+      "brand-system.css": {
+        "git_blob_sha1": "02a646af52d899935f1d28214d449bf1f5965c5f",
+        "sha256": "a2094af1d4799838bd041c0ee78203187d6b47df3d13776e61a0bfb237deb93b"
+      },
+      "assets/lf-logo-horizontal.svg": {
+        "git_blob_sha1": "536ee44d1e4b3601894eaa349d03e30635136a2d",
+        "sha256": "b2d5fccc716a37e493832b7822a82143e442785bb77a48ce962ae209270da0a7"
+      },
+      "assets/lf-mark.svg": {
+        "git_blob_sha1": "0d3ed77bfb9fb3183a704f158be25ff3ee4cea82",
+        "sha256": "0f62def35ce80650cdfe4a975efba5cf93940a5df4a93a343a3e2897280d95da"
+      }
+    },
     "source_kind": "published_corporate_website",
-    "verified_content_date": "2026-10-18"
+    "verified_content_date": "2026-10-20"
   },
   "editorial": {
     "tagline": "Tecnologia que gera valor.",
@@ -24,17 +40,60 @@
     ]
   },
   "visual": {
-    "status": "AWAITING_VERIFIED_ASSET_EXTRACTION",
-    "colors": null,
-    "fonts": null,
-    "dimensions": null,
-    "logo_checksum_sha256": null
+    "status": "SOURCE_VERIFIED_NOT_APPROVED",
+    "colors": {
+      "navy": "#061B4F",
+      "blue": "#0757E8",
+      "electric": "#008CFF",
+      "cyan": "#00D4FF",
+      "ice": "#EAF6FF",
+      "graphite": "#172033",
+      "text": "#172033",
+      "muted": "#526079",
+      "border": "#D8E7F4",
+      "white": "#FFFFFF",
+      "success": "#14804A"
+    },
+    "fonts": [
+      "Inter",
+      "ui-sans-serif",
+      "system-ui",
+      "-apple-system",
+      "BlinkMacSystemFont",
+      "Segoe UI",
+      "sans-serif"
+    ],
+    "dimensions": {
+      "lf-logo-horizontal.svg": {
+        "width_px": 620,
+        "height_px": 150,
+        "view_box": "0 0 620 150"
+      },
+      "lf-mark.svg": {
+        "width_px": 120,
+        "height_px": 120,
+        "view_box": "0 0 120 120"
+      }
+    },
+    "grid": {
+      "status": "SITE_LAYOUT_NOT_BRAND_TOKEN",
+      "layout_patterns": [
+        ".nav-solutions-grid: repeat(3, 1fr); max-width 920px: 1fr",
+        ".brand-hero-layout: minmax(0, .9fr) minmax(0, 1.1fr); max-width 920px: 1fr",
+        ".section-heading: .72fr 1.28fr; max-width 920px: 1fr"
+      ],
+      "shared_brand_grid": "not_declared"
+    },
+    "logo_checksum_sha256": "b2d5fccc716a37e493832b7822a82143e442785bb77a48ce962ae209270da0a7"
   },
   "adoption": {
     "corporate_attribution": "optional-per-product-surface",
     "product_brand_preserved": true,
     "force_rebrand": false,
     "remote_asset_hotlink": false,
-    "requires_local_approved_assets": true
+    "requires_local_approved_assets": true,
+    "redistribution_license": "not_declared",
+    "redistribution_approved": false,
+    "product_adoption_approved": false
   }
 }
