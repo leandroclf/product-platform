@@ -1,3 +1,4 @@
+# Controlled governance enforcement test: protected-path changes must fail closed.
 name: Agent independent review gate
 on:
   pull_request:
