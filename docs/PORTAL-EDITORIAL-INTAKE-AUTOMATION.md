@@ -13,7 +13,7 @@ PORTAL_PR_TOKEN=<token-do-github-app> python3 scripts/propose_portal_intake.py \
   --catalog /caminho/portal/data/product-catalog.json --apply
 ```
 
-O proponente cria um **draft PR com arquivos de intake não públicos** sob `data/portal-intake/`, nunca altera o catálogo visível sem revisão. A branch é derivada do SHA da `main` do portal e é rejeitada se já existir. A execução `--apply` confirma via API autenticada que a cópia do catálogo corresponde à versão publicada em `main`; não usa token para consultar ou alterar segredos, workflows ou outros repositórios.
+O proponente cria um **draft PR com arquivos de intake não públicos** sob `data/portal-intake/`, nunca altera o catálogo visível sem revisão. A branch é derivada do SHA da `main` do portal e é rejeitada se já existir. A execução `--apply` confirma via API autenticada que a cópia do catálogo corresponde à versão publicada em `main`; prepara os blobs, a tree e um commit único antes de criar a referência da branch, reduzindo branches remotas incompletas em caso de falha intermediária. Não usa token para consultar ou alterar segredos, workflows ou outros repositórios.
 
 **Permissões mínimas para GitHub App:** repositório `site-lf-solucoes` exclusivamente; Contents `read/write`, Pull requests `read/write`. A plataforma usa a credencial como variável `PORTAL_PR_TOKEN` em runner protegido; nunca inserir segredo em Git, `AGENTS.md`, logs ou mensagem de PR.
 
