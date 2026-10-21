@@ -17,7 +17,17 @@ Security-sensitive capabilities should default to `off`. `auto` is a recommendat
 
 ## Agent behavior
 Both agent entry points should:
-1. inspect reposi…129 tokens truncated…onsume `main` in production development environments.
+1. inspect repository-local instructions;
+2. inspect `ai-kit.yaml` when present;
+3. infer the smallest relevant profile;
+4. load only relevant skills;
+5. request/require explicit intent before privileged operations;
+6. verify work using repository-native commands.
+
+This removes manual skill selection from the common path without enabling every tool globally.
+
+## Versioning
+Use semantic releases for the central kit. Projects should pin a compatible range or release and receive update notifications. Do not silently consume `main` in production development environments.
 
 Recommended policy:
 - patch: safe automatically reviewable fixes;
