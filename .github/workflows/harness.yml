@@ -2,10 +2,10 @@ name: harness
 on:
   workflow_dispatch:
   pull_request:
-    paths: ['packages/harness/**', 'packages/kit/contracts/product-event/**', '.github/workflows/harness.yml']
+    paths: ['requirements-build.txt', 'scripts/build_release_manifest.py', 'scripts/test_build_release_manifest.py', 'scripts/test_harness_release_workflow.py', '.github/workflows/harness-release.yml', 'packages/harness/**', 'packages/kit/contracts/product-event/**', '.github/workflows/harness.yml']
   push:
     branches: [main]
-    paths: ['packages/harness/**', 'packages/kit/contracts/product-event/**', '.github/workflows/harness.yml']
+    paths: ['requirements-build.txt', 'scripts/build_release_manifest.py', 'scripts/test_build_release_manifest.py', 'scripts/test_harness_release_workflow.py', '.github/workflows/harness-release.yml', 'packages/harness/**', 'packages/kit/contracts/product-event/**', '.github/workflows/harness.yml']
 permissions:
   contents: read
 defaults:
@@ -21,12 +21,19 @@ jobs:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
         with: { node-version: 20 }
-      - run: npm install
+      - uses: actions/setup-python@v7
+        with: { python-version: '3.12' }
+      - name: Install pinned Python build toolchain
+        run: python3 -m pip install -r ../../requirements-build.txt
+      - run: npm ci
+      - name: Verify release invocation offline
+        working-directory: .
+        run: python3 -m unittest scripts.test_build_release_manifest scripts.test_harness_release_workflow -v
       - run: npm run validate
       - name: Build commit-addressed package artifact
         run: |
           npm pack
-          python3 -m pip wheel --no-deps ./packages/python --wheel-dir wheel
+          python3 -m pip wheel --no-deps --no-build-isolation ./packages/python --wheel-dir wheel
           cp wheel/*.whl .
           sha256sum *.tgz *.whl > SHA256SUMS
       - uses: actions/upload-artifact@v7

@@ -28,13 +28,18 @@ jobs:
           git fetch --no-tags origin main
           git merge-base --is-ancestor "$GITHUB_SHA" origin/main
       - name: Test provenance manifest builder
-        run: python3 -m unittest scripts.test_build_release_manifest -v
-      - run: npm install
+        working-directory: .
+        run: python3 -m unittest scripts.test_build_release_manifest scripts.test_harness_release_workflow -v
+      - uses: actions/setup-python@v7
+        with: { python-version: '3.12' }
+      - name: Install pinned Python build toolchain
+        run: python3 -m pip install -r ../../requirements-build.txt
+      - run: npm ci
       - run: npm run validate
       - run: npm pack
       - name: Build the Python wheel (pip only, no extra tooling)
         run: |
-          python3 -m pip wheel --no-deps ./packages/python --wheel-dir wheel
+          python3 -m pip wheel --no-deps --no-build-isolation ./packages/python --wheel-dir wheel
           cp wheel/*.whl .
       - run: sha256sum *.tgz *.whl > SHA256SUMS
       - name: Record source commit and package hashes in release manifest
