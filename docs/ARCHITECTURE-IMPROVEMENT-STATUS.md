@@ -80,3 +80,15 @@ implementar inbox, outbox, billing, CRM ou roteamento antecipadamente: a revisã
 recomenda explicitamente evolução sob demanda, não criar todas as capacidades
 planejadas. Não arquivar, excluir, forçar push ou fazer migração de dados por
 semelhança de nomes.
+
+## Evidência de integração desta execução
+
+- PR [#90](https://github.com/leandroclf/product-platform/pull/90) mergeado em `7d2cc5ffe26e884df72fe2cec2b116853aa7571c`: correção de #89, bundles, catálogo e decisões. Os seis workflows do PR passaram.
+- PR [#91](https://github.com/leandroclf/product-platform/pull/91) mergeado em `3be88e09200fcc3e53a2f4a602e60e4780edf817`: restauração de trecho documental truncado na transferência. Comparação dos 14 blobs identificou somente aquele arquivo divergente; os demais correspondiam à cópia testada.
+- Main integrada passou no [Post-merge main integrity](https://github.com/leandroclf/product-platform/actions/runs/39522362153), platform, kit e offline-safety-tests.
+- PR [#92](https://github.com/leandroclf/product-platform/pull/92), head `73c2fdea455577d61f11c0ed3c8fda31d32fad38`, implementa a correção de release #88 e toolchain. Passaram seis regressões locais de release, build, quatro testes TS, três Python, geração de tarball/wheel e manifest com versões. O [harness CI remoto](https://github.com/leandroclf/product-platform/actions/runs/39522297406) passou. O [gate obrigatório](https://github.com/leandroclf/product-platform/actions/runs/39522297497) rejeitou o workflow protegido; a API do PR informou `mergeable_state=blocked`. Não houve bypass nem tentativa de declarar o gate aprovado. #88 permanece aberta.
+- Ajustes documentais também foram mergeados em [agentesautonomos #6](https://github.com/leandroclf/agentesautonomos/pull/6), [claude-workspace #1](https://github.com/leandroclf/claude-workspace/pull/1), [agentic-travel-engine #8](https://github.com/leandroclf/agentic-travel-engine/pull/8), [lf-openalex #8](https://github.com/leandroclf/lf-openalex-enrichment-mvp/pull/8), [lf-worldbank #6](https://github.com/leandroclf/lf-worldbank-risk-pricing/pull/6), [ai-hub #4](https://github.com/leandroclf/ai-hub/pull/4) e [pshhospitalar #2](https://github.com/leandroclf/pshhospitalar/pull/2). Os três produtos com CI de PR ativo concluíram com sucesso; nos quatro demais não houve run de PR retornado. Não afirmar testes executados onde não houve execução.
+
+Validação local do lote #90: 11 testes de fronteiras; 108 testes de segurança/contratos/bundles; 28 de handoff integrado; 46 do validador de handoff; paridade de 13 skills; cinco testes de tokens/ativos; arquitetura e conformance ProductEvent. Testes controlados não encerram os gates externos descritos acima.
+
+**Estado global: parcial, com bloqueios reais.** A autorização do operador para aplicar e mergear está registrada na solicitação; não falta uma confirmação genérica. Faltam política válida para workflows protegidos, acesso administrativo correspondente e ambiente autenticado/segregado para os pilotos. Não transformar esses requisitos em check opcional, aprovação própria ou evidência fictícia.
