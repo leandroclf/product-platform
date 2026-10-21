@@ -10,12 +10,25 @@
       "path": "packages/harness",
       "depends_on": [
         "kit"
+      ],
+      "python_modules": [
+        "product_platform_harness"
+      ],
+      "distributions": [
+        "@leandroclf/product-platform-harness",
+        "product-platform-harness"
       ]
     },
     "cli": {
       "path": "packages/cli",
       "depends_on": [
         "kit"
+      ],
+      "python_modules": [
+        "omnicli"
+      ],
+      "distributions": [
+        "omnicli"
       ]
     },
     "engineering-team": {
@@ -26,7 +39,11 @@
     },
     "design-system": {
       "path": "packages/design-system",
-      "depends_on": []
+      "depends_on": [],
+      "python_modules": [],
+      "distributions": [
+        "@lf-solucoes/design-system"
+      ]
     }
   }
 }
