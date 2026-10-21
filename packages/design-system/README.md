@@ -29,3 +29,12 @@ O código-fonte do site não declara uma licença de redistribuição. Portanto,
 3. Testes de contraste WCAG e regressão visual;
 4. Migração piloto `vehicle-tracking` e `agentic-travel-engine`, sem modificar a semântica de estados; depois HTML e local-first;
 5. Auditoria de licenciamento/publicação do pacote caso seja distribuído fora dos repositórios da LF.
+
+## Distribuição local candidata
+
+Use na raiz `python3 scripts/policy_bundle.py build --package design-system
+--version 0.1.0 --output-dir /tmp/design-candidate` (uma única linha). Instale com
+o subcomando `install`, checksum explícito e destino versionado inexistente,
+conforme `packages/kit/docs/DISTRIBUTION.md`. A regressão de roundtrip compara
+todos os bytes instalados aos arquivos canônicos; não substitui revisão visual
+do produto ou autorização de redistribuição externa.

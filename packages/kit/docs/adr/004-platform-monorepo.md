@@ -1,6 +1,6 @@
 # ADR 004: Plataforma em um repositório, produtos separados, harness como artefato
 
-Status: aceita e implementada em `leandroclf/product-platform` (privado). Pacotes originalmente consolidados: `kit`, `harness`, `cli`, `engineering-team` em `packages/`. O grafo atual também contém `design-system`, independente, com tokens/ativos visuais opcionais para os produtos (sem dependências para os outros quatro pacotes). Decisões padrão tomadas na execução: o pacote de contratos mantém o nome `kit`; o harness é consumido por artefato de release; o histórico foi preservado, excluindo apenas os `events.jsonl` brutos de `validation/runs` do engineering-team. Ver `docs/PLATFORM-MONOREPO-MIGRATION.md`.
+Status: aceita e implementada em `leandroclf/product-platform`. Pacotes originalmente consolidados: `kit`, `harness`, `cli`, `engineering-team` em `packages/`. O grafo atual também contém `design-system`, independente, com tokens/ativos visuais opcionais para os produtos (sem dependências para os outros quatro pacotes). Decisões padrão tomadas na execução: o pacote de contratos mantém o nome `kit`; o harness é consumido por artefato de release; o histórico foi preservado, excluindo apenas os `events.jsonl` brutos de `validation/runs` do engineering-team. Ver `docs/PLATFORM-MONOREPO-MIGRATION.md`.
 
 ## Contexto
 
@@ -9,7 +9,7 @@ Contrato e implementação mudam juntos, mas viviam em quatro repositórios (kit
 ## Decisão
 
 1. **Plataforma em um repositório, com pacotes separados**: contratos e políticas (hoje o kit), harness, cli e engineering-team. O pacote independente `design-system` foi incorporado posteriormente ao grafo, sem alterar a separação dos quatro componentes originais. Cada pacote mantém dono, versão, testes e release próprios.
-2. **Produtos em repositórios próprios** (oito hoje). Domínio, runtime e deploy permanecem independentes.
+2. **Produtos em repositórios próprios** (nove no catálogo atual; portal institucional separado). Domínio, runtime e deploy permanecem independentes.
 3. **Harness como artefato**: os produtos consomem releases imutáveis com checksum, nunca o código-fonte do repositório da plataforma e nunca um branch.
 4. **O product-platform-cli permanece uma capacidade separada do Atlas**: a descoberta de proposta não é absorvida pelo estágio de plano do `ai-team`. Entradas diferentes (sem repositório versus checkout fixado), objetivos diferentes (explorar e contestar versus plano executável), independência entre provedores e portão humano entre proposta e implementação.
 

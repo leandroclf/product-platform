@@ -4,13 +4,23 @@ Verificação iniciada em 2026-10-14, sobre `main` em `3a49cc1d38c985cd16b8067fa
 Os resultados abaixo são verificações locais, salvo a consulta explícita da release no GitHub.
 O fluxo normativo permanece em [PLATFORM-DELIVERY-FLOW.md](PLATFORM-DELIVERY-FLOW.md).
 
+## Atualização da revisão arquitetural (2026-10-20)
+
+O workflow atual de `bussola-financeira/.github/workflows/ci.yml` já executa
+`tests/test_ingestion_integrity.py`, além dos eventos e verificação do artefato.
+Isso substitui a pendência de edição do workflow descrita na evidência histórica abaixo.
+Não comprova, por si só, o último CI remoto nem aceitação de uma execução autenticada
+de quatro etapas. O bloqueio `bwrap` registra aquela tentativa histórica, não o estado
+de todas as execuções futuras. Ver `docs/ARCHITECTURE-IMPROVEMENT-STATUS.md` na raiz
+para resultados, limitações e itens dependentes de ambiente.
+
 ## Sequência de execução
 
 | Etapa | Estado | Critério de conclusão |
 | --- | --- | --- |
 | 1. Consolidar a baseline | Concluída | Checks dos quatro pacotes executados, divergências documentais corrigidas e limitações registradas |
 | 2. Validar a jornada completa | Escopo autorizado pelo operador; execução bloqueada no sandbox do planejamento | Proposta autenticada, revisão humana, envelope validado, execução isolada e entrega com evidências |
-| 3. Piloto na Bússola Financeira | Baseline reconfirmada; implementação bloqueada antes de qualquer edição | CI passa a executar os testes determinísticos de ingestão existentes, preservando os checks de eventos e artefato |
+| 3. Piloto na Bússola Financeira | CI de ingestão implementado; aceitação autenticada da jornada ainda pendente | CI passa a executar os testes determinísticos de ingestão existentes, preservando os checks de eventos e artefato |
 | 4. Padronizar G3 | Pendente | Checks de conformidade padronizados e validação de contratos por schema, incluindo pagamentos |
 | 5. Evoluir o harness | Sob demanda do produto | Implementar somente a capacidade comprovadamente necessária, no dono canônico |
 | 6. Operação e releases | Parcial | Artefatos publicados; instalação, atualização, rollback e cenários de falha ainda exigem aceitação |

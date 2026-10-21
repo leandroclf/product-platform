@@ -14,3 +14,11 @@ The canonical reusable engineering skills are in `leandroclf/product-platform/pa
 The former security exception has been removed. Both consumers now use the same structured security skill with the original kit's threat categories and guarded optional analyzer usage plus the team's Inputs/Outputs/Boundaries/Validation sections. Third-party scanners (including Strix) are never installed or enabled implicitly: verify exact origin/version/permissions and obtain explicit operator authorization. Keep the canonical kit as the only source for subsequent changes.
 
 Do not add duplicate generic skill content to the engineering-team without first modifying the kit. Remove snapshots only after a versioned runtime distribution and consumer compatibility validation are in place.
+
+## Distribuição candidata
+
+`scripts/policy_bundle.py` na raiz já empacota as skills canônicas com versão,
+commit e hashes e testa instalação/igualdade de bytes. Esse piloto não altera
+a resolução de skills do runtime local nem autoriza remover os snapshots.
+A migração do consumidor precisa preservar catálogo, precedência, pins e rollback
+e passar por uma tarefa autenticada antes da remoção das cópias.
