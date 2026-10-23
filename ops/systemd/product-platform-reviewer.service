@@ -8,7 +8,7 @@ WorkingDirectory=%h/.local/share/product-platform-reviewer/runtime
 EnvironmentFile=%h/.config/product-platform-reviewer/reviewer.env
 Environment=DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/%U/bus
 ExecStart=/usr/bin/python3 scripts/independent_pr_reviewer.py
-TimeoutStartSec=15min
+TimeoutStartSec=20min
 UMask=0077
 Nice=10
 NoNewPrivileges=true

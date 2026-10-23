@@ -12,6 +12,8 @@ BLOCKED_PREFIXES = (
     "scripts/agent_merge_candidate.py",
     "scripts/independent_pr_reviewer.py",
     "scripts/manual_pr_review_packet.py", "ops/",
+    "scripts/check-package-boundaries.py", "scripts/build_release_manifest.py",
+    "tests/", ".github/",
     "packages/engineering-team/scripts/", "packages/engineering-team/schemas/",
     "packages/engineering-team/runtimes/", "packages/engineering-team/config/",
     "docs/AUTONOMOUS-MERGE-POLICY.md", "docs/AUTOMERGE-OPERATIONS.md",

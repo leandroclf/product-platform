@@ -44,6 +44,8 @@ class ReviewerTests(unittest.TestCase):
     def test_protected_paths_renames_and_dependencies_require_manual_review(self):
         for path in ('.github/workflows/change.yml', 'infra/main.tf', 'AGENTS.md',
                      'scripts/independent_pr_reviewer.py', 'package-lock.json', 'package.json',
+                     'scripts/check-package-boundaries.py', 'scripts/build_release_manifest.py',
+                     'tests/test_agent_review_gate.py', '.github/dependabot.yml',
                      'packages/engineering-team/scripts/local_team.py',
                      'packages/engineering-team/scripts/provider_run.py',
                      'packages/engineering-team/scripts/review_contract.py',
@@ -67,6 +69,15 @@ class ReviewerTests(unittest.TestCase):
         forged = checks()
         forged[0]['app']['slug'] = 'untrusted-app'
         self.assertFalse(worker.ci_passed(forged, SHA))
+
+    def test_package_ci_failure_pending_and_absence_block_review(self):
+        files = [{'filename': 'packages/cli/omnicli/app.py'}]
+        self.assertFalse(worker.ci_passed(checks(), SHA, files))
+        rows = checks() + [{**checks()[0], 'id': 10 + i, 'name': 'test (' + version + ')'}
+                           for i, version in enumerate(('3.10', '3.11', '3.12'))]
+        self.assertTrue(worker.ci_passed(rows, SHA, files))
+        for change in ({'conclusion': 'failure'}, {'status': 'in_progress'}):
+            self.assertFalse(worker.ci_passed(rows[:-1] + [{**rows[-1], **change}], SHA, files))
 
     def test_latest_failure_overrides_old_success(self):
         rows = checks()

@@ -23,8 +23,8 @@ class AgentAutoMergeWorkflowTests(unittest.TestCase):
         self.assertNotIn("github.event.pull_request.head.sha }}", WORKFLOW.split("actions/checkout", 1)[1].split("- name: Verify", 1)[0])
 
     def test_app_token_is_created_only_after_gate_and_scoped_to_pr_write(self):
-        self.assertLess(WORKFLOW.index("run: python3 scripts/agent_merge_candidate.py"), WORKFLOW.index("run: python3 scripts/agent_review_gate.py"))
-        self.assertLess(WORKFLOW.index("run: python3 scripts/agent_review_gate.py"), WORKFLOW.index("id: integrator-token"))
+        self.assertLess(WORKFLOW.index("run: python3 scripts/agent_merge_candidate.py"), WORKFLOW.index("python3 scripts/agent_review_gate.py"))
+        self.assertLess(WORKFLOW.index("python3 scripts/agent_review_gate.py"), WORKFLOW.index("id: integrator-token"))
         pins = re.findall(r"(?m)^\s*uses:\s*actions/create-github-app-token@([0-9a-f]{40})(?:\s|$)", WORKFLOW)
         self.assertEqual(len(pins), 1, "GitHub App token action must use exactly one immutable full SHA pin")
         self.assertIn("repositories: product-platform", WORKFLOW)

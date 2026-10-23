@@ -94,3 +94,9 @@ Parar/desabilitar `product-platform-reviewer.timer` interrompe novas revisões;
 parar o serviço interrompe a execução atual. Retornar `AGENT_REVIEW_MODE` a
 `manual` interrompe novas solicitações do integrador. Auto-merges já habilitados
 precisam ser cancelados por PR; desabilitar o timer não cancela a fila nativa.
+
+A aprovação e o integrador exigem também todos os checks de pacote observados
+no SHA atual com sucesso. CLI exige as três versões Python; kit/harness exigem
+validate; engineering-team exige framework e runtime-smoke. Checks ausentes,
+pendentes ou falhos impedem a integração. Scripts de CI, testes da política,
+configuração GitHub e proveniência de release exigem revisão manual R2.

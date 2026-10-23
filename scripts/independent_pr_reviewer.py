@@ -64,14 +64,35 @@ def eligible(pr, files):
                    for f in files for path in (f['filename'], f.get('previous_filename', '')) if path)
 
 
-def ci_passed(checks, sha):
+def ci_passed(checks, sha, files=()):
+    required = set(REQUIRED_CHECKS)
+    paths = [f['filename'] for f in files]
+    if any(p.startswith(('packages/cli/', 'packages/kit/contracts/')) for p in paths):
+        required.update({'test (3.10)', 'test (3.11)', 'test (3.12)'})
+    if any(p.startswith(('packages/engineering-team/', 'packages/kit/contracts/')) for p in paths):
+        required.update({'framework', 'runtime-smoke'})
+    validation_jobs = sum(any(p.startswith(prefix) for p in paths)
+                          for prefix in ('packages/kit/', 'packages/harness/'))
+    if validation_jobs:
+        required.add('validate')
     latest = {}
     for check in sorted(checks, key=lambda check: check['id'], reverse=True):
-        latest.setdefault(check['name'], check)
-    return all(name in latest and latest[name]['head_sha'] == sha
-               and latest[name].get('app', {}).get('slug') == 'github-actions'
-               and latest[name]['status'] == 'completed' and latest[name]['conclusion'] == 'success'
-               for name in REQUIRED_CHECKS)
+        latest.setdefault((check['name'], check.get('check_suite', {}).get('id')), check)
+    rows = list(latest.values())
+    if not required.issubset({c['name'] for c in rows}):
+        return False
+    if sum(c['name'] == 'validate' for c in rows) < validation_jobs:
+        return False
+    return all(c['head_sha'] == sha and c.get('app', {}).get('slug') == 'github-actions'
+               and c['status'] == 'completed' and c['conclusion'] == 'success'
+               for c in rows if c['name'] not in {'independent-review-gate', 'queue-merge'})
+
+
+def checks_for(sha, token):
+    data = request(f'repos/{REPO}/commits/{sha}/check-runs?per_page=100', token)
+    if data.get('total_count', len(data['check_runs'])) > len(data['check_runs']):
+        raise ValueError('Check pagination budget exceeded; manual review required')
+    return data['check_runs']
 
 
 def evaluate(pr, state_dir):
@@ -184,8 +205,8 @@ def process(pr, token, state_dir):
         if previous[-1]['state'] == 'APPROVED':
             rerun_gate(sha, state_dir)
         return False
-    checks = request(f'repos/{REPO}/commits/{sha}/check-runs?per_page=100', token)['check_runs']
-    if not ci_passed(checks, sha):
+    checks = checks_for(sha, token)
+    if not ci_passed(checks, sha, files):
         return False
     review, accepted = evaluate(pr, state_dir)
     current = request(f'repos/{REPO}/pulls/{number}', token)
@@ -251,4 +272,9 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    if len(sys.argv) == 4 and sys.argv[1] == '--check-ci':
+        token = os.environ['GH_TOKEN']
+        if not ci_passed(checks_for(sys.argv[3], token), sys.argv[3], files_for(sys.argv[2], token)):
+            sys.exit('Current package CI is incomplete or failed; no merge allowed')
+    else:
+        main()
