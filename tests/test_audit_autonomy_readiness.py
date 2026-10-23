@@ -13,14 +13,18 @@ def fake_get(path):
     if path == "repos/leandroclf/product-platform":
         return {"allow_auto_merge": True}
     if "/actions/secrets?" in path:
-        return {"secrets": [{"name": "PORTFOLIO_READ_TOKEN"}, {"name": "AGENT_MERGE_TOKEN"}]}
+        return {"secrets": [{"name": "INTEGRATOR_APP_PRIVATE_KEY"}]}
     if "/actions/variables?" in path:
-        return {"variables": [{"name": "AGENT_TRUSTED_REVIEWERS", "value": "trusted-reviewer[bot]"}]}
+        return {"variables": [{"name": "AGENT_TRUSTED_REVIEWERS", "value": "trusted-reviewer[bot]"},
+                              {"name": "INTEGRATOR_APP_ID", "value": "123"},
+                              {"name": "AGENT_REVIEW_MODE", "value": "independent"}]}
     if path.endswith("/branches/main/protection"):
         return {"required_pull_request_reviews": {
             "required_approving_review_count": 1, "dismiss_stale_reviews": True
         }, "required_status_checks": {"contexts": ["independent-review-gate"]}}
     if "/rulesets?" in path:
+        return []
+    if path.endswith("/rules/branches/main"):
         return []
     raise AssertionError(path)
 
@@ -55,6 +59,37 @@ class AuditTests(unittest.TestCase):
             return fake_get(path)
         report = audit.assess("leandroclf/product-platform", missing)
         self.assertEqual(next(x["state"] for x in report["checks"] if x["name"] == "variable:AGENT_TRUSTED_REVIEWERS"), "fail")
+
+    def test_effective_rulesets_work_without_legacy_protection(self):
+        def rules(path):
+            if path.endswith("/branches/main/protection"):
+                raise PermissionError("No legacy branch protection")
+            if path.endswith("/rules/branches/main"):
+                return [{"type": "pull_request", "parameters": {
+                    "required_approving_review_count": 1, "dismiss_stale_reviews_on_push": True}},
+                    {"type": "required_status_checks", "parameters": {
+                        "required_status_checks": [{"context": "independent-review-gate"}]}}]
+            return fake_get(path)
+        states = {c["name"]: c["state"] for c in audit.assess("leandroclf/product-platform", rules)["checks"]}
+        for name in ("required_pr_review", "stale_reviews_dismissed", "independent_review_check"):
+            self.assertEqual(states[name], "pass")
+
+    def test_integrator_metadata_matches_app_workflow(self):
+        states = {c["name"]: c["state"] for c in audit.assess("leandroclf/product-platform", fake_get)["checks"]}
+        self.assertEqual(states["secret_metadata:INTEGRATOR_APP_PRIVATE_KEY"], "pass")
+        self.assertNotIn("secret_metadata:AGENT_MERGE_TOKEN", states)
+        self.assertNotIn("secret_metadata:PORTFOLIO_READ_TOKEN", states)
+
+    def test_manual_mode_is_not_ready(self):
+        def manual(path):
+            result = fake_get(path)
+            if "/actions/variables?" in path:
+                for variable in result["variables"]:
+                    if variable["name"] == "AGENT_REVIEW_MODE":
+                        variable["value"] = "manual"
+            return result
+        states = {c["name"]: c["state"] for c in audit.assess("leandroclf/product-platform", manual)["checks"]}
+        self.assertEqual(states["variable:AGENT_REVIEW_MODE"], "fail")
 
 
 if __name__ == "__main__":
