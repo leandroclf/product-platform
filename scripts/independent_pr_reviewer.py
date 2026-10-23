@@ -98,7 +98,8 @@ def evaluate(pr, state_dir):
             raise ValueError('Snapshot SHA mismatch')
         grant_agent_checkout_access(checkout)
         diff = subprocess.check_output(['git', '-C', str(checkout), 'diff', base + '...HEAD'], text=True)
-        if len(diff.encode()) > 200_000:
+        # Mantém margem sob o limite de 128 KiB por argumento do Linux.
+        if len(diff.encode()) > 100_000:
             raise ValueError('PR exceeds the bounded static review budget; manual review required')
         prompt = (f'Independent static review of {REPO}#{pr["number"]}, exact HEAD {sha}, base {base}. '
                   'Return the supplied schema, reviewer argus, head_sha exactly as above. '

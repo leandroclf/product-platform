@@ -8,7 +8,7 @@ sem draft, destinado à `main`, com label `agent-auto-merge` e os checks
 `boundaries` e `offline-safety-tests` aprovados no HEAD atual pelo GitHub Actions.
 PRs protegidos, renames desses caminhos, manifests de dependências classificados
 como R2 e mais de 50 arquivos ficam para revisão manual. O diff tem limite de
-200 KB. Esses limites são deliberados para o piloto, não uma classificação
+100 KB, com margem sob o limite de argumentos do Linux. Esses limites são deliberados para o piloto, não uma classificação
 automática de segurança de todo código.
 
 O Claude roda numa nova sessão, com o comando e schema canônicos do
@@ -35,7 +35,8 @@ como secrets gerais do repositório após concluir a migração.
 
 ## Configuração no Linux do proprietário
 
-1. Confirmar login do `gh` como `leandroclf`, autenticação do Claude no volume
+1. Confirmar Python com `yaml` e `jsonschema` já usados pelo ai-team, `setfacl`,
+   login do `gh` como `leandroclf`, autenticação do Claude no volume
    revisor e existência da imagem local de providers. Não copiar credenciais de
    um projeto ou conta diferente automaticamente.
 2. Instalar a chave em `~/.config/product-platform-reviewer/reviewer.pem` com
