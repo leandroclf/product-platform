@@ -7,17 +7,19 @@ Permitir merges sem revisão humana rotineira, usando um revisor especializado i
 - Executor: implementa mudanças em branch e abre PR.
 - Revisor: processo e credencial distintos; analisa diff, contratos, segurança, arquitetura, testes e riscos; registra revisão formal no GitHub.
 - Gate: verifica aprovação por identidade distinta no SHA atual e bloqueia caminhos críticos.
-- Integrador: somente após checks obrigatórios e branch protection, solicita auto-merge pelo GitHub (a configurar).
+- Integrador: após revisão independente, solicita integração nativa pelo GitHub; checks e ruleset continuam obrigatórios.
 - Auditor: registra evidências, resultados e rollback.
 
 ## Estado e limites
-Executor, revisor e integrador estão instalados somente em `leandroclf/product-platform`. A credencial do integrador foi configurada como secret/variável do repositório, e o auto-merge nativo está habilitado. O ruleset `main-autonomy-minimum` está ativo sem bypass e exige os checks `boundaries`, `offline-safety-tests` e `independent-review-gate`.
+Executor e integrador estão instalados em `leandroclf/product-platform`; o revisor também atende revisão manual do laboratório `ai-engineering-control-plane`. O auto-merge nativo está habilitado. O ruleset `main-autonomy-minimum` está ativo sem bypass, exige os checks `boundaries`, `offline-safety-tests` e `independent-review-gate`, uma aprovação, descarte após push, aprovação do último push por outra identidade e resolução de discussões.
 
-O ruleset ainda exige zero aprovações e não descarta aprovações antigas após um push. O modo permanece manual, sem allowlist confiável e sem avaliador especializado autenticado. O App revisor, por si só, apenas fornece uma identidade: não analisa código. O workflow atualizado para usar o token do integrador e executar código confiável da branch padrão ainda precisa ser revisado e integrado. A aprovação GitHub isolada não comprova qualidade técnica.
+Em 2026-10-23, `AGENT_REVIEW_MODE=independent`, `AGENT_TRUSTED_REVIEWERS` e `AGENT_SECURITY_REVIEWERS` foram configurados para o App revisor real. O PR #100 e os PRs #92, #94, #95, #96 e #98 receberam análise técnica independente no SHA atual e foram integrados com checks. Isso demonstra recuperação dos merges R2, mas não substitui o piloto autônomo R1 nem comprova rollout em todos os produtos.
+
+O worker e o procedimento de ativação estão em [AUTOMERGE-OPERATIONS.md](AUTOMERGE-OPERATIONS.md). Ele usa revisão estática isolada e a política canônica do ai-team; a identidade do App isoladamente não comprova análise. As chaves devem ficar nos environments restritos à `main`, e a chave local em arquivo privado fora do Git.
 
 ## Política de risco
 - R0: documentação e análise; podem ser automatizadas.
-- R1: código reversível, com testes e revisão independente; elegível para auto-merge depois de configurar o integrador.
+- R1: código reversível, com testes e revisão independente; elegível ao fluxo opt-in depois do piloto operacional.
 - R2: infraestrutura, permissões, dependências críticas e segurança; exige política reforçada.
 - R3: produção, exclusão de repositórios, dados e operações irreversíveis; não elegível para auto-merge nesta fase.
 
@@ -33,8 +35,7 @@ O ruleset ainda exige zero aprovações e não descarta aprovações antigas ap�
 A autorização operacional do proprietário não substitui as proteções de segurança nem comprova que os pré-requisitos foram satisfeitos.
 
 ## Próximos passos para ativação
-- Integrar o workflow revisado sem contornar checks; confirmar a criação de token temporário com escopo apenas `pull_requests:write`.
-- Conectar um avaliador real e independente ao App revisor; ele deve analisar diff, testes, riscos e HEAD antes de enviar APPROVED.
-- Configurar os logins efetivos em `AGENT_TRUSTED_REVIEWERS` e definir revisão obrigatória com descarte de aprovações antigas após push.
-- Executar piloto reversível, demonstrando bloqueio antes da revisão, checks, auto-merge nativo e trilha de auditoria.
-- **Atenção:** workflows, políticas, infraestrutura e `AGENTS.md` são mudanças R2. O gate atual bloqueia esses caminhos; o bootstrap precisa passar por revisão e checks explícitos, sem bypass.
+- Validar o token temporário do integrador com `contents:write` e `pull_requests:write`, limitado ao repositório e criado somente após o gate.
+- Instalar e validar o worker local, demonstrando bloqueio antes da revisão, análise real, checks, integração nativa e trilha de auditoria.
+- Remover as cópias gerais das chaves do repositório após verificar os environments restritos à `main`.
+- **Atenção:** workflows, políticas, infraestrutura e `AGENTS.md` seguem R2: a rota de segurança exige aprovação distinta no HEAD atual e merge manual; o integrador R1 continua rejeitando esses caminhos.

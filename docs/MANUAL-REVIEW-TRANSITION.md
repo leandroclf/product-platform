@@ -1,5 +1,7 @@
 # Fase transitória: PRs com revisão manual do proprietário
 
+> Registro histórico da transição. Em 2026-10-23, o modo independente e as allowlists reais foram configurados, o ruleset passou a exigir aprovação e descarte após push, e os PRs R2 bloqueados foram revisados e integrados. O piloto R1 e a ativação do worker são acompanhados em [AUTOMERGE-OPERATIONS.md](AUTOMERGE-OPERATIONS.md). Os itens abaixo descrevem a fase anterior, não a configuração atual. R2 continua com revisão e merge manual.
+
 **Objetivo:** continuar desenvolvendo a plataforma e abrindo PRs enquanto GitHub Apps, credenciais e a revisão técnica independente autenticada não foram instalados no PC Linux.
 
 ## Modo operacional atual — manual
