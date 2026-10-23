@@ -43,3 +43,26 @@ Recommended policy:
 
 ## Update model
 A future updater should fetch release metadata, show the diff/policy changes, run `doctor`, and only then update the pinned version. Automatic forced updates are intentionally avoided because central AI instructions can materially change agent behavior.
+
+## Bundles locais verificáveis
+
+A raiz do monorepo fornece `scripts/policy_bundle.py` (Python 3.11+, biblioteca
+padrão) para distribuir Kit e Design System por diretório versionado, sem rede.
+
+```bash
+python3 scripts/policy_bundle.py build --package kit --version 0.1.0 --output-dir /tmp/policy-candidate
+python3 scripts/policy_bundle.py install --artifact /tmp/policy-candidate/kit-v0.1.0.zip --sha256 <SHA256_REVISADO> --destination /caminho/existente/kit-v0.1.0
+```
+
+O build informa o checksum; o instalador exige que o operador forneça o valor
+revisado, valida todos os membros e hashes antes de escrever, rejeita symlinks,
+traversal, conteúdo adicional e substituição de um destino existente. Atualização
+usa outro diretório; rollback retorna ao pin anterior. Não há atualização silenciosa.
+O manifest registra commit, hashes e `source_dirty`; candidato de checkout alterado
+não deve ser apresentado como release limpa. O hash não é assinatura ou atestação.
+
+O teste `tests/test_policy_bundle.py` instala os dois pacotes em diretórios
+temporários e compara bytes contra a fonte, além de rejeitar adulteração. Isso é
+um piloto de transporte/consumo de arquivos, não aceitação de comportamento de
+modelos. Os snapshots do engineering-team continuam até a adoção efetiva por
+seu runtime. Não há publicação externa nem concessão de licença por este comando.

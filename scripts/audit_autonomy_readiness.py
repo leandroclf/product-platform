@@ -9,8 +9,8 @@ import json
 import os
 import subprocess
 
-REQUIRED_SECRETS = {"PORTFOLIO_READ_TOKEN", "AGENT_MERGE_TOKEN"}
-REQUIRED_VARIABLES = {"AGENT_TRUSTED_REVIEWERS"}
+REQUIRED_SECRETS = {"INTEGRATOR_APP_PRIVATE_KEY"}
+REQUIRED_VARIABLES = {"AGENT_TRUSTED_REVIEWERS", "INTEGRATOR_APP_ID", "AGENT_REVIEW_MODE"}
 
 
 def gh_get(endpoint):
@@ -31,6 +31,7 @@ def assess(repo, getter=gh_get):
     variables, err_vars = probe(f"repos/{repo}/actions/variables?per_page=100", getter)
     protection, err_protection = probe(f"repos/{repo}/branches/main/protection", getter)
     rulesets, err_rules = probe(f"repos/{repo}/rulesets?per_page=100", getter)
+    branch_rules, err_branch_rules = probe(f"repos/{repo}/rules/branches/main", getter)
     checks = []
 
     def add(name, state, evidence):
@@ -58,7 +59,12 @@ def assess(repo, getter=gh_get):
         names = {x.get("name"): x.get("value", "") for x in variables["variables"]}
         for variable in sorted(REQUIRED_VARIABLES):
             value = names.get(variable)
-            add("variable:" + variable, "pass" if isinstance(value, str) and value.strip() else "fail",
+            valid = isinstance(value, str) and bool(value.strip())
+            if variable == "AGENT_REVIEW_MODE":
+                valid = value == "independent"
+            if variable == "INTEGRATOR_APP_ID":
+                valid = isinstance(value, str) and value.isdigit() and int(value) > 0
+            add("variable:" + variable, "pass" if valid else "fail",
                 "Nonempty variable; reviewer independence not verified")
     else:
         for variable in sorted(REQUIRED_VARIABLES):
@@ -78,6 +84,21 @@ def assess(repo, getter=gh_get):
     else:
         for field in ("required_pr_review", "stale_reviews_dismissed", "independent_review_check"):
             add(field, "unknown", err_protection or "branch protection inaccessible; rulesets may apply")
+
+    # This endpoint resolves enforced rules applicable to main, unlike the catalog listing.
+    if isinstance(branch_rules, list) and not err_branch_rules:
+        reviews = [r.get("parameters", {}) for r in branch_rules if r.get("type") == "pull_request"]
+        status = [r.get("parameters", {}) for r in branch_rules if r.get("type") == "required_status_checks"]
+        enforced = {
+            "required_pr_review": any(r.get("required_approving_review_count", 0) >= 1 for r in reviews),
+            "stale_reviews_dismissed": any(r.get("dismiss_stale_reviews_on_push") is True for r in reviews),
+            "independent_review_check": any(c.get("context") == "independent-review-gate"
+                                             for r in status for c in r.get("required_status_checks", [])),
+        }
+        for check in checks:
+            if check["name"] in enforced and check["state"] != "pass":
+                check["state"] = "pass" if enforced[check["name"]] else "fail"
+                check["evidence"] = "Effective enforced rules for main (legacy protection may add requirements)"
 
     # Listing rulesets is not enough to establish that any given rule applies to main.
     if isinstance(rulesets, list):

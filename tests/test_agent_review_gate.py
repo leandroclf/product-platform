@@ -10,16 +10,17 @@ gate = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(gate)
 
 class GateTests(unittest.TestCase):
-    def run_gate(self, *, reviewer="trusted-bot", state="APPROVED", commit="head123", filename="src/app.py", trusted="trusted-bot", author="executor", pr_head="head123", reviews=None, mode="independent"):
+    def run_gate(self, *, reviewer="trusted-bot", state="APPROVED", commit="head123", filename="src/app.py", trusted="trusted-bot", author="executor", pr_head="head123", reviews=None, mode="independent", security="", allow_security="", previous_filename=""):
         def fake_api(path):
             if path.endswith("/pulls/7"):
                 return {"head": {"sha": pr_head}, "user": {"login": author}}
             if "/files?" in path:
-                return [{"filename": filename}]
+                return [{"filename": filename, "previous_filename": previous_filename}]
             if "/reviews?" in path:
                 return reviews if reviews is not None else [{"state": state, "commit_id": commit, "user": {"login": reviewer}}]
             raise AssertionError(path)
         env = {"GH_REPO": "owner/repo", "PR_NUMBER": "7", "HEAD_SHA": "head123", "TRUSTED_REVIEWERS": trusted, "AGENT_REVIEW_MODE": mode}
+        env.update(SECURITY_REVIEWERS=security, ALLOW_SECURITY_REVIEW=allow_security)
         with patch.dict(os.environ, env), patch.object(gate, "api", fake_api):
             gate.main()
 
@@ -104,6 +105,28 @@ class GateTests(unittest.TestCase):
     def test_infra_change_rejected(self):
         with self.assertRaises(SystemExit):
             self.run_gate(filename="infra/main.tf")
+
+    def test_explicit_security_policy_accepts_distinct_current_review(self):
+        self.run_gate(mode="manual", filename=".github/workflows/change.yml",
+                      security="trusted-bot", allow_security="true")
+
+    def test_security_policy_needs_its_own_allowlist(self):
+        with self.assertRaises(SystemExit):
+            self.run_gate(mode="manual", filename=".github/workflows/change.yml", allow_security="true")
+
+    def test_security_policy_rejects_self_and_stale_reviews(self):
+        for changes in ({"author": "trusted-bot"}, {"commit": "old"}, {"state": "CHANGES_REQUESTED"}):
+            with self.subTest(changes=changes), self.assertRaises(SystemExit):
+                self.run_gate(filename=".github/workflows/change.yml", security="trusted-bot",
+                              allow_security="true", **changes)
+
+    def test_integrator_still_blocks_protected_pr_even_with_security_review(self):
+        with self.assertRaises(SystemExit):
+            self.run_gate(filename=".github/workflows/change.yml", security="trusted-bot")
+
+    def test_renaming_protected_path_does_not_evade_security_policy(self):
+        with self.assertRaises(SystemExit):
+            self.run_gate(previous_filename="scripts/agent_review_gate.py")
 
     def test_review_workflow_reruns_gate_on_submitted_and_dismissed_reviews(self):
         workflow = (Path(__file__).resolve().parents[1] / ".github" / "workflows" / "agent-review-gate.yml").read_text()

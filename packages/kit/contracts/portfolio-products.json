@@ -75,7 +75,8 @@
       "product-platform-kit": "packages/kit",
       "product-platform-harness": "packages/harness",
       "product-platform-cli": "packages/cli",
-      "product-platform-engineering-team": "packages/engineering-team"
+      "product-platform-engineering-team": "packages/engineering-team",
+      "design-system": "packages/design-system"
     }
   },
   "portal": {
