@@ -15,7 +15,8 @@ class ReleaseWorkflowTest(unittest.TestCase):
         default = re.search(r'defaults:\n  run:\n    working-directory: (.+)', source).group(1)
         step = source.split('      - name: Test provenance manifest builder\n')[1].split('      - ', 1)[0]
         override = re.search(r'working-directory: (.+)', step)
-        cwd = ROOT / (override.group(1) if override else default)
+        directory = override.group(1) if override else default
+        cwd = ROOT if directory == '${{ github.workspace }}' else ROOT / directory
         env = dict(os.environ)
         env.pop('PYTHONPATH', None)
         result = subprocess.run([sys.executable, '-m', 'unittest', 'scripts.test_build_release_manifest', '-v'],
