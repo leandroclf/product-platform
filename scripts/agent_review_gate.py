@@ -9,6 +9,7 @@ BLOCKED_PREFIXES = (
     ".github/workflows/", ".github/actions/", "infra/", "terraform/",
     "migrations/", "database/migrations/", "security/", "secrets/",
     "scripts/agent_review_gate.py", "scripts/audit_autonomy_readiness.py",
+    "scripts/agent_merge_candidate.py",
 )
 BLOCKED_NAMES = {"CODEOWNERS", "AGENTS.md"}
 
@@ -32,15 +33,16 @@ def main():
         page += 1
     if not files:
         sys.exit("Empty PR")
-    for f in files:
-        name = f["filename"]
-        if name.startswith(BLOCKED_PREFIXES) or name.split("/")[-1] in BLOCKED_NAMES:
-            sys.exit(f"Protected path requires separate security policy: {name}")
+    protected = [name for f in files for name in (f["filename"], f.get("previous_filename", ""))
+                 if name.startswith(BLOCKED_PREFIXES) or name.split("/")[-1] in BLOCKED_NAMES]
+    security_review = bool(protected) and os.environ.get("ALLOW_SECURITY_REVIEW") == "true"
+    if protected and not security_review:
+        sys.exit(f"Protected path requires separate security policy: {protected[0]}")
     mode = os.environ.get("AGENT_REVIEW_MODE", "").strip() or "manual"
-    if mode == "manual":
+    if mode == "manual" and not security_review:
         print("Manual transition: structural scope and head SHA passed. Human PR review/merge remains required; no independent approval attested.")
         return
-    if mode != "independent":
+    if mode not in {"manual", "independent"}:
         sys.exit("Unknown AGENT_REVIEW_MODE; fail closed")
     reviews = []
     page = 1
@@ -56,9 +58,10 @@ def main():
         if login and review.get("state") in {"APPROVED", "CHANGES_REQUESTED", "DISMISSED"}:
             latest_by_reviewer[login] = review
     author = pr["user"]["login"].lower()
-    trusted = {x.strip().lower() for x in os.environ.get("TRUSTED_REVIEWERS", "").split(",") if x.strip()}
+    reviewer_variable = "SECURITY_REVIEWERS" if security_review else "TRUSTED_REVIEWERS"
+    trusted = {x.strip().lower() for x in os.environ.get(reviewer_variable, "").split(",") if x.strip()}
     if not trusted:
-        sys.exit("TRUSTED_REVIEWERS not configured; fail closed")
+        sys.exit(f"{reviewer_variable} not configured; fail closed")
     approvals = [
         r for r in latest_by_reviewer.values()
         if r.get("state") == "APPROVED"
@@ -70,7 +73,8 @@ def main():
         sys.exit("No independent approval for current head SHA")
     if any(r.get("state") == "CHANGES_REQUESTED" for r in latest_by_reviewer.values()):
         sys.exit("Unresolved changes requested")
-    print("Independent GitHub approval verified for current head")
+    print("Independent security approval verified; protected PR requires manual merge" if security_review
+          else "Independent GitHub approval verified for current head")
 
 if __name__ == "__main__":
     main()
