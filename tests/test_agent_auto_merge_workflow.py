@@ -1,5 +1,6 @@
 """Security invariants for the privileged auto-merge workflow."""
 from pathlib import Path
+import re
 import unittest
 
 
@@ -19,7 +20,8 @@ class AgentAutoMergeWorkflowTests(unittest.TestCase):
 
     def test_app_token_is_created_only_after_gate_and_scoped_to_pr_write(self):
         self.assertLess(WORKFLOW.index("run: python3 scripts/agent_review_gate.py"), WORKFLOW.index("id: integrator-token"))
-        self.assertIn("actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1", WORKFLOW)
+        pins = re.findall(r"(?m)^\s*uses:\s*actions/create-github-app-token@([0-9a-f]{40})(?:\s|$)", WORKFLOW)
+        self.assertEqual(len(pins), 1, "GitHub App token action must use exactly one immutable full SHA pin")
         self.assertIn("repositories: product-platform", WORKFLOW)
         self.assertIn("permission-pull-requests: write", WORKFLOW)
         self.assertNotIn("secrets.AGENT_MERGE_TOKEN", WORKFLOW)
