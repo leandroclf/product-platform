@@ -14,7 +14,9 @@
         "tests/test_portfolio_governance.py",
         ".github/workflows/portfolio-governance.yml",
         "docs/PORTFOLIO-AUTOMATION.md",
-        "docs/validation/2026-10-23-review-followup"
+        "docs/validation/2026-10-23-review-followup",
+        "docs/MANUAL-REVIEW-TRANSITION.md",
+        "docs/AUTONOMOUS-BACKLOG-CONTRACT.md"
       ]
     },
     "acceptance": {
