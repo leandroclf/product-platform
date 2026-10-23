@@ -77,7 +77,7 @@ def ci_passed(checks, sha):
 def evaluate(pr, state_dir):
     # Reuse the canonical provider command, schema and fail-closed assessment predicate.
     sys.path.insert(0, str(ROOT / 'packages/engineering-team/scripts'))
-    from provider_run import provider_cmd
+    from provider_run import keep, provider_cmd
     from review_contract import read_json
     from local_team import review_pass
     sha, base = pr['head']['sha'], pr['base']['sha']
@@ -124,6 +124,7 @@ def evaluate(pr, state_dir):
             subprocess.run(['docker', 'rm', '-f', container], capture_output=True)
         data = read_json((evidence / 'provider.json').read_text())
         rows = data if isinstance(data, list) else [data]
+        (evidence / 'provider.json').write_text(json.dumps([item for row in rows if (item := keep(row)) is not None]))
         result = next(x for x in reversed(rows) if x.get('type') == 'result')
         if result.get('is_error'):
             raise ValueError('Reviewer execution failed')
