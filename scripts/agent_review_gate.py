@@ -13,13 +13,13 @@ BLOCKED_PREFIXES = (
     "scripts/independent_pr_reviewer.py",
     "scripts/manual_pr_review_packet.py", "ops/",
     "scripts/check-package-boundaries.py", "scripts/build_release_manifest.py",
-    "tests/", ".github/",
+    "tests/", ".github/", "scripts/", "platform-packages.json",
     "packages/engineering-team/scripts/", "packages/engineering-team/schemas/",
     "packages/engineering-team/runtimes/", "packages/engineering-team/config/",
     "docs/AUTONOMOUS-MERGE-POLICY.md", "docs/AUTOMERGE-OPERATIONS.md",
     "docs/MANUAL-REVIEW-TRANSITION.md", "docs/AUTONOMOUS-BOOTSTRAP.md",
 )
-BLOCKED_NAMES = {"CODEOWNERS", "AGENTS.md"}
+BLOCKED_NAMES = {"CODEOWNERS", "AGENTS.md", "CLAUDE.md"}
 
 def is_dependency_path(path):
     name = path.rsplit("/", 1)[-1]
@@ -27,7 +27,7 @@ def is_dependency_path(path):
             or name.startswith("requirements") and name.endswith(".txt"))
 
 def is_protected_path(path):
-    return path.startswith(BLOCKED_PREFIXES) or path.rsplit("/", 1)[-1] in BLOCKED_NAMES or is_dependency_path(path)
+    return any(part in {".claude", ".codex", ".agents"} for part in path.split("/")) or path.startswith(BLOCKED_PREFIXES) or path.rsplit("/", 1)[-1] in BLOCKED_NAMES or is_dependency_path(path)
 
 def api(path):
     return json.loads(subprocess.run(["gh", "api", path], check=True, capture_output=True, text=True).stdout)

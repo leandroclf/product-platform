@@ -46,6 +46,8 @@ class ReviewerTests(unittest.TestCase):
                      'scripts/independent_pr_reviewer.py', 'package-lock.json', 'package.json',
                      'scripts/check-package-boundaries.py', 'scripts/build_release_manifest.py',
                      'tests/test_agent_review_gate.py', '.github/dependabot.yml',
+                     'scripts/test_check_package_boundaries.py', 'scripts/test_build_release_manifest.py',
+                     'platform-packages.json', 'packages/kit/CLAUDE.md', '.claude/settings.json',
                      'packages/engineering-team/scripts/local_team.py',
                      'packages/engineering-team/scripts/provider_run.py',
                      'packages/engineering-team/scripts/review_contract.py',
