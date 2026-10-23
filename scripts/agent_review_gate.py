@@ -10,6 +10,7 @@ BLOCKED_PREFIXES = (
     "migrations/", "database/migrations/", "security/", "secrets/",
     "scripts/agent_review_gate.py", "scripts/audit_autonomy_readiness.py",
     "scripts/agent_merge_candidate.py",
+    "scripts/independent_pr_reviewer.py",
 )
 BLOCKED_NAMES = {"CODEOWNERS", "AGENTS.md"}
 
