@@ -31,5 +31,17 @@ Esta etapa precisa de permissões administrativas no GitHub. Os workflows não c
 - O ruleset ainda permite zero aprovações e não invalida aprovações após novos pushes. O modo continua manual e `AGENT_TRUSTED_REVIEWERS` não está configurado.
 - `PORTFOLIO_READ_TOKEN`, execução autenticada do avaliador técnico, piloto ponta a ponta e rollout continuam pendentes.
 
-Implementado: inventário, gate estrutural, workflow opt-in, Apps instalados e credencial do integrador armazenada no GitHub.
-Não implementado: avaliador técnico real, allowlist de revisores validada, política de aprovação/stale review ajustada, piloto e execução autônoma comprovada.
+### Atualização de 2026-10-23
+
+O estado descrito acima é o registro inicial do bootstrap. Desde então, os PRs
+#100, #92, #94, #95, #96 e #98 foram analisados independentemente no SHA atual e
+integrados com os checks. As allowlists reais, o modo independente e o ruleset
+com aprovação obrigatória/descarte após push foram configurados. O App revisor
+precisa de instalação com escrita de conteúdo para contar na aprovação nativa,
+mas seu token de trabalho continua limitado a conteúdo/checks de leitura e
+reviews de escrita. O integrador precisa de `contents:write` para a integração.
+
+As chaves migraram para environments restritos à `main`. O piloto R1, a remoção
+das cópias gerais e a execução persistente ainda devem ser verificados pelo
+procedimento em [AUTOMERGE-OPERATIONS.md](AUTOMERGE-OPERATIONS.md). A configuração
+não demonstra, por si só, operação autônoma ou rollout nos demais produtos.
