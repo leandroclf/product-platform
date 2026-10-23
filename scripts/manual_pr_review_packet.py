@@ -3,25 +3,17 @@
 import argparse
 import json
 import os
-from pathlib import PurePosixPath
 import subprocess
 
-CRITICAL_PREFIXES = (
-    ".github/workflows/", ".github/actions/", "infra/", "terraform/",
-    "migrations/", "database/migrations/", "security/", "secrets/",
-)
-CRITICAL_EXACT = {
-    "CODEOWNERS", "AGENTS.md", "scripts/agent_review_gate.py",
-    "scripts/audit_autonomy_readiness.py",
-}
+from agent_review_gate import is_dependency_path, is_protected_path
 BUDGET_FILES = 2000
 
 
 def classify(path):
-    if path.startswith(CRITICAL_PREFIXES) or PurePosixPath(path).name in CRITICAL_EXACT or path in CRITICAL_EXACT:
-        return "R2"
-    if path.endswith((".lock", "-lock.json")) or path in ("package.json", "pyproject.toml"):
+    if is_dependency_path(path):
         return "R2-review"
+    if is_protected_path(path):
+        return "R2"
     return "R1-candidate"
 
 
