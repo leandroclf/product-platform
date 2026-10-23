@@ -28,6 +28,10 @@ def checks():
             for i, name in enumerate(sorted(worker.REQUIRED_CHECKS))]
 
 
+def review():
+    return {'head_sha': SHA, 'verdict': 'PASS', 'gates': {'quality': 'PASS', 'security': 'PASS'}, 'findings': []}
+
+
 class ReviewerTests(unittest.TestCase):
     def test_only_open_same_repository_opt_in_prs(self):
         self.assertTrue(worker.eligible(pr(), [{'filename': 'src/app.py'}]))
@@ -39,7 +43,15 @@ class ReviewerTests(unittest.TestCase):
 
     def test_protected_paths_renames_and_dependencies_require_manual_review(self):
         for path in ('.github/workflows/change.yml', 'infra/main.tf', 'AGENTS.md',
-                     'scripts/independent_pr_reviewer.py', 'package-lock.json', 'package.json'):
+                     'scripts/independent_pr_reviewer.py', 'package-lock.json', 'package.json',
+                     'packages/engineering-team/scripts/local_team.py',
+                     'packages/engineering-team/scripts/provider_run.py',
+                     'packages/engineering-team/scripts/review_contract.py',
+                     'packages/engineering-team/schemas/provider-review.schema.json',
+                     'packages/engineering-team/runtimes/Dockerfile',
+                     'scripts/manual_pr_review_packet.py', 'ops/systemd/service',
+                     'packages/harness/package.json', 'packages/cli/pyproject.toml',
+                     'requirements-build.txt', 'packages/engineering-team/requirements-validation.txt'):
             with self.subTest(path=path):
                 self.assertFalse(worker.eligible(pr(), [{'filename': path}]))
                 self.assertFalse(worker.eligible(pr(), [{'filename': 'docs/moved.md', 'previous_filename': path}]))
@@ -76,11 +88,55 @@ class ReviewerTests(unittest.TestCase):
             with self.subTest(accepted=accepted), \
                  patch.object(worker, 'files_for', return_value=[{'filename': 'src/app.py'}]), \
                  patch.object(worker, 'request', side_effect=[[], {'check_runs': checks()}, pr(), {}]) as api, \
-                 patch.object(worker, 'evaluate', return_value=({'head_sha': SHA}, accepted)), \
+                 patch.object(worker, 'evaluate', return_value=(review(), accepted)), \
                  patch.object(worker, 'rerun_gate'):
                 self.assertTrue(worker.process(pr(), 'not-a-token', Path('/unused')))
                 self.assertEqual(api.call_args.args[2]['event'], event)
                 self.assertEqual(api.call_args.args[2]['commit_id'], SHA)
+
+    def test_free_form_model_output_is_not_published(self):
+        assessment = review()
+        assessment['findings'] = [{'id': 'private-value', 'severity': 'LOW', 'summary': 'private-value'}]
+        with patch.object(worker, 'files_for', return_value=[{'filename': 'src/app.py'}]), \
+             patch.object(worker, 'request', side_effect=[[], {'check_runs': checks()}, pr(), {}]) as api, \
+             patch.object(worker, 'evaluate', return_value=(assessment, True)), \
+             patch.object(worker, 'rerun_gate'):
+            worker.process(pr(), 'not-a-token', Path('/unused'))
+            self.assertNotIn('private-value', api.call_args.args[2]['body'])
+
+    def test_failed_pr_does_not_starve_next_pr_or_repeat_same_sha(self):
+        second = pr()
+        second['number'] = 8
+        with tempfile.TemporaryDirectory() as directory, \
+             patch.object(worker, 'process', side_effect=[ValueError('unavailable'), True]) as process:
+            state = Path(directory)
+            worker.review_queue([pr(), second], 'not-a-token', state)
+            self.assertEqual(process.call_count, 2)
+            process.reset_mock(side_effect=True)
+            process.return_value = False
+            worker.review_queue([pr()], 'not-a-token', state)
+            process.assert_not_called()
+
+    def test_dirty_or_wrong_runtime_sha_is_rejected(self):
+        for outputs in ((SHA + '\n', ' M script.py\n'), ('b' * 40 + '\n', '')):
+            with self.subTest(outputs=outputs), patch.object(worker.subprocess, 'check_output', side_effect=outputs), \
+                 self.assertRaises(ValueError):
+                worker.verify_runtime(SHA)
+
+    def test_failed_provider_consumes_only_one_invocation_then_next_run_can_advance(self):
+        second = pr()
+        second['number'] = 8
+        with tempfile.TemporaryDirectory() as directory:
+            state = Path(directory)
+            evidence = state / f'pr-7-{SHA}'
+            evidence.mkdir()
+            (evidence / 'provider.json').write_text('incomplete')
+            with patch.object(worker, 'process', side_effect=[ValueError('provider failed'), True]) as process:
+                worker.review_queue([pr(), second], 'not-a-token', state)
+                self.assertEqual(process.call_count, 1)
+            with patch.object(worker, 'process', return_value=True) as process:
+                worker.review_queue([pr(), second], 'not-a-token', state)
+                process.assert_called_once_with(second, 'not-a-token', state)
 
     def test_existing_review_prevents_duplicate_model_or_approval(self):
         review = {'user': {'login': worker.REVIEWER}, 'commit_id': SHA, 'state': 'APPROVED'}

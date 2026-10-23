@@ -2,6 +2,7 @@
 """Review one opt-in platform PR per invocation; never merge or execute PR code."""
 import base64
 import fcntl
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -12,7 +13,7 @@ import sys
 import time
 import urllib.request
 
-from agent_review_gate import BLOCKED_NAMES, BLOCKED_PREFIXES
+from agent_review_gate import is_protected_path
 from manual_pr_review_packet import classify
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -59,8 +60,7 @@ def eligible(pr, files):
             or 'agent-auto-merge' not in {label['name'] for label in pr['labels']}
             or not files or len(files) > 50):
         return False
-    return not any(path.startswith(BLOCKED_PREFIXES) or path.split('/')[-1] in BLOCKED_NAMES
-                   or classify(path) != 'R1-candidate'
+    return not any(is_protected_path(path) or classify(path) != 'R1-candidate'
                    for f in files for path in (f['filename'], f.get('previous_filename', '')) if path)
 
 
@@ -79,7 +79,7 @@ def evaluate(pr, state_dir):
     sys.path.insert(0, str(ROOT / 'packages/engineering-team/scripts'))
     from provider_run import keep, provider_cmd
     from review_contract import read_json
-    from local_team import review_pass
+    from local_team import docker_base, grant_agent_checkout_access, review_pass
     sha, base = pr['head']['sha'], pr['base']['sha']
     evidence = state_dir / f'pr-{pr["number"]}-{sha}'
     evidence.mkdir(mode=0o700, exist_ok=True)
@@ -96,6 +96,7 @@ def evaluate(pr, state_dir):
         actual = subprocess.check_output(['git', '-C', str(checkout), 'rev-parse', 'HEAD'], text=True).strip()
         if actual != sha:
             raise ValueError('Snapshot SHA mismatch')
+        grant_agent_checkout_access(checkout)
         diff = subprocess.check_output(['git', '-C', str(checkout), 'diff', base + '...HEAD'], text=True)
         if len(diff.encode()) > 200_000:
             raise ValueError('PR exceeds the bounded static review budget; manual review required')
@@ -114,9 +115,12 @@ def evaluate(pr, state_dir):
         # Static review must not execute PR tests in the provider-authenticated container.
         cmd[cmd.index('--tools') + 1:cmd.index('--allowedTools')] = ['Read', 'Grep', 'Glob']
         container = 'pp-independent-review-' + sha
-        docker = ['docker', 'run', '--rm', '--name', container, '-v', 'ai-team-atlas-review-home:/home/agent',
+        image = os.environ['REVIEWER_PROVIDER_IMAGE']
+        if not re.fullmatch(r'sha256:[0-9a-f]{64}', image):
+            raise ValueError('Provider image must be pinned to its immutable local image ID')
+        docker = docker_base(container, image) + ['-v', 'ai-team-atlas-review-home:/home/agent',
                   '-v', f'{checkout}:/workspace:ro', '-w', '/workspace',
-                  '--entrypoint', 'claude', 'ai-eng-provider-cli:local', *cmd[1:]]
+                  '--entrypoint', 'claude', image, *cmd[1:]]
         try:
             with (evidence / 'provider.json').open('w') as out, (evidence / 'stderr.txt').open('w') as err:
                 subprocess.run(docker, stdout=out, stderr=err, check=True, timeout=600)
@@ -186,10 +190,16 @@ def process(pr, token, state_dir):
     current = request(f'repos/{REPO}/pulls/{number}', token)
     if current['head']['sha'] != sha or not eligible(current, files):
         raise ValueError('PR changed during review; no review submitted')
+    # Publish only schema-constrained decisions/counts; free-form model text stays private.
+    evidence_hash = hashlib.sha256(json.dumps(review, sort_keys=True).encode()).hexdigest()
+    summary = {'verdict': review['verdict'], 'gates': review['gates'],
+               'findings_by_severity': {level: sum(f['severity'] == level for f in review['findings'])
+                                        for level in ('CRITICAL', 'HIGH', 'MEDIUM', 'LOW', 'INFO')}}
     body = ('Independent static Claude review, isolated session and read-only checkout. '
             'GitHub credentials were kept outside the model container. Tests were evaluated by CI; '
-            'the reviewer did not execute PR code.\n\n```json\n'
-            + json.dumps(review, ensure_ascii=False, indent=2) + '\n```')
+            f'the reviewer did not execute PR code. HEAD: {sha}. '
+            f'Private evidence: pr-{number}-{sha}/review.json; SHA256: {evidence_hash}.\n\n```json\n'
+            + json.dumps(summary, indent=2) + '\n```')
     request(f'repos/{REPO}/pulls/{number}/reviews', token,
             {'commit_id': sha, 'event': 'APPROVE' if accepted else 'REQUEST_CHANGES', 'body': body})
     print(f'PR #{number} {sha}: {"APPROVED" if accepted else "CHANGES_REQUESTED"}', flush=True)
@@ -198,7 +208,30 @@ def process(pr, token, state_dir):
     return True
 
 
+def review_queue(prs, token, state_dir):
+    for pr in prs:
+        marker = state_dir / f'manual-review-{pr["number"]}-{pr["head"]["sha"]}.json'
+        if marker.exists():
+            continue
+        try:
+            if process(pr, token, state_dir):
+                break
+        except Exception as exc:
+            marker.write_text(json.dumps({'state': 'manual_review_required', 'error': type(exc).__name__}))
+            print(f'PR #{pr["number"]} {pr["head"]["sha"]}: manual review required ({type(exc).__name__})', flush=True)
+            if (state_dir / f'pr-{pr["number"]}-{pr["head"]["sha"]}' / 'provider.json').exists():
+                break  # At most one provider invocation per run, including failed invocations.
+
+
+def verify_runtime(expected):
+    actual = subprocess.check_output(['git', '-C', str(ROOT), 'rev-parse', 'HEAD'], text=True).strip()
+    dirty = subprocess.check_output(['git', '-C', str(ROOT), 'status', '--porcelain'], text=True).strip()
+    if not re.fullmatch(r'[0-9a-f]{40}', expected) or actual != expected or dirty:
+        raise ValueError('Reviewer must run a clean checkout at its reviewed deployment SHA')
+
+
 def main():
+    verify_runtime(os.environ['REVIEWER_RUNTIME_SHA'])
     state_dir = Path(os.environ['REVIEWER_STATE_DIR']).resolve()
     state_dir.mkdir(mode=0o700, parents=True, exist_ok=True)
     if state_dir.stat().st_uid != os.getuid() or stat.S_IMODE(state_dir.stat().st_mode) & 0o077:
@@ -213,9 +246,7 @@ def main():
             raise ValueError('Owner transport must be authenticated as leandroclf')
         token = installation_token(Path(os.environ['REVIEWER_APP_PRIVATE_KEY_FILE']), os.environ['REVIEWER_APP_ID'])
         prs = request(f'repos/{REPO}/pulls?state=open&per_page=100', token)
-        for pr in prs:
-            if process(pr, token, state_dir):
-                break
+        review_queue(prs, token, state_dir)
 
 
 if __name__ == '__main__':

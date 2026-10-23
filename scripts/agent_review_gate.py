@@ -11,8 +11,21 @@ BLOCKED_PREFIXES = (
     "scripts/agent_review_gate.py", "scripts/audit_autonomy_readiness.py",
     "scripts/agent_merge_candidate.py",
     "scripts/independent_pr_reviewer.py",
+    "scripts/manual_pr_review_packet.py", "ops/",
+    "packages/engineering-team/scripts/", "packages/engineering-team/schemas/",
+    "packages/engineering-team/runtimes/", "packages/engineering-team/config/",
+    "docs/AUTONOMOUS-MERGE-POLICY.md", "docs/AUTOMERGE-OPERATIONS.md",
+    "docs/MANUAL-REVIEW-TRANSITION.md", "docs/AUTONOMOUS-BOOTSTRAP.md",
 )
 BLOCKED_NAMES = {"CODEOWNERS", "AGENTS.md"}
+
+def is_dependency_path(path):
+    name = path.rsplit("/", 1)[-1]
+    return (name in {"package.json", "pyproject.toml"} or name.endswith((".lock", "-lock.json"))
+            or name.startswith("requirements") and name.endswith(".txt"))
+
+def is_protected_path(path):
+    return path.startswith(BLOCKED_PREFIXES) or path.rsplit("/", 1)[-1] in BLOCKED_NAMES or is_dependency_path(path)
 
 def api(path):
     return json.loads(subprocess.run(["gh", "api", path], check=True, capture_output=True, text=True).stdout)
@@ -35,7 +48,7 @@ def main():
     if not files:
         sys.exit("Empty PR")
     protected = [name for f in files for name in (f["filename"], f.get("previous_filename", ""))
-                 if name.startswith(BLOCKED_PREFIXES) or name.split("/")[-1] in BLOCKED_NAMES]
+                 if is_protected_path(name)]
     security_review = bool(protected) and os.environ.get("ALLOW_SECURITY_REVIEW") == "true"
     if protected and not security_review:
         sys.exit(f"Protected path requires separate security policy: {protected[0]}")

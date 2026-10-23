@@ -128,6 +128,12 @@ class GateTests(unittest.TestCase):
         with self.assertRaises(SystemExit):
             self.run_gate(previous_filename="scripts/agent_review_gate.py")
 
+    def test_reviewer_trust_chain_and_nested_manifests_require_security_review(self):
+        for path in ("packages/engineering-team/scripts/local_team.py", "ops/systemd/reviewer.service",
+                     "scripts/manual_pr_review_packet.py", "packages/harness/package.json", "requirements-build.txt"):
+            with self.subTest(path=path), self.assertRaises(SystemExit):
+                self.run_gate(filename=path)
+
     def test_review_workflow_reruns_gate_on_submitted_and_dismissed_reviews(self):
         workflow = (Path(__file__).resolve().parents[1] / ".github" / "workflows" / "agent-review-gate.yml").read_text()
         self.assertRegex(workflow, r"(?m)^  pull_request_review:\s*$")
