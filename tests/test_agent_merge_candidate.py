@@ -24,6 +24,7 @@ class CandidateTests(unittest.TestCase):
                       "workflow_run": {"conclusion": "success",
                                        "path": ".github/workflows/agent-review-gate.yml",
                                        "head_repository": {"full_name": "owner/repo"},
+                                       "head_sha": "a" * 40,
                                        "pull_requests": [copy.deepcopy(self.pr)]}}
 
     def resolve(self, name="workflow_run"):
@@ -65,6 +66,29 @@ class CandidateTests(unittest.TestCase):
         self.event["inputs"]["pr_number"] = "7; false"
         with self.assertRaises(ValueError):
             self.resolve("workflow_dispatch")
+
+    def test_review_event_resolves_empty_association_via_commit_api(self):
+        self.event["workflow_run"]["pull_requests"] = []
+        with patch.object(candidate, "api", side_effect=[[self.pr], self.pr]) as api:
+            self.assertEqual(candidate.resolve(self.event, "owner/repo", "workflow_run"), (7, "a" * 40))
+            self.assertEqual(api.call_args_list[0].args[0],
+                             "repos/owner/repo/commits/" + "a" * 40 + "/pulls?per_page=100")
+
+    def test_completed_run_does_not_reuse_an_old_commit_after_push(self):
+        self.event["workflow_run"]["pull_requests"] = []
+        self.pr["head"]["sha"] = "b" * 40
+        with patch.object(candidate, "api", return_value=[self.pr]), self.assertRaises(candidate.SkipCandidate):
+            candidate.resolve(self.event, "owner/repo", "workflow_run")
+
+    def test_multiple_associated_prs_fail_closed(self):
+        self.event["workflow_run"]["pull_requests"] = [self.pr, self.pr]
+        with self.assertRaises(ValueError):
+            self.resolve()
+
+    def test_unlabelled_pr_is_an_uneventful_skip(self):
+        self.pr["labels"] = []
+        with self.assertRaises(candidate.SkipCandidate):
+            self.resolve()
 
     def test_unknown_event_rejected(self):
         with self.assertRaises(ValueError):
