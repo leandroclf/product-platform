@@ -19,7 +19,7 @@ BLOCKED_PREFIXES = (
     "docs/AUTONOMOUS-MERGE-POLICY.md", "docs/AUTOMERGE-OPERATIONS.md",
     "docs/MANUAL-REVIEW-TRANSITION.md", "docs/AUTONOMOUS-BOOTSTRAP.md",
 )
-BLOCKED_NAMES = {"CODEOWNERS", "AGENTS.md", "CLAUDE.md"}
+BLOCKED_NAMES = {"CODEOWNERS", "AGENTS.md", "CLAUDE.md", "CLAUDE.local.md", "AGENTS.override.md", ".mcp.json"}
 
 def is_dependency_path(path):
     name = path.rsplit("/", 1)[-1]

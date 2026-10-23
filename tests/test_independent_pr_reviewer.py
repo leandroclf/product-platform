@@ -48,6 +48,7 @@ class ReviewerTests(unittest.TestCase):
                      'tests/test_agent_review_gate.py', '.github/dependabot.yml',
                      'scripts/test_check_package_boundaries.py', 'scripts/test_build_release_manifest.py',
                      'platform-packages.json', 'packages/kit/CLAUDE.md', '.claude/settings.json',
+                     'CLAUDE.local.md', 'packages/cli/CLAUDE.local.md', '.mcp.json', 'AGENTS.override.md',
                      'packages/engineering-team/scripts/local_team.py',
                      'packages/engineering-team/scripts/provider_run.py',
                      'packages/engineering-team/scripts/review_contract.py',

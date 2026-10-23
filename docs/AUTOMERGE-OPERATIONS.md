@@ -100,3 +100,11 @@ no SHA atual com sucesso. CLI exige as três versões Python; kit/harness exigem
 validate; engineering-team exige framework e runtime-smoke. Checks ausentes,
 pendentes ou falhos impedem a integração. Scripts de CI, testes da política,
 configuração GitHub e proveniência de release exigem revisão manual R2.
+
+A imagem local `sha256:70ceeef8ff66cafef8fc2d8c81fa5327f2ea675e2a355ed51f0e52eebb94023f`
+foi consultada com `claude --help` em container sem rede e HOME temporário. O
+help confirma `--safe-mode`: desativa CLAUDE.md, skills, plugins instalados, hooks,
+MCP, comandos e agentes customizados, preservando autenticação e ferramentas
+built-in. Isso verifica o contrato declarado pelo CLI fixado, não prova completa
+de resistência a prompt injection. `CLAUDE.local.md`, `AGENTS.override.md` e
+`.mcp.json` também exigem revisão manual, mesmo sob esse modo.
