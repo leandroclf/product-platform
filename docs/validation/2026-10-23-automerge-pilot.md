@@ -23,3 +23,27 @@ do PR #113. Não altera código, dependências, política ou infraestrutura.
 O timer somente será habilitado após observar os cinco resultados. O fluxo
 permanece limitado a R1 com label `agent-auto-merge`; alterações protegidas
 continuam exigindo revisão e integração manual.
+
+## Resultado observado do primeiro piloto
+
+O [PR #114](https://github.com/leandroclf/product-platform/pull/114) recebeu
+[aprovação do App revisor no SHA atual](https://github.com/leandroclf/product-platform/pull/114#pullrequestreview-5624127112).
+O serviço instalado produziu uma avaliação estática real, com schema, SHA e hash
+da evidência privada. Os dois runs do gate terminaram com sucesso.
+
+O [run de integração 39903920442](https://github.com/leandroclf/product-platform/actions/runs/39903920442)
+concluiu todos os passos; o merge foi realizado por
+`leandroclf-pp-integrator[bot]` no commit
+`49b68e11ddb8d22f0b9aedc4a9b775bded4ed19d`. O operador não executou o merge desse PR.
+
+O primeiro piloto revelou solicitações automáticas simultâneas para o mesmo SHA.
+O [PR #115](https://github.com/leandroclf/product-platform/pull/115) serializou
+esses eventos sem cancelar uma integração em andamento. Dispatch manual de
+recuperação deve ser usado sem uma integração automática simultânea, pois usa
+um grupo distinto.
+
+Esta atualização documenta somente resultados já observados. Sua própria
+revisão será iniciada pelo timer periódico instalado, sem iniciar manualmente o
+serviço. O resultado pode ser auditado no PR desta atualização e nos runs
+associados; não constitui evidência de deploy ou de login dos candidatos do
+laboratório.
