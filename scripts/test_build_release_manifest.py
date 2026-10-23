@@ -42,6 +42,21 @@ class ReleaseManifestTests(unittest.TestCase):
                 make_manifest(root, tag="harness-v1.2.3", source_sha="a"*40,
                               repository="leandroclf/product-platform")
 
+class ReleaseToolchainTests(unittest.TestCase):
+    def test_records_toolchain_and_rejects_missing_wheel(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / 'a.tgz').write_bytes(b'npm')
+            (root / 'b.tgz').write_bytes(b'npm')
+            with self.assertRaises(ValueError):
+                make_manifest(root, tag='harness-v1.2.3', source_sha='a'*40,
+                              repository='leandroclf/product-platform')
+            (root / 'b.tgz').unlink()
+            (root / 'b.whl').write_bytes(b'wheel')
+            result = make_manifest(root, tag='harness-v1.2.3', source_sha='a'*40,
+                                   repository='leandroclf/product-platform', toolchain={'python': '3.12.0'})
+            self.assertEqual(result['toolchain'], {'python': '3.12.0'})
+
 
 if __name__ == "__main__":
     unittest.main()
