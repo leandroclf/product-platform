@@ -15,14 +15,14 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
       - name: Generate portfolio inventory
         env:
-          GH_TOKEN: ${{ secrets.PORTFOLIO_READ_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
+          PORTFOLIO_READ_TOKEN: ${{ secrets.PORTFOLIO_READ_TOKEN }}
           GH_OWNER: leandroclf
           GH_REPO: product-platform
         run: |
-          if [ -z "$GH_TOKEN" ]; then
-            echo "::error::Configure PORTFOLIO_READ_TOKEN with read access to the portfolio and issue write access to product-platform"
-            exit 1
-          fi
+          python3 -m unittest discover -s tests -p test_portfolio_governance.py
           python3 scripts/portfolio_governance.py

@@ -7,7 +7,7 @@ Manter um inventário rastreável dos repositórios da empresa como primeiro pas
 - Workflow de segunda a sexta às 11:20 UTC (08:20 Brasília), além de execução manual.
 - Inventário paginado de repositórios visíveis do proprietário, incluindo arquivados.
 - Atualização de uma única issue persistente, evitando criar issues repetidas.
-- Token `PORTFOLIO_READ_TOKEN`: acesso de leitura a metadados dos repositórios e escrita em issues de `product-platform`. Preferir token fine-grained ou GitHub App com escopo mínimo.
+- Token opcional `PORTFOLIO_READ_TOKEN`: somente leitura dos repositórios autorizados. A escrita da issue usa o `GITHUB_TOKEN` do workflow, restrito ao repositório canônico. Sem o token de portfólio, o inventário continua em modo explicitamente `public-only`; privados não são declarados ausentes ou verificados. Um token configurado mas inválido causa falha, sem downgrade silencioso.
 - Sem checkout de outros repositórios, execução de código externo, alterações de arquivos, merge ou exclusões.
 
 ## Próximas fases (não implementadas)
