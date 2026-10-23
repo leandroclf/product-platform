@@ -21,7 +21,7 @@ jobs:
     timeout-minutes: 8
     steps:
       - name: Checkout trusted default branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           persist-credentials: false
       - name: Setup Python
@@ -44,7 +44,7 @@ jobs:
           fi
           python3 scripts/backlog_candidate_queue.py --repo "$REPOSITORY" --limit "$LIMIT" --output candidate-queue.json --summary "$GITHUB_STEP_SUMMARY"
       - name: Upload queue artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: backlog-candidate-queue
           path: candidate-queue.json
