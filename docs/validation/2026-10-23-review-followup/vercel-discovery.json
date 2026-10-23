@@ -1,0 +1,57 @@
+{
+  "observed_at": "2026-10-23",
+  "source": "authenticated Vercel plugin read-only",
+  "projects": [
+    {
+      "id": "prj_IPGoDoO7g0CkpTnml5s7K0jcqm23",
+      "name": "site-yukz-v2",
+      "framework": "nextjs",
+      "deployments": [
+        {
+          "id": "dpl_56us3cdAipuRD74zcA4HFhdo2iEU",
+          "state": "READY",
+          "target": "production",
+          "created": 1770059286109,
+          "url": "site-yukz-v2-m8qpyb3wu-leandros-projects-6832f28b.vercel.app",
+          "source_sha": "a2409b2547724f848282f6f6132cec78c6962568",
+          "repo": "site-yukz-v2",
+          "owner": "leandroclf"
+        },
+        {
+          "id": "dpl_3TCM63yws31xW6tfoq6JkVPtfZPk",
+          "state": "ERROR",
+          "target": "production",
+          "created": 1770059006091,
+          "url": "site-yukz-v2-e88xijg67-leandros-projects-6832f28b.vercel.app",
+          "source_sha": "e46f0631256d6609af494310294390683ddbb86b",
+          "repo": "site-yukz-v2",
+          "owner": "leandroclf"
+        }
+      ]
+    },
+    {
+      "id": "prj_4tmhDLVtihTeacLWe3CVea3estUo",
+      "name": "site-yukz-v2-tunb",
+      "framework": "nextjs",
+      "deployments": [
+        {
+          "id": "dpl_KTxBBrtbD93be355eJjKo8z3tQQJ",
+          "state": "READY",
+          "target": "production",
+          "created": 1770059419384,
+          "url": "site-yukz-v2-tunb-3dl7pmq2t-leandros-projects-6832f28b.vercel.app",
+          "source_sha": "a2409b2547724f848282f6f6132cec78c6962568",
+          "repo": "site-yukz-v2",
+          "owner": "leandroclf"
+        }
+      ]
+    }
+  ],
+  "interpretation": {
+    "ready_means": "Provider metadata only, not application health or current source compatibility",
+    "repository": "leandroclf/site-yukz-v2 in deployment metadata; GitHub connector returned 404, existence/deletion not inferred",
+    "adoption": "deferred; preserve current destinations",
+    "paid_plan": "unknown; no purchase authorized",
+    "production_changes": false
+  }
+}
