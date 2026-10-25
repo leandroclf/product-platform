@@ -38,6 +38,8 @@ const effect=async(tx,e)=>{await tx.query('INSERT INTO fixture_effects VALUES ($
 test('rejects unauthenticated events before opening a database connection',async()=>{
   const inbox=new PostgresPaymentInbox({connect:()=>{throw new Error('must not connect');}});
   await assert.rejects(()=>inbox.ingest(scope,'tenant-a',gateway(event('unauth'),false),input),/unauthenticated/);
+  const mp=event('unvetted',{gateway:'mercado_pago'});
+  await assert.rejects(()=>inbox.ingest({...scope,gateway:'mercado_pago'},'tenant-a',gateway(mp),input),/not yet supported/);
 });
 test('duplicate deliveries are atomic and effects run once',async()=>{
   const inbox=new PostgresPaymentInbox(pool),e=event('duplicate');

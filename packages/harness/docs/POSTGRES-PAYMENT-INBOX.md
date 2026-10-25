@@ -5,6 +5,13 @@ central database, mandatory queue or runtime database dependency. A product
 supplies its existing PostgreSQL pool, an authenticated account/tenant mapping,
 its domain handler and its worker lifecycle.
 
+Durable ingestion is initially enabled only for Stripe. The existing Mercado
+Pago adapter remains unchanged: it resolves current resource state during
+normalization rather than an immutable event snapshot, and its signed resource
+identity must be bound to routing before adopting these stronger guarantees.
+This inbox fails closed for that provider until its adapter/acceptance are
+extended; it does not silently treat it as equivalent to Stripe.
+
 ## Explicit adoption
 
 1. Review and integrate the R2 change and publish a **new** immutable release.

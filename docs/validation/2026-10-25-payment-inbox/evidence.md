@@ -33,3 +33,8 @@ the previous hardening increment: +301 seconds could enter the valid window
 after a wall-clock second tick. The test now fixes the clock and asserts both
 accepted +/-300 and rejected +/-301 boundaries; the production tolerance was
 not widened. Remote CI is rerun only for the changed HEAD.
+
+Durable ingestion is explicitly Stripe-only for this increment. Mercado Pago
+remains unchanged; its mutable-resource normalization requires a separate
+authenticated snapshot/routing acceptance before enabling this inbox. The
+regression verifies unsupported ingestion fails before DB access.

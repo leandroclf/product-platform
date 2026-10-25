@@ -59,6 +59,10 @@ export class PostgresPaymentInbox {
   /** Resolve scope/tenant from a trusted local mapping, not unverified webhook metadata. */
   async ingest(scope: PaymentInboxScope, tenantId: string, gateway: IPaymentGateway, input: WebhookInput): Promise<'accepted' | 'duplicate'> {
     const scopeParams = parameters(scope); identifier(tenantId);
+    // The existing Mercado Pago adapter resolves mutable remote resource state;
+    // it does not yet provide the immutable authenticated event snapshot required
+    // by this inbox. Preserve it, but do not opt it into a stronger guarantee.
+    if (scope.gateway !== 'stripe') throw new Error('gateway not yet supported by durable payment ingestion');
     if (gateway.name !== scope.gateway || !await gateway.verifyWebhook(input)) throw new Error('unauthenticated payment event');
     const event = normalized(await gateway.normalizeWebhook(input), tenantId);
     if (event.gateway !== scope.gateway) throw new Error('payment provider mismatch');
