@@ -17,7 +17,8 @@
         "packages/harness/package.json",
         "packages/harness/package-lock.json",
         "packages/harness/docs/POSTGRES-PAYMENT-INBOX.md",
-        "docs/validation/2026-10-25-payment-inbox"
+        "docs/validation/2026-10-25-payment-inbox",
+        "packages/harness/src/commerce/stripe.test.ts"
       ]
     },
     "acceptance": {

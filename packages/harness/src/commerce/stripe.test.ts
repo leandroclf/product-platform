@@ -13,9 +13,11 @@ function signature(timestamp:number, body=rawBody):string {
 function input(header:string,body=rawBody):WebhookInput {
   return {rawBody:body,headers:new Headers({'stripe-signature':header}),url:new URL('https://example.invalid/webhook')};
 }
-test('rejects stale, future and malformed delivery timestamps without rejecting old events re-signed now',async()=>{
-  const adapter=new StripeAdapter('unused',secret), now=Math.floor(Date.now()/1000);
+test('rejects stale, future and malformed delivery timestamps without rejecting old events re-signed now',async(t)=>{
+  const adapter=new StripeAdapter('unused',secret), now=1_700_000_000;
+  t.mock.method(Date,'now',()=>now*1000);
   for(const timestamp of [1,now-301,now+301]) assert.equal(await adapter.verifyWebhook(input(`t=${timestamp},v1=${signature(timestamp)}`)),false);
+  for(const timestamp of [now-300,now+300]) assert.equal(await adapter.verifyWebhook(input(`t=${timestamp},v1=${signature(timestamp)}`)),true);
   assert.equal(await adapter.verifyWebhook(input(`t=${now},v1=${signature(now)}`)),true);
   for(const t of ['NaN','1e20','-1','999999999999999999999']) assert.equal(await adapter.verifyWebhook(input(`t=${t},v1=${'0'.repeat(64)}`)),false);
   assert.equal(await adapter.verifyWebhook(input(`t=${now},t=${now},v1=${signature(now)}`)),false);

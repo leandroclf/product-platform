@@ -27,3 +27,9 @@ not by four authenticated ai-team stages. No provider-stage receipts are invente
 The existing R2 independent review gate must approve the new exact HEAD before
 integration. Publish a new immutable version only after the remaining gates; do
 not replace already released 0.2.1 assets.
+
+The first remote CI run exposed a timing-dependent boundary test inherited from
+the previous hardening increment: +301 seconds could enter the valid window
+after a wall-clock second tick. The test now fixes the clock and asserts both
+accepted +/-300 and rejected +/-301 boundaries; the production tolerance was
+not widened. Remote CI is rerun only for the changed HEAD.
