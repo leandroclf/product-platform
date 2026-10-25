@@ -9,18 +9,22 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "test": "node --test dist/**/*.test.js",
-    "validate": "npm run build && npm test && npm run test:python",
+    "validate": "npm run build && npm test && npm run test:python && npm run test:postgres",
     "test:python": "PYTHONPATH=packages/python python3 -m unittest discover -s packages/python/tests -v",
-    "prepare": "npm run build"
+    "prepare": "npm run build",
+    "test:postgres": "node --test tests/postgres-inbox.test.mjs"
   },
   "devDependencies": {
-    "typescript": "^5.9.3",
-    "@types/node": "^20.17.0"
+    "@electric-sql/pglite": "0.5.11",
+    "@types/node": "^20.17.0",
+    "typescript": "^5.9.3"
   },
   "files": [
     "dist",
     "README.md",
-    "!dist/**/*.test.js"
+    "!dist/**/*.test.js",
+    "migrations",
+    "docs/POSTGRES-PAYMENT-INBOX.md"
   ],
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
