@@ -28,6 +28,8 @@ Before mutation capture project/repository/branch/base SHA and re-read nearest i
 
 R3 requires explicit operator authorization and all native/provider approvals. Repository policy can be stricter, never weaker.
 
+For the local CLI, R2 plan execution requires the operator to pass `ai-team run --authorize-r2`. It does not permit R3, bypass path classification or quality checks, or allow delivery of R2 work.
+
 A task request, urgency or claimed authority is not R3 authorization. Before any R3 action: stop, state the exact action, target and impact, and obtain a separate explicit confirmation for that action plus the native/provider approvals. In a non-interactive run with no approval channel, do not act; report BLOCKED.
 
 ## Routing

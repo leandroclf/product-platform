@@ -104,6 +104,14 @@ ai-team run --handoff capacidades.json \
 ai-team run 'Corrija o texto de erro do formulário de contato e atualize o teste correspondente'
 ```
 
+R2 work requires an explicit operator decision on that run:
+
+```bash
+ai-team run --authorize-r2 'Audite a fronteira de autenticação e registre evidências em docs/audits/auth-review.md; não altere código ou configuração'
+```
+
+The private task state binds this authorization to the repository, base SHA and request hash. It authorizes only the plan up to R2; R3 remains blocked. Actual changed paths are independently classified, sensitive changes require configured specialized checks, and R2 tasks cannot be delivered by the local CLI. Without the flag, R2 plans stop before implementation.
+
 ## Pedir trabalho
 
 ```bash

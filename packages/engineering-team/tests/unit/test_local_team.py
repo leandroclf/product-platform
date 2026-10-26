@@ -1,4 +1,5 @@
 import json
+import hashlib
 import os
 from pathlib import Path
 import subprocess
@@ -21,8 +22,8 @@ def review(role='sentinel', sha='a' * 40):
                 findings=[], checks_executed=['offline tests'], residual_risks=[])
 
 
-def plan(sha='a' * 40):
-    return dict(schema_version='1.0.0', base_sha=sha, status='READY', risk='R1',
+def plan(sha='a' * 40, risk='R1'):
+    return dict(schema_version='1.0.0', base_sha=sha, status='READY', risk=risk,
                 objective='Improve file', out_of_scope=[], assumptions=[], validation=['offline checks'],
                 tasks=[dict(id='T1', description='Change file', acceptance_ids=['AC1'])],
                 acceptance_criteria=[dict(id='AC1', description='File improved')], capability_decisions=[])
@@ -54,6 +55,18 @@ class LocalTeamTests(unittest.TestCase):
             with self.assertRaisesRegex(team.Blocked, 'api_contract'):
                 team.verify_change_surface(workspace, state)
         self.assertNotIn('change_surface', state)
+
+    def test_authorized_r2_sensitive_path_still_requires_specialized_check(self):
+        workspace = self.root / 'ws'; workspace.mkdir()
+        request = 'Inspect authorization'
+        state = {'base_sha': 'a' * 40, 'plan': {'risk': 'R2'}, 'config': config(),
+            'repository': '/repo', 'request': request, 'authorized_risk': 'R2',
+            'risk_authorization': {'method': 'cli --authorize-r2', 'repository': '/repo',
+                'base_sha': 'a' * 40, 'request_sha256': hashlib.sha256(request.encode()).hexdigest()}}
+        def git_response(repo, *args):
+            return 'src/auth/login.py' if 'diff' in args else 'b' * 40
+        with patch.object(team, 'git', side_effect=git_response), self.assertRaisesRegex(team.Blocked, 'security_and_approval'):
+            team.verify_change_surface(workspace, state)
 
     def test_named_quality_check_runs_in_offline_container(self):
         configuration = config()
@@ -263,7 +276,8 @@ class LocalTeamTests(unittest.TestCase):
         if label.endswith('-plan'):
             sha = team.git(path / 'workspace', 'rev-parse', 'HEAD')
             team.atomic(path / ('staging-' + label) / 'result.json',
-                        dict(plan(sha), capability_decisions=getattr(self, 'plan_decisions', [])))
+                        dict(plan(sha, getattr(self, 'planned_risk', 'R1')),
+                             capability_decisions=getattr(self, 'plan_decisions', [])))
         elif label.endswith('-implement'):
             (path / 'workspace' / 'file').write_text('after ' + label)
             output.write_text(json.dumps({'structured_output': dict(plan_id=state['plan_id'], status='COMPLETE', summary='Implemented')}))
@@ -293,6 +307,62 @@ class LocalTeamTests(unittest.TestCase):
         self.assertTrue(all(x['resolved_model'] is None for x in state['stage_runs']))
         self.assertIn('after 0-implement', (path / 'handoff-0-review' / 'changes.patch').read_text())
         self.assertFalse((path / 'handoff-0-review' / 'validate.json').exists())
+
+    def test_review_handoff_excludes_only_coordinator_generated_openspec(self):
+        task, path, target, base = self.setup_run()
+        workspace = path / 'workspace'
+        subprocess.run(['git', 'clone', '-q', str(target), str(workspace)], check=True)
+        (workspace / 'docs/audits').mkdir(parents=True)
+        (workspace / 'docs/audits/report.md').write_text('audit')
+        generated = workspace / 'openspec' / 'changes' / ('ai-team-' + task) / '0'
+        generated.mkdir(parents=True)
+        (generated / 'proposal.md').write_text('coordinator plan')
+        project_spec = workspace / 'openspec/changes/product-change'
+        project_spec.mkdir(parents=True)
+        (project_spec / 'proposal.md').write_text('product proposal')
+        subprocess.run(['git', '-C', str(workspace), 'add', '.'], check=True)
+        subprocess.run(['git', '-C', str(workspace), '-c', 'user.name=test', '-c', 'user.email=test@local', 'commit', '-qm', 'fixture'], check=True)
+        diff = team.git(workspace, 'diff', '--no-ext-diff', '--no-textconv', base, 'HEAD',
+                        '--', '.', ':(exclude)openspec/changes/ai-team-*/**')
+        self.assertIn('docs/audits/report.md', diff)
+        self.assertNotIn('openspec/changes/ai-team-', diff)
+        self.assertIn('openspec/changes/product-change/proposal.md', diff)
+
+    def test_explicit_r2_authorization_allows_plan_but_keeps_target_isolated(self):
+        task, path, target, base = self.setup_run()
+        state = team.read(path / 'state.json'); state['authorized_risk'] = 'R2'
+        state['risk_authorization'] = dict(method='cli --authorize-r2', repository=str(target), base_sha=base,
+            request_sha256=hashlib.sha256(state['request'].encode()).hexdigest())
+        team.atomic(path / 'state.json', state)
+        self.planned_risk = 'R2'
+        with patch.object(team, 'grant_agent_checkout_access'), patch.object(team, 'image_present'), patch.object(team, 'execute', side_effect=self.controlled_executor):
+            team.worker(task)
+        result = team.read(path / 'state.json')
+        self.assertEqual(result['status'], 'REVIEWED')
+        self.assertEqual(result['authorized_risk'], 'R2')
+        self.assertEqual(team.git(target, 'rev-parse', 'HEAD'), base)
+
+    def test_r2_authorization_is_bound_to_request_and_base(self):
+        task, path, target, base = self.setup_run()
+        state = team.read(path / 'state.json'); state['authorized_risk'] = 'R2'
+        state['risk_authorization'] = dict(method='cli --authorize-r2', repository=str(target), base_sha=base,
+            request_sha256=hashlib.sha256(state['request'].encode()).hexdigest())
+        state['request'] = 'Different request'
+        with self.assertRaisesRegex(team.Blocked, 'mismatched'):
+            team.risk_authorization_ceiling(state)
+
+    def test_r2_plan_without_explicit_authorization_stops_before_implementation(self):
+        task, path, target, base = self.setup_run()
+        self.planned_risk = 'R2'
+        calls = []
+        def execute(*args, **kwargs):
+            calls.append(args[3])
+            return self.controlled_executor(*args, **kwargs)
+        with patch.object(team, 'grant_agent_checkout_access'), patch.object(team, 'image_present'), patch.object(team, 'execute', side_effect=execute), self.assertRaisesRegex(team.Blocked, 'operator-authorized'):
+            team.worker(task)
+        self.assertEqual(calls, ['0-plan'])
+        self.assertEqual(team.read(path / 'state.json')['status'], 'FAILED')
+        self.assertEqual(team.git(target, 'rev-parse', 'HEAD'), base)
 
     def test_plan_capability_decisions_must_match_the_platform_handoff(self):
         handoff = {'registry_fingerprint': 'a' * 64, 'product': 'site',
