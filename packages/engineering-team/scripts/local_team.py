@@ -16,9 +16,9 @@ import time
 import uuid
 from jsonschema import ValidationError, Draft202012Validator
 try:
-    from .change_policy import ensure_authorized, required_quality_surfaces
+    from .change_policy import authorize_plan, ensure_authorized, required_quality_surfaces
 except ImportError:
-    from change_policy import ensure_authorized, required_quality_surfaces
+    from change_policy import authorize_plan, ensure_authorized, required_quality_surfaces
 try:
     from .stage_contract import STAGES, DEFAULT_MODELS, PLAN_SCHEMA, REVIEW_SCHEMA, IMPLEMENT_SCHEMA, validate_plan, plan_id, validate_assessment
 except ImportError:
@@ -295,6 +295,22 @@ def run_path(task_id):
     if not path.is_dir() or path.is_symlink():
         raise Blocked('task does not exist')
     return path
+
+
+def risk_authorization_ceiling(state):
+    """Validate the explicit R2 run flag against this task's immutable request identity."""
+    ceiling = state.get('authorized_risk', 'R1')
+    if ceiling == 'R1':
+        return ceiling
+    approval = state.get('risk_authorization')
+    expected_request = hashlib.sha256(state.get('request', '').encode()).hexdigest()
+    if (ceiling != 'R2' or not isinstance(approval, dict) or
+            approval.get('method') != 'cli --authorize-r2' or
+            approval.get('repository') != state.get('repository') or
+            approval.get('base_sha') != state.get('base_sha') or
+            approval.get('request_sha256') != expected_request):
+        raise Blocked('invalid or mismatched R2 operator authorization')
+    return ceiling
 
 
 def proc_identity(pid):
@@ -677,12 +693,12 @@ def progress_note(workspace, state, groups, part, summaries):
 
 
 def verify_change_surface(workspace, state):
-    """Check actual changed paths against independently enforced R0/R1 limit."""
+    """Check actual changed paths against the plan and operator-authorized risk ceiling."""
     raw = git(workspace, 'diff', '--name-only', '--no-renames',
               state['base_sha'], 'HEAD')
     paths = [p for p in raw.splitlines() if p and not p.startswith('openspec/changes/ai-team-')]
     try:
-        risk = ensure_authorized(state['plan']['risk'], paths)
+        risk = ensure_authorized(state['plan']['risk'], paths, risk_authorization_ceiling(state))
     except ValueError as exc:
         raise Blocked(str(exc)) from exc
     gates = required_quality_surfaces(paths)
@@ -750,7 +766,8 @@ def stage_run(path, state, kind, prompt, part=1, parts=1, notes=None):
         artifact = handoff / 'tests.json'
         atomic(artifact, state['test_evidence']); artifact.chmod(0o444)
     if kind in ('validate', 'review'):
-        diff = git(path / 'workspace', 'diff', '--no-ext-diff', '--no-textconv', state['base_sha'], 'HEAD')
+        diff = git(path / 'workspace', 'diff', '--no-ext-diff', '--no-textconv', state['base_sha'], 'HEAD',
+                   '--', '.', ':(exclude)openspec/changes/ai-team-*/**')
         if len(diff.encode()) > 2 * 1024 * 1024:
             raise Blocked('review diff exceeds bounded handoff; split the task')
         artifact = handoff / 'changes.patch'
@@ -865,6 +882,9 @@ def worker(task_id):
                               'code and tests to understand the original objective. Do not edit or execute checkout code. '
                               'Return the supplied plan schema with tasks covering every acceptance criterion. '
                               'Fill capability_decisions with exactly the capabilities, decisions and owners of /handoff/capabilities.json when present, else []. '
+                              f'Operator-authorized risk ceiling: {risk_authorization_ceiling(state)}. '
+                              'A missing target-local AGENTS.md is a fact to report, not by itself a blocker when repository docs and parent instructions are available. '
+                              'When the ceiling is R2, the operator has explicitly authorized this task through the CLI; do not block for missing R2 approval. '
                               'Use BLOCKED for missing critical context or required approval; never authorize R3. '
                               'Original request: ' + state['request'] + '\nFeedback requiring replanning: '
                               + json.dumps(state.get('feedback', [])))
@@ -874,7 +894,11 @@ def worker(task_id):
                     if git(workspace, 'rev-parse', 'HEAD') != sha:
                         raise Blocked('checkout changed during planning')
                     atomic(path / f'{cycle}-plan.json', result)
-                    if result['status'] != 'READY' or result['risk'] in ('R2', 'R3'):
+                    try:
+                        authorize_plan(result['risk'], risk_authorization_ceiling(state))
+                    except ValueError as exc:
+                        raise Blocked('plan exceeds operator-authorized risk: ' + str(exc)) from exc
+                    if result['status'] != 'READY':
                         reason = '; '.join(str(x) for x in result.get('assumptions', [])[:2])[:400]
                         raise Blocked('plan blocked by missing context or R3 authorization' + (f': {reason}' if reason else ''))
                     if (path / 'stop').exists():
@@ -889,7 +913,7 @@ def worker(task_id):
                     clean(workspace)
                     implementation_base = git(workspace, 'rev-parse', 'HEAD')
                     prompt = ('You are Argus, implementing the accepted plan in /handoff/plan.json. '
-                              'Read AGENTS.md and existing OpenSpec first. Preserve the original request and acceptance. '
+                              'Read AGENTS.md and existing OpenSpec first. The host-generated openspec/changes/ai-team-<task>/<cycle>/ files are orchestration records: preserve them and do not count or edit them as product output. Preserve the original request and acceptance. '
                               f'Plan ID: {state["plan_id"]}. Return the supplied implementation schema. '
                               'Update OpenSpec tasks with truthful evidence. Use REPLAN_REQUIRED if the plan is invalid; '
                               'use BLOCKED if critical context or authorization is missing. '
@@ -967,6 +991,7 @@ def worker(task_id):
                         prompt = (f'You are {role}, performing {kind} only. HEAD {sha}, base {state["base_sha"]}. '
                                   'Read project instructions. Quality/security gates are mandatory. '
                                   f'Plan ID: {state["plan_id"]}. Read /handoff/plan.json, /handoff/tests.json and /handoff/changes.patch. '
+                                  'The host-generated OpenSpec files under openspec/changes/ai-team-<task>/<cycle>/ are orchestration records, not product changes; /handoff/changes.patch intentionally excludes them. '
                                   'Validate the original request independently of planner/implementer claims. '
                                   'Return acceptance_results for every plan criterion with concrete evidence. '
                                   'Use plan_status REPLAN_REQUIRED when the plan misses the original objective. '
@@ -1038,7 +1063,7 @@ def deliver(task_id, push=False, pr=False):
         sha = state['head_sha']
         validate_plan(dict(state['plan'], capability_decisions=state['plan'].get('capability_decisions', [])), state['plan']['base_sha'])
         if state['plan']['status'] != 'READY' or state['plan']['risk'] in ('R2', 'R3'):
-            raise Blocked('delivery plan is blocked')
+            raise Blocked('delivery requires an R0/R1 plan; R2 audit tasks remain local')
         for kind in ('validate', 'review'):
             if not review_pass(read(path / f'{state["cycle"]}-{kind}.json'), sha,
                                STAGES[kind][0], state['plan'], state['plan_id']):
@@ -1254,6 +1279,8 @@ def main(argv=None):
         init.add_argument('--' + kind + '-model', default=profile['model'])
         init.add_argument('--' + kind + '-effort', default=profile['effort'], choices=('low', 'medium', 'high', 'xhigh', 'max'))
     run = sub.add_parser('run'); run.add_argument('request'); run.add_argument('--background', action='store_true')
+    run.add_argument('--authorize-r2', action='store_true',
+                     help='operator authorization for a task plan up to R2; R3 remains blocked')
     run.add_argument('--handoff', help='PortfolioCapabilityHandoff JSON (REUSE/EXTEND/CREATE decisions), validated and frozen with its hash')
     run.add_argument('--registry', metavar='FILE', help='capability registry used by the proposal; its sha256 must equal the handoff registry_fingerprint')
     run.add_argument('--rules', action='append', default=[], metavar='FILE',
@@ -1372,10 +1399,15 @@ def main(argv=None):
         task_id = uuid.uuid4().hex
         path = home() / 'runs' / task_id; path.mkdir(parents=True, mode=0o700)
         platform = freeze_platform(path, inputs)
+        base_sha = git(repo, 'rev-parse', 'HEAD')
+        authorized_risk = 'R2' if args.authorize_r2 else 'R1'
+        risk_authorization = ({'method': 'cli --authorize-r2', 'repository': str(repo), 'base_sha': base_sha,
+            'request_sha256': hashlib.sha256(args.request.encode()).hexdigest()} if args.authorize_r2 else None)
         state = dict(version=2, task=task_id, repository=str(repo), config=config, request=args.request,
-            base_sha=git(repo, 'rev-parse', 'HEAD'), base_branch=git(repo, 'branch', '--show-current'),
+            base_sha=base_sha, base_branch=git(repo, 'branch', '--show-current'),
             origin=git(repo, 'remote', 'get-url', 'origin'), created_at=time.time(), status='RUNNING',
-            phase='CLONE', cycle=0, active=None)
+            phase='CLONE', cycle=0, active=None, authorized_risk=authorized_risk,
+            risk_authorization=risk_authorization)
         if platform:
             state['platform'] = platform
         if not state['base_branch']:

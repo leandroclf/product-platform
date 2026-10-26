@@ -41,10 +41,20 @@ def classify_paths(paths):
     return max((classify_path(p) for p in paths), key=lambda risk: RANK[risk])
 
 
-def ensure_authorized(claim, paths):
-    """Currently no R2/R3 runtime authorizer: stop rather than imply approval."""
-    if claim not in ("R0", "R1"):
-        raise ValueError("Only supervised R0/R1 work authorized; R2/R3 require separate approval path")
+def authorize_plan(claim, authorized_risk="R1"):
+    """Accept R0/R1 by default; R2 only when the operator explicitly selected that ceiling."""
+    if authorized_risk not in ("R0", "R1", "R2"):
+        raise ValueError("operator authorization may not exceed R2")
+    if claim not in RANK or claim == "R3":
+        raise ValueError("R3 and unknown plan risks are never authorized by this workflow")
+    if RANK[claim] > RANK[authorized_risk]:
+        raise ValueError(f"plan risk {claim} exceeds operator-authorized {authorized_risk}")
+    return claim
+
+
+def ensure_authorized(claim, paths, authorized_risk="R1"):
+    """Keep the plan and actual change surface within the operator-authorized ceiling."""
+    authorize_plan(claim, authorized_risk)
     actual = classify_paths(paths)
     if RANK[actual] > RANK[claim]:
         raise ValueError(f"Actual change surface is {actual}, above claimed {claim}; re-triage task")
