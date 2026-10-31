@@ -449,6 +449,13 @@ class LocalTeamTests(unittest.TestCase):
         self.assertEqual(team.read(path / 'state.json')['status'], 'FAILED')
         self.assertEqual(team.git(target, 'rev-parse', 'HEAD'), base)
 
+    def test_oversized_review_diff_blocks_before_provider(self):
+        path = self.root / 'task'; path.mkdir()
+        state = {'cycle': 0, 'base_sha': 'a' * 40, 'stage_runs': []}
+        oversized_diff = 'x' * (2 * 1024 * 1024 + 1)
+        with patch.object(team, 'git', return_value=oversized_diff), self.assertRaisesRegex(team.Blocked, 'review diff exceeds bounded handoff'):
+            team.stage_run(path, state, 'review', 'Request: inspect the change')
+
     def test_plan_capability_decisions_must_match_the_platform_handoff(self):
         handoff = {'registry_fingerprint': 'a' * 64, 'product': 'site',
                    'capabilities': [{'name': 'entitlements', 'decision': 'REUSE', 'owner': 'product-platform-harness'}]}
