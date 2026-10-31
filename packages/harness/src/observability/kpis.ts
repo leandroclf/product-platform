@@ -55,6 +55,9 @@ function timestamp(value: unknown): number {
  * A partial result always retains its partial coverage, including numeric zero.
  */
 export function calculateKpi(input: KpiInput, evidence: KpiEvidence): KpiResult & { kind: KpiInput['kind']; currency?: string } {
+  if (!input || typeof input !== 'object' || !evidence || typeof evidence !== 'object') {
+    throw new Error('KPI requires input and evidence');
+  }
   const start = timestamp(evidence.windowStart), end = timestamp(evidence.windowEnd);
   if (!Number.isFinite(start) || !Number.isFinite(end) || start >= end) {
     throw new Error('KPI requires an ordered window with explicit timezone');
