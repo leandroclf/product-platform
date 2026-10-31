@@ -7,7 +7,7 @@ Esta etapa precisa de permissões administrativas no GitHub. Os workflows não c
 2. Criar GitHub App **revisor** com permissão para revisar PRs; instalar somente nos repositórios autorizados. Usar identidade distinta da execução.
 3. Criar identidade **integrador** com permissão para habilitar auto-merge, sem bypass de rulesets.
 4. Configurar variável de repositório `AGENT_TRUSTED_REVIEWERS` com os logins reais dos revisores permitidos, separados por vírgula. Nunca incluir o executor.
-5. Configurar `PORTFOLIO_READ_TOKEN` (leitura do portfólio e escrita na issue central). Para merge, usar o secret `INTEGRATOR_APP_PRIVATE_KEY` e a variável `INTEGRATOR_APP_ID`; o workflow cria um token temporário limitado a `pull_requests:write` e ao repositório atual.
+5. Opcionalmente configurar `PORTFOLIO_READ_TOKEN` somente para leitura do inventário autorizado; ele nunca é usado para escrever na issue central. A leitura do inventário público funciona sem esse token e declara cobertura pública/parcial. Escritas na issue usam o `GH_TOKEN` herdado pelo workflow. Para merge, usar o secret `INTEGRATOR_APP_PRIVATE_KEY` e a variável `INTEGRATOR_APP_ID`; o workflow cria um token temporário limitado a `pull_requests:write` e ao repositório atual.
 
 ## Rulesets e gates
 - Exigir CI e o status `independent-review-gate` na branch principal.
