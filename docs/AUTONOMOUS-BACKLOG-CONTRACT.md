@@ -20,7 +20,7 @@ As cinco rotinas ChatGPT continuam **analíticas**; não são o executor. Suas d
 - Problema tem evidência rastreável e está no escopo comercial/técnico do produto.
 - Destino/reuso definidos; não duplica outro runtime ou produto.
 - Teste de aceite reproduzível sem segredos embutidos.
-- Risco R0/R1; R2/R3 exigem política elevada e não entram no merge R1.
+- Risco R0/R1 para a fila automática; R2/R3 exigem política elevada e não entram no merge R1. O CLI local aceita R2 somente com `ai-team run --authorize-r2`, sem autorizar R3 ou entrega de R2.
 - Orçamento e limites de tentativas definidos antes de executar.
 - Existe rollback para mudanças com impacto operacional.
 
@@ -43,8 +43,10 @@ de automerge integralmente futuro/desativado, sem certificar toda a plataforma.
 2. O piloto automático exige opt-in, escopo R1 real, checks do pacote e revisão
    independente do HEAD. Pagamentos, segurança e workflows são R2 mesmo que uma
    heurística de caminhos não os reconheça.
-3. R2/R3 não entram no merge R1. Mudanças protegidas exigem a allowlist/revisão
-   elevada, sem bypass. Produção mantém os gates próprios.
+3. R2/R3 não entram no merge R1. O CLI local aceita execução isolada até R2
+   somente com `--authorize-r2`; entrega de R2 e qualquer R3 continuam bloqueadas.
+   Mudanças protegidas exigem allowlist/revisão elevada, sem bypass. Produção
+   mantém os gates próprios.
 4. O ruleset observado exige aprovação e invalidação após push. Configuração,
    identidade e validade das credenciais precisam de evidência atual.
 5. PORTFOLIO_READ_TOKEN é leitura opcional do inventário; não credencial de merge.

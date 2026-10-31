@@ -66,8 +66,10 @@ Nenhum manifest de dependências foi alterado.
   A execução real precisa manter estado/workspaces em um caminho compartilhado com Docker.
 - `ai-team doctor` encontrou imagem, ferramentas e quatro logins salvos, mas retornou a aceitação
   dos provedores como `INCONCLUSIVE`. Isso não comprova validade da sessão ou acesso ao modelo.
-- No host, `omnicli doctor --capabilities --json` reconheceu Claude `2.1.281` e Codex `0.162.1`.
-  A imagem do `ai-team` declara Claude `2.1.287` e Codex `0.159.3`; são ambientes distintos.
+- As versões citadas abaixo são o snapshot desta verificação, iniciada em 14/10/2026; consulte
+  o `packages/engineering-team/runtimes/Dockerfile` e `scripts/preflight.py` para a baseline atual.
+- Naquele snapshot, `omnicli doctor --capabilities --json` reconheceu Claude `2.1.281` e Codex `0.162.1` no host.
+  A imagem do `ai-team` então declarava Claude `2.1.287` e Codex `0.159.3`; são ambientes distintos. Os pins atuais estão nos arquivos indicados acima.
 - Ainda faltam benchmark humano, matriz completa autenticada e cenários reais de interrupção,
   retomada, sessão expirada e falha do provedor. A baseline não certifica produção autônoma.
 

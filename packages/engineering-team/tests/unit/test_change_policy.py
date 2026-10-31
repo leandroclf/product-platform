@@ -47,6 +47,14 @@ class RiskAndQualityPolicyTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 change_policy.ensure_authorized(risk, ['README.md'])
 
+    def test_explicit_r2_authorization_is_bounded_and_never_authorizes_r3(self):
+        self.assertEqual(change_policy.ensure_authorized('R2', ['docs/audits/report.md'], 'R2'), 'R0')
+        self.assertEqual(change_policy.ensure_authorized('R2', ['src/auth/login.py'], 'R2'), 'R2')
+        with self.assertRaisesRegex(ValueError, 'R2'):
+            change_policy.ensure_authorized('R2', ['docs/audits/report.md'])
+        with self.assertRaisesRegex(ValueError, 'R3'):
+            change_policy.ensure_authorized('R3', ['docs/audits/report.md'], 'R2')
+
     def test_change_families_select_relevant_required_gates(self):
         result = change_policy.required_quality_surfaces([
             'src/api/routes.py', 'src/database/migration_1.sql',

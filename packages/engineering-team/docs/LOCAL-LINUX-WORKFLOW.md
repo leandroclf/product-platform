@@ -51,7 +51,7 @@ Configuração fica em `$XDG_STATE_HOME/ai-team/projects/<id>/config.json` (padr
 
 Opções de segurança por projeto, ambas com padrão seguro e gravadas na configuração congelada de cada tarefa: `--codex-sandbox danger-full-access` (padrão `read-only`) para hosts em que o bwrap do Codex não consegue criar namespaces dentro do container, e `--test-exec` (padrão desligado) para montar o tmpfs `/work` dos checks com `exec`, necessário para `node_modules/.bin`, pois o Docker monta tmpfs com `noexec`. Em ambos os casos o container segue como fronteira: raiz somente leitura, `--cap-drop ALL`, `no-new-privileges`, usuário não root, montagens `:ro`, testes sem rede e sem credenciais.
 
-Para migrar uma configuração existente, encerre tarefas e repita o comando init com `--upgrade`, imagem e todos os checks explícitos. O coordenador salva backup privado da configuração anterior. Config/tarefas usam versão 2; tarefas antigas não são convertidas nem retomadas/entregues sob o novo fluxo. Modelos e esforços ficam na configuração e são congelados por tarefa; flags `--plan-model`, `--implement-model`, `--validate-model`, `--review-model` e `--*-effort` permitem escolhas deliberadas do mesmo provedor. Não há fallback automático. Defaults e limites: [contrato de etapas](ISOLATED-AGENT-STAGES.md).
+Para migrar uma configuração existente, encerre tarefas e repita o comando init com `--upgrade`, imagem e todos os checks explícitos. O coordenador salva backup privado da configuração anterior. Config/tarefas usam versão 2; tarefas antigas não são convertidas nem retomadas/entregues sob o novo fluxo. Tarefas em andamento anteriores ao manifesto de hashes OpenSpec também falham fechadas ao retomar depois do planejamento; inicie uma tarefa nova. Modelos e esforços ficam na configuração e são congelados por tarefa; flags `--plan-model`, `--implement-model`, `--validate-model`, `--review-model` e `--*-effort` permitem escolhas deliberadas do mesmo provedor. Não há fallback automático. Defaults e limites: [contrato de etapas](ISOLATED-AGENT-STAGES.md).
 
 ### Exemplo de imagem para um site npm
 
@@ -103,6 +103,14 @@ ai-team run --handoff capacidades.json \
 ```bash
 ai-team run 'Corrija o texto de erro do formulário de contato e atualize o teste correspondente'
 ```
+
+R2 work requires an explicit operator decision on that run:
+
+```bash
+ai-team run --authorize-r2 'Audite a fronteira de autenticação e registre evidências em docs/audits/auth-review.md; não altere código ou configuração'
+```
+
+The private task state binds this authorization to the repository, base SHA and request hash. It authorizes only the plan up to R2; R3 remains blocked. Actual changed paths are independently classified, sensitive changes require configured specialized checks, and R2 tasks cannot be delivered by the local CLI. Without the flag, R2 plans stop before implementation.
 
 ## Pedir trabalho
 

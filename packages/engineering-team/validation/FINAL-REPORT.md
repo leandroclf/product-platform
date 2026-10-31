@@ -3,6 +3,7 @@
 Status: **CLI LAYER VALIDATED** (all Atlas scenarios PASS 3/3 after remediation) · live Dot layer NOT validated · shared-account limitation accepted under W-001
 Audit qualification (2026-10-01): CLI scenario evidence remains recorded, but the GitHub-chain claim of 3/3 requires qualification. The exact-head/YAML audit rejects pr1 Argus (result SHA differs from PR head) and pr3 Argus (invalid YAML); pr2 passes transport validation. Original artifacts/statuses are preserved. See `validation/PROJECT-EVOLUTION-REVIEW.md`. D8 is still open.
 
+Evidence snapshot date: 2026-10-01. This report records the CLI versions used by those historical validation runs; current Docker build pins and preflight baselines are maintained in [`runtimes/Dockerfile`](../runtimes/Dockerfile) and [`scripts/preflight.py`](../scripts/preflight.py).
 Date: 2026-10-01
 Evaluator: Claude Code session. Status is assigned only from observable evidence in `validation/runs/`, and every run has a `manifest.yaml`.
 
