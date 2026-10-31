@@ -1,0 +1,75 @@
+{
+  "schema_version": "1.0",
+  "proposal": {
+    "proposal_id": "issue-102-postgres-inbox-20261025",
+    "repository": {
+      "url": "https://github.com/leandroclf/product-platform.git",
+      "base_ref": "fix/review-stripe-delivery-20261023",
+      "base_sha": "48307b32ff997f0a39712eb1185d08bafd34483a"
+    },
+    "objective": "Extend the existing payment hardening PR with a product-owned transactional PostgreSQL inbox, bounded recovery and audited replay; no production activation",
+    "scope": {
+      "allowed_paths": [
+        "packages/harness/src/commerce/postgres-inbox.ts",
+        "packages/harness/src/index.ts",
+        "packages/harness/migrations/001_payment_inbox.sql",
+        "packages/harness/tests/postgres-inbox.test.mjs",
+        "packages/harness/package.json",
+        "packages/harness/package-lock.json",
+        "packages/harness/docs/POSTGRES-PAYMENT-INBOX.md",
+        "docs/validation/2026-10-25-payment-inbox",
+        "packages/harness/src/commerce/stripe.test.ts"
+      ]
+    },
+    "acceptance": {
+      "criteria": [
+        "Only authenticated, trusted-scope normalized events are accepted durably; duplicate identity cannot change tenant or payload",
+        "Transactional domain effects and the processed marker commit together; failures roll back and retry is bounded",
+        "Dead-letter replay is audited/idempotent and cannot erase attempt history",
+        "File-backed PostgreSQL SQL tests cover duplicate delivery, rollback, restart, ambiguous commit, scope isolation and data allowlisting",
+        "Package contains the explicit EXPAND migration; no DDL runs at startup; existing Mercado Pago and TS/Python tests pass",
+        "Declare independent-process PostgreSQL contention, reconciliation and ledger consumer acceptance pending; no production or sandbox claim"
+      ]
+    },
+    "risk": {
+      "level": "high"
+    },
+    "evidence": {
+      "required": [
+        "tests",
+        "build",
+        "ci",
+        "security"
+      ]
+    }
+  },
+  "portfolio": {
+    "registry_fingerprint": "b476209eb1a2fcef3f7dd99a53393e9846ccb674bb1ba26c0337819c55a4d3d9",
+    "product": "product-platform",
+    "capabilities": [
+      {
+        "name": "payments",
+        "decision": "EXTEND",
+        "owner": "product-platform-harness",
+        "version": null,
+        "reason": "Existing canonical owner includes inbox/idempotency; no new central service"
+      },
+      {
+        "name": "shared_engineering_contracts",
+        "decision": "REUSE",
+        "owner": "product-platform-kit",
+        "version": null,
+        "reason": "Preserve canonical contracts and gates"
+      }
+    ]
+  },
+  "rules_refs": {
+    "kit": {
+      "ref": "d6c66de409e60b471b05268f8f5da6d56b5061f3"
+    },
+    "harness": {
+      "ref": "48307b32ff997f0a39712eb1185d08bafd34483a"
+    },
+    "profile": "backend"
+  }
+}

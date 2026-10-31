@@ -1,0 +1,62 @@
+{
+  "schema_version": "1.0",
+  "proposal": {
+    "proposal_id": "review-followup-20261023-payments",
+    "repository": {
+      "url": "https://github.com/leandroclf/product-platform.git",
+      "base_ref": "main",
+      "base_sha": "6c1032097f2b3796a3d1a8e9def8dde91b9a9946"
+    },
+    "objective": "Harden existing Stripe authentication and write idempotency before implementing the durable lifecycle in issue #102",
+    "scope": {
+      "allowed_paths": [
+        "packages/harness/src/commerce/stripe.ts",
+        "packages/harness/src/commerce/types.ts",
+        "packages/harness/src/commerce/http.ts",
+        "packages/harness/src/commerce/stripe.test.ts",
+        "packages/harness/docs/PAYMENT-HARDENING.md",
+        "docs/validation/2026-10-23-review-followup"
+      ]
+    },
+    "acceptance": {
+      "criteria": [
+        "Regression tests and relevant CI pass without weakening security policy",
+        "Review current HEAD independently before merge; no production activation",
+        "Document migration and remaining authenticated acceptance accurately"
+      ]
+    },
+    "risk": {
+      "level": "high"
+    },
+    "evidence": {
+      "required": [
+        "tests",
+        "build",
+        "ci",
+        "security"
+      ]
+    }
+  },
+  "portfolio": {
+    "registry_fingerprint": "b476209eb1a2fcef3f7dd99a53393e9846ccb674bb1ba26c0337819c55a4d3d9",
+    "product": "product-platform",
+    "capabilities": [
+      {
+        "name": "payments",
+        "decision": "EXTEND",
+        "owner": "product-platform-harness",
+        "version": null,
+        "reason": "Reuse or extend the existing canonical owner only"
+      }
+    ]
+  },
+  "rules_refs": {
+    "kit": {
+      "ref": "6c1032097f2b3796a3d1a8e9def8dde91b9a9946"
+    },
+    "harness": {
+      "ref": "6c1032097f2b3796a3d1a8e9def8dde91b9a9946"
+    },
+    "profile": "security"
+  }
+}
