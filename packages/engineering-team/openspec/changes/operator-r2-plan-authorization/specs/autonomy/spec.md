@@ -1,7 +1,7 @@
 ## MODIFIED Requirements
 
 ### Requirement: R2 work follows repository-specific approval rules
-R2 work MUST remain blocked by default in the local CLI. The operator MAY explicitly authorize an individual task up to R2 with `ai-team run --authorize-r2`. The coordinator MUST bind that authorization to the exact repository, base revision and request, MUST independently classify actual changed paths, and MUST require configured specialized checks for sensitive paths. This authorization MUST NOT permit R3 or delivery of an R2 task.
+R2 work MUST remain blocked by default in the local CLI. The operator MAY explicitly authorize an individual task up to R2 with `ai-team run --authorize-r2`. The coordinator MUST bind that authorization to the exact repository, base revision and request, MUST independently classify actual changed paths, and MUST require configured specialized checks for sensitive paths. The binding correlates authorization with a task and assumes its private local state remains under operator control; it is not cryptographic authentication or protection against an actor able to edit that state. This authorization MUST NOT permit R3 or delivery of an R2 task.
 
 #### Scenario: R2 task lacks explicit operator flag
 - **WHEN** a plan is classified R2 and the run was started without `--authorize-r2`

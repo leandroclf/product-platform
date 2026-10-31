@@ -275,9 +275,11 @@ class LocalTeamTests(unittest.TestCase):
         output.write_text('')
         if label.endswith('-plan'):
             sha = team.git(path / 'workspace', 'rev-parse', 'HEAD')
-            team.atomic(path / ('staging-' + label) / 'result.json',
-                        dict(plan(sha, getattr(self, 'planned_risk', 'R1')),
-                             capability_decisions=getattr(self, 'plan_decisions', [])))
+            result = dict(plan(sha, getattr(self, 'planned_risk', 'R1')),
+                          capability_decisions=getattr(self, 'plan_decisions', []))
+            result['status'] = getattr(self, 'planned_status', 'READY')
+            result['assumptions'] = getattr(self, 'planned_assumptions', ['test assumption'])
+            team.atomic(path / ('staging-' + label) / 'result.json', result)
         elif label.endswith('-implement'):
             if not getattr(self, 'skip_default_file_change', False):
                 (path / 'workspace' / 'file').write_text('after ' + label)
@@ -412,6 +414,21 @@ class LocalTeamTests(unittest.TestCase):
             calls.append(args[3])
             return self.controlled_executor(*args, **kwargs)
         with patch.object(team, 'grant_agent_checkout_access'), patch.object(team, 'image_present'), patch.object(team, 'execute', side_effect=execute), self.assertRaisesRegex(team.Blocked, 'operator-authorized'):
+            team.worker(task)
+        self.assertEqual(calls, ['0-plan'])
+        self.assertEqual(team.read(path / 'state.json')['status'], 'FAILED')
+        self.assertEqual(team.git(target, 'rev-parse', 'HEAD'), base)
+
+    def test_blocked_r2_plan_reports_missing_context_before_authorization(self):
+        task, path, target, base = self.setup_run()
+        self.planned_risk = 'R2'
+        self.planned_status = 'BLOCKED'
+        self.planned_assumptions = ['provider contract is missing']
+        calls = []
+        def execute(*args, **kwargs):
+            calls.append(args[3])
+            return self.controlled_executor(*args, **kwargs)
+        with patch.object(team, 'grant_agent_checkout_access'), patch.object(team, 'image_present'), patch.object(team, 'execute', side_effect=execute), self.assertRaisesRegex(team.Blocked, 'provider contract is missing'):
             team.worker(task)
         self.assertEqual(calls, ['0-plan'])
         self.assertEqual(team.read(path / 'state.json')['status'], 'FAILED')

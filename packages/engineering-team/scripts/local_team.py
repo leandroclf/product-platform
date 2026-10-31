@@ -925,13 +925,13 @@ def worker(task_id):
                     if git(workspace, 'rev-parse', 'HEAD') != sha:
                         raise Blocked('checkout changed during planning')
                     atomic(path / f'{cycle}-plan.json', result)
+                    if result['status'] != 'READY':
+                        reason = '; '.join(str(x) for x in result.get('assumptions', [])[:2])[:400]
+                        raise Blocked('plan blocked by missing context or R3 authorization' + (f': {reason}' if reason else ''))
                     try:
                         authorize_plan(result['risk'], risk_authorization_ceiling(state))
                     except ValueError as exc:
                         raise Blocked('plan exceeds operator-authorized risk: ' + str(exc)) from exc
-                    if result['status'] != 'READY':
-                        reason = '; '.join(str(x) for x in result.get('assumptions', [])[:2])[:400]
-                        raise Blocked('plan blocked by missing context or R3 authorization' + (f': {reason}' if reason else ''))
                     if (path / 'stop').exists():
                         raise Blocked('stop requested before recording plan')
                     state['plan'] = result; state['plan_id'] = plan_id(result)
