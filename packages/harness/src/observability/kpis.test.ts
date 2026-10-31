@@ -8,7 +8,7 @@ const evidence: KpiEvidence = { windowStart: '2026-10-01T00:00:00Z', windowEnd: 
 test('matches the cross-language KPI contract', () => {
   const cases = JSON.parse(readFileSync(new URL('../../fixtures/kpi-cases.json', import.meta.url), 'utf8'));
   for (const item of cases) {
-    const context = { ...evidence, ...item.evidence };
+    const context = item.evidence === null ? null : { ...evidence, ...item.evidence };
     if (item.error) assert.throws(() => calculateKpi(item.input, context), item.name);
     else {
       const result = calculateKpi(item.input, context);

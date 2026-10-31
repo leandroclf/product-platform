@@ -66,5 +66,8 @@
   {"name":"leap day with offset","input":{"kind":"lead_time_ms","durationsMs":[1]},"evidence":{"windowStart":"2024-02-29T23:59:59.999-03:00"},"value":1,"reason":null},
   {"name":"century non-leap day","input":{"kind":"lead_time_ms","durationsMs":[1]},"evidence":{"windowStart":"2100-02-29T00:00:00Z","windowEnd":"2100-03-01T00:00:00Z"},"error":true},
   {"name":"two-digit year window ordered","input":{"kind":"lead_time_ms","durationsMs":[1]},"evidence":{"windowStart":"0099-12-31T00:00:00Z","windowEnd":"0100-01-01T00:00:00Z"},"value":1,"reason":null},
-  {"name":"non-string source","input":{"kind":"lead_time_ms","durationsMs":[1]},"evidence":{"source":1},"error":true}
+  {"name":"non-string source","input":{"kind":"lead_time_ms","durationsMs":[1]},"evidence":{"source":1},"error":true},
+  {"name":"null input","input":null,"error":true},
+  {"name":"null evidence","input":{"kind":"lead_time_ms","durationsMs":[1]},"evidence":null,"error":true},
+  {"name":"unknown KPI kind","input":{"kind":"unknown"},"error":true}
 ]
