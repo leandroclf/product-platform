@@ -14,7 +14,8 @@ class KpiContractTests(unittest.TestCase):
                    'source': 'fixture-only', 'coverage': 'complete'}
         for case in cases:
             with self.subTest(case=case['name']):
-                evidence = {**default, **case.get('evidence', {})}
+                extra_evidence = case.get('evidence', {})
+                evidence = None if extra_evidence is None else {**default, **extra_evidence}
                 if case.get('error'):
                     with self.assertRaises(ValueError):
                         calculate_kpi(case['input'], evidence)
