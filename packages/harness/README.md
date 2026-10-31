@@ -33,3 +33,19 @@ and Python standard-library tests against the canonical kit corpus
 (`../kit/contracts/product-event/fixtures/compatibility-cases.json`); there is no local copy.
 `PRODUCT_EVENT_CASES` overrides the path. Runtime validators reject unknown fields and invalid
 metadata; typed callers alone do not provide this boundary.
+
+CI-01 KPI calculations exist in this checkout as `calculate_kpi(input, evidence)` from
+`product_platform_harness` (Python) and `calculateKpi(input, evidence)` from the package root
+`@leandroclf/product-platform-harness` (TypeScript; `exports` has no `/observability` subpath).
+Both return `windowStart`, `windowEnd`, `source`, `coverage`, `kind`, `value`, `reason` and,
+for monetary KPIs, `currency`; malformed input raises (`Error` / `ValueError`). Semantics,
+formulas and the partial real-baseline status live in the kit
+(`../kit/docs/PRODUCT-KPI-CATALOG.md`).
+
+The functions only calculate. The consumer owns source verification, product/environment
+selection, the `[windowStart, windowEnd)` window, cohort deduplication, reconciliation and the
+declared coverage. Missing data (`missing_data`), empty denominators (`empty_denominator`) and
+observed zero remain distinct; partial coverage is preserved. `npm run validate` checks both
+implementations against the synthetic `fixtures/kpi-cases.json`; those fixtures are not
+operational measurements. Availability in the published `harness-v0.2.1` artifact is not
+claimed for either runtime; consumers need a later immutable release before adopting them.
