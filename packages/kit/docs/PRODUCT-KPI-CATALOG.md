@@ -31,6 +31,37 @@ A primeira baseline real de CI-01 **segue parcial**: nenhum KPI tem medição op
 
 Pendências comuns a todos os KPIs: escolher um produto e um ambiente; fixar janela `[windowStart, windowEnd)` com timezone; definir a coorte e a deduplicação; reconciliar as fontes; declarar a cobertura; implementar e testar o adapter de agregação do consumidor; obter revisão independente da primeira medição.
 
+### Auditoria do primeiro candidato: Bússola Financeira (2026-10-31)
+
+A Bússola é um candidato da primeira onda e já consome o harness, mas as fontes
+inspecionadas não sustentam ainda uma medição CI-01. O checkout `main` estava no
+SHA `f2bd971f907362d494596f47c5fb3f29c7444626` (commit de 2026-10-15). O CI
+`38725202794` concluiu em 2026-10-15T11:08:43Z; essa execução valida código e
+artefato, não é entrega de produto nem fonte de custo reconciliado. A API GitHub
+de deployments retornou zero receipts para o repositório na consulta de
+2026-10-31; isso não cobre deployments feitos por outros provedores.
+
+No código, `/metrics` expõe `http_requests_total` e
+`http_request_duration_seconds`; esses contadores não registram início/aceite
+de entregas nem estão vinculados a uma coorte CI-01. O evento
+`feedback_submitted` registra envio de feedback, não hipótese validada com
+critério prévio. Nenhuma consulta a dados de runtime, financeiros ou de clientes
+foi feita.
+
+| KPI | Resultado neste snapshot | Evidência que falta |
+| --- | --- | --- |
+| `lead_time_ms` | Não disponível | Registro auditável de início de execução e aceite por entrega, com WIP da mesma janela |
+| `change_failure_rate` | Não disponível | Receipts de deployments por provedor, vínculo com incidentes/rollback e horizonte de acompanhamento |
+| `cost_per_delivery_minor` | Não disponível | Custos reconciliados de IA, CI e infraestrutura, atribuídos às mesmas entregas e em uma moeda |
+| `acceptance_rate` | Não disponível | Histórico versionado de submissões e decisões de aceite, incluindo pendências e deduplicação |
+| `contribution_margin_minor` | Não disponível | Ledger financeiro reconciliado e custos variáveis atribuíveis ao produto |
+| `validated_demand_rate` | Não disponível | Registro de experimento com hipótese, critério definido antes da avaliação e resultado evidenciado |
+
+O snapshot não define janela de medição nem escolhe oficialmente o produto para
+a baseline; portanto não cria observações, zeros ou cobertura para qualquer
+KPI. A próxima execução exige selecionar produto/ambiente e obter acesso às
+fontes operacionais correspondentes. A issue #123 permanece aberta.
+
 | KPI | Evidência real disponível | Pendências específicas |
 | --- | --- | --- |
 | `lead_time_ms` | Não disponível | Fonte auditável de `executionStartedAt` e `acceptedAt` por entrega; incluir inícios anteriores à janela; relatar o WIP (entregas não aceitas) separadamente |
