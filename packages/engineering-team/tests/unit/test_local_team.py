@@ -449,6 +449,21 @@ class LocalTeamTests(unittest.TestCase):
         self.assertEqual(team.read(path / 'state.json')['status'], 'FAILED')
         self.assertEqual(team.git(target, 'rev-parse', 'HEAD'), base)
 
+    def test_legacy_replan_after_first_cycle_requires_openspec_hashes(self):
+        task, path, target, base = self.setup_run()
+        state = team.read(path / 'state.json')
+        state.update(phase='PLAN', cycle=1, plan=plan(base))
+        team.atomic(path / 'state.json', state)
+        calls = []
+        def execute(*args, **kwargs):
+            calls.append(args[3])
+            return self.controlled_executor(*args, **kwargs)
+        with patch.object(team, 'grant_agent_checkout_access'), patch.object(team, 'image_present'), patch.object(team, 'execute', side_effect=execute), self.assertRaisesRegex(team.Blocked, 'lacks coordinator OpenSpec hashes'):
+            team.worker(task)
+        self.assertEqual(calls, [])
+        self.assertEqual(team.read(path / 'state.json')['status'], 'FAILED')
+        self.assertEqual(team.git(target, 'rev-parse', 'HEAD'), base)
+
     def test_oversized_review_diff_blocks_before_provider(self):
         path = self.root / 'task'; path.mkdir()
         state = {'cycle': 0, 'base_sha': 'a' * 40, 'stage_runs': []}
