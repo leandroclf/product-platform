@@ -696,6 +696,25 @@ def verify_change_surface(workspace, state):
     return state['change_surface']
 
 
+def record_product_progress(workspace, state):
+    """Bound repair loops by product content, not commit IDs or generated task notes.
+
+    Persist the small history in the existing atomic checkpoint. No provider
+    retry, permission change or new runtime is introduced.
+    """
+    delta = git(workspace, 'diff', '--no-ext-diff', '--no-textconv', '--binary',
+                state['base_sha'], 'HEAD', '--', '.',
+                ':(exclude)openspec/changes/ai-team-*')
+    fingerprint = hashlib.sha256(delta.encode()).hexdigest()
+    history = state.setdefault('product_progress', [])
+    history.append(fingerprint)
+    del history[:-6]
+    if len(history) >= 3 and len(set(history[-3:])) == 1:
+        raise Blocked('no product progress across three implementation cycles; inspect evidence before restarting')
+    if len(history) >= 4 and history[-4:-2] == history[-2:]:
+        raise Blocked('alternating product repair loop detected; inspect evidence before restarting')
+
+
 def snapshot(workspace, state):
     git(workspace, 'add', '-A')
     if git(workspace, 'diff', '--cached', '--name-only'):
@@ -902,6 +921,7 @@ def worker(task_id):
                     if (path / 'stop').exists():
                         raise Blocked('stop requested before commit')
                     state['head_sha'] = snapshot(workspace, state)
+                    record_product_progress(workspace, state)
                     if result['status'] == 'REPLAN_REQUIRED':
                         state['feedback'] = [result]
                         state['cycle'] += 1; state['phase'] = 'PLAN'
