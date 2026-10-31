@@ -91,3 +91,8 @@ test('values JSON cannot represent stay rejected and never become empty or zero'
   assert.ok(Object.is(margin.value, 0));
   assert.ok(Object.is(calculateKpi({ kind: 'cost_per_delivery_minor', costMinor: -0, accepted: 3, currency: 'BRL' }, evidence).value, 0));
 });
+test('malformed top-level arguments fail with the documented error', () => {
+  assert.throws(() => calculateKpi(null as unknown as KpiInput, evidence), { name: 'Error', message: 'KPI requires input and evidence' });
+  assert.throws(() => calculateKpi({ kind: 'acceptance_rate', accepted: 1, submitted: 2 }, null as unknown as KpiEvidence), { name: 'Error', message: 'KPI requires input and evidence' });
+  assert.throws(() => calculateKpi({ kind: 'unknown' } as unknown as KpiInput, evidence), { name: 'Error', message: 'unsupported KPI' });
+});
