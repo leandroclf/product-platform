@@ -1,8 +1,27 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { calculateKpi, type KpiEvidence, type KpiInput } from './kpis.js';
 
 const evidence: KpiEvidence = { windowStart: '2026-10-01T00:00:00Z', windowEnd: '2026-11-01T00:00:00Z', source: 'fixture-only', coverage: 'complete' };
+test('matches the cross-language KPI contract', () => {
+  const cases = JSON.parse(readFileSync(new URL('../../fixtures/kpi-cases.json', import.meta.url), 'utf8'));
+  for (const item of cases) {
+    const context = { ...evidence, ...item.evidence };
+    if (item.error) assert.throws(() => calculateKpi(item.input, context), item.name);
+    else {
+      const result = calculateKpi(item.input, context);
+      assert.equal(result.value, item.value, item.name);
+      assert.equal(result.reason, item.reason, item.name);
+      assert.equal(result.coverage, context.coverage, item.name);
+      assert.equal(result.windowStart, context.windowStart, item.name);
+      assert.equal(result.windowEnd, context.windowEnd, item.name);
+      assert.equal(result.source, context.source, item.name);
+      assert.equal(result.kind, item.input.kind, item.name);
+      assert.equal(result.currency, item.currency, item.name);
+    }
+  }
+});
 test('rates use the cohort denominator, not CI executions', () => {
   assert.equal(calculateKpi({ kind: 'change_failure_rate', failedDeployments: 2, deployments: 10 }, evidence).value, 0.2);
   assert.equal(calculateKpi({ kind: 'acceptance_rate', accepted: 3, submitted: 4 }, evidence).value, 0.75);

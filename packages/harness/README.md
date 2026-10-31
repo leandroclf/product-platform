@@ -33,3 +33,11 @@ and Python standard-library tests against the canonical kit corpus
 (`../kit/contracts/product-event/fixtures/compatibility-cases.json`); there is no local copy.
 `PRODUCT_EVENT_CASES` overrides the path. Runtime validators reject unknown fields and invalid
 metadata; typed callers alone do not provide this boundary.
+
+CI-01 KPI calculations are available as `calculate_kpi(input, evidence)` from
+`product_platform_harness` (Python) and `calculateKpi(input, evidence)` from
+`@leandroclf/product-platform-harness/observability` (TypeScript). Callers supply a deduplicated cohort, an ordered timezone-aware window, source and
+coverage; missing values remain distinct from observed zero, and partial coverage is preserved.
+`npm run validate` checks both implementations against `fixtures/kpi-cases.json`. The Python
+function is not in the published `harness-v0.2.1` artifact; consumers need a later immutable
+release before adopting it.
