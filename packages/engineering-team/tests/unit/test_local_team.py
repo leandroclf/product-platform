@@ -229,7 +229,7 @@ class LocalTeamTests(unittest.TestCase):
         sha = team.snapshot(workspace, {'request': 'change'})
         planned = plan(base)
         team.atomic(path / 'state.json', dict(version=2, repository=str(target), status='REVIEWED',
-                    head_sha=sha, base_sha=base, plan=planned, plan_id=team.plan_id(planned),
+                    head_sha=sha, base_sha=base, plan=planned, plan_id=team.plan_id(planned), host_openspec_sha256={},
                     config=config(str(target)), cycle=0))
         team.atomic(path / '0-tests.json', dict(head_sha=sha, exit_code=0))
         for kind in ('validate', 'review'):
@@ -687,6 +687,12 @@ class LocalTeamTests(unittest.TestCase):
         team.atomic(path / 'state.json', dict(version=1, status='RUNNING'))
         with self.assertRaises(team.Blocked):
             team.start(path)
+        task, task_path, _, _ = self.setup_run()
+        state = team.read(task_path / 'state.json')
+        state['status'] = 'REVIEWED'
+        team.atomic(task_path / 'state.json', state)
+        with self.assertRaisesRegex(team.Blocked, 'lacks coordinator OpenSpec hashes'):
+            team.deliver(task)
         old = config(); old.pop('models'); old['version'] = 1
         with self.assertRaises(team.Blocked):
             team.validate_config(old)

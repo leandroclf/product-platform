@@ -1091,7 +1091,11 @@ def deliver(task_id, push=False, pr=False):
             raise Blocked('stopped task cannot deliver')
         if state['status'] != 'REVIEWED':
             raise Blocked('delivery requires REVIEWED state')
-        if state.get('version') != 2 or plan_id(state.get('plan')) != state.get('plan_id'):
+        if state.get('version') != 2:
+            raise Blocked('delivery requires the isolated four-stage plan')
+        if not isinstance(state.get('host_openspec_sha256'), dict):
+            raise Blocked('legacy task lacks coordinator OpenSpec hashes; start a new task')
+        if plan_id(state.get('plan')) != state.get('plan_id'):
             raise Blocked('delivery requires the isolated four-stage plan')
         sha = state['head_sha']
         validate_plan(dict(state['plan'], capability_decisions=state['plan'].get('capability_decisions', [])), state['plan']['base_sha'])
