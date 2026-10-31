@@ -22,8 +22,6 @@ Reutilizar a fila e os componentes existentes, sem adicionar gateway, Agent Serv
 
 Manter o mapeamento de estágios já existente: OpenAI planeja e valida; Claude implementa e revisa, em sessões isoladas. O fluxo automático de backlog bloqueia R2/R3. O CLI local permite autorizar individualmente planos até R2 com `ai-team run --authorize-r2`, mas R3 continua bloqueado e planos R2 não podem ser entregues pelo CLI. Não ampliar a fila automática com essa autorização por tarefa.
 
-
-
 A comparação com o runtime Hive está registrada em [docs/research/HIVE-ANALYSIS.md](research/HIVE-ANALYSIS.md). Ela confirma o desenho atual: estender o supervisor de backlog já previsto, iniciando com uma tarefa por invocação; reutilizar checkpoints, hashes, locks e gates existentes; e condicionar qualquer paralelismo ou promoção automática de skills a evidência operacional. Não adicionar um segundo orquestrador, banco de estado ou runtime de agentes.
 
 ## Contrato de execução
