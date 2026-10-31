@@ -24,6 +24,8 @@ Manter o mapeamento de estágios já existente: OpenAI planeja e valida; Claude 
 
 A comparação com o runtime Hive está registrada em [docs/research/HIVE-ANALYSIS.md](research/HIVE-ANALYSIS.md). Ela confirma o desenho atual: estender o supervisor de backlog já previsto, iniciando com uma tarefa por invocação; reutilizar checkpoints, hashes, locks e gates existentes; e condicionar qualquer paralelismo ou promoção automática de skills a evidência operacional. Não adicionar um segundo orquestrador, banco de estado ou runtime de agentes.
 
+A análise de Symphony, Ralph, Open SWE e Gas Town está em [docs/research/AGENT-RUNTIMES-ANALYSIS.md](research/AGENT-RUNTIMES-ANALYSIS.md). Ela recomenda usar a especificação do Symphony para orientar o supervisor serial já previsto, preservar o padrão de contexto fresco do ai-team, condicionar feedback automático de CI ao piloto e adiar paralelismo até que métricas revelem essa necessidade.
+
 ## Contrato de execução
 
 1. Fixar tarefa, produto, repositório, base, escopo autorizado e critérios de aceite. Resolver REUSE > EXTEND > CREATE.
