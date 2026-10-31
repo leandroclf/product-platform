@@ -61,7 +61,7 @@ jobs:
         run: |
           test -d "$CLI_AUDIT_SITE"
           python -m venv "$RUNNER_TEMP/cli-auditor"
-          "$RUNNER_TEMP/cli-auditor/bin/python" -m pip install --upgrade pip
+          "$RUNNER_TEMP/cli-auditor/bin/python" -m pip install --upgrade pip 'setuptools>=84.1.0'
           "$RUNNER_TEMP/cli-auditor/bin/python" -m pip install 'pip-audit==2.10.1' 'filelock==4.2.5'
           "$RUNNER_TEMP/cli-auditor/bin/python" -m pip_audit
           "$RUNNER_TEMP/cli-auditor/bin/python" -m pip_audit --path "$CLI_AUDIT_SITE"

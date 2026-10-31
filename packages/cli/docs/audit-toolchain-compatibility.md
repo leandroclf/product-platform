@@ -8,4 +8,6 @@ A ferramenta de auditoria sai do extra dev em Python3.10 por marcador de versão
 
 O job falha se o diretório-alvo não existir ou se purelib/platlib divergirem sem suporte explícito. Não há ignore-vuln, exclusão silenciosa de pacote vulnerável, remoção da auditoria3.10 ou mudança de requires-python. O pacote local editable continua sujeito à limitação já existente de não estar disponível no PyPI; o scan das dependências instaladas permanece.
 
+O primeiro CI confirmou a necessidade de atualizar também setuptools no venv auditor: Python3.11 inclui versão79.0.1 no bootstrap e o scan da própria ferramenta a reprovou. O setup atualiza pip e setuptools>=84.1.0 antes de instalar/auditar a ferramenta; não ignora os achados do bootstrap. O job3.12 já passou com o isolamento; a matriz completa deve ser revalidada após esse ajuste.
+
 Reproduzir em host3.10 requer primeiro instalar/testar/buildar o CLI sem o extra de auditoria; depois apontar um auditor3.11+ isolado ao site-packages real. Registrar versões e resultado de ambos os scans. O resultado remoto da matriz é necessário para concluir a compatibilidade; testes locais3.12 não substituem essa evidência.
