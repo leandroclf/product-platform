@@ -23,9 +23,18 @@ R2 work MUST remain blocked by default in the local CLI. The operator MAY explic
 - **AND** the required specialized offline quality check must be configured and pass before review
 
 ### Requirement: Reviews receive the complete changed-file patch
-The coordinator MUST include every changed path in the validation and review patch, including files under `openspec/changes/ai-team-*`. Generated task records MAY be excluded from the no-progress fingerprint only for the current task; files under other `ai-team-*` paths MUST remain visible to risk classification.
+The coordinator MUST include every changed path in the validation and review patch, including files under `openspec/changes/ai-team-*`. Only exact host-generated task files whose contents still match their recorded SHA-256 MAY be omitted from path-risk classification and the no-progress fingerprint. Any mismatch MUST block the task; all other `ai-team-*` paths MUST remain visible to risk classification.
 
 #### Scenario: Product file uses the ai-team prefix
 - **WHEN** a change modifies `openspec/changes/ai-team-older/security-policy.md`
 - **THEN** the file appears in both independent review patches
 - **AND** it is included in path classification and requires `security_and_approval`
+
+#### Scenario: Host-generated task records remain unchanged in an R0 task
+- **WHEN** a documentation-only task adds its host-generated plan records
+- **THEN** the records appear in the validation and review patches
+- **AND** only the exact matching host records are omitted from risk classification
+
+#### Scenario: Host-generated task record is altered
+- **WHEN** an implementer changes a file recorded as host-generated
+- **THEN** the coordinator blocks the task before validation or delivery

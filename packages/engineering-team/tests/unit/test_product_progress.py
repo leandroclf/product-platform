@@ -1,5 +1,6 @@
 """Persistent product-content repair loop detection using real Git repositories."""
 import json
+import hashlib
 from pathlib import Path
 import subprocess
 import tempfile
@@ -41,9 +42,12 @@ class ProductProgressTests(unittest.TestCase):
         for index in range(2):
             notes = self.repo / 'openspec/changes/ai-team-test/tasks.md'
             notes.parent.mkdir(parents=True, exist_ok=True)
-            notes.write_text(str(index))
+            content = str(index)
+            notes.write_text(content)
             self.git('add', '.')
             self.git('commit', '-qm', 'notes only')
+            self.state['host_openspec_sha256'] = {
+                'openspec/changes/ai-team-test/tasks.md': hashlib.sha256((content + '\n').encode()).hexdigest()}
             self.state = json.loads(json.dumps(self.state))
             if index == 0:
                 record_product_progress(self.repo, self.state)

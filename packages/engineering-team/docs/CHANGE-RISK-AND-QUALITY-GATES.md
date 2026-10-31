@@ -6,7 +6,7 @@ O `ai-team` é um executor local supervisionado. R0/R1 seguem o fluxo padrão; u
 
 1. O plano `READY` com risco R2 só continua se a execução foi iniciada com `--authorize-r2`; planos R3 são sempre bloqueados. A autorização é vinculada ao repositório, HEAD base e hash da solicitação no estado privado da tarefa.
 2. Após o commit do implementador e **antes dos testes**, o host compara os nomes de arquivos alterados com o `base_sha`; arquivos de autenticação, permissões, workflow GitHub, infraestrutura, migrações, dependências, lockfiles, credenciais e configurações sensíveis elevam a classificação para R2 e interrompem o fluxo.
-3. O host reexecuta esse controle antes dos testes e antes de `deliver` (incluindo PR draft), para impedir entrega de um diff que deixou de cumprir a autorização. Todos os caminhos alterados, inclusive OpenSpec gerado pelo coordenador, entram na classificação e nos patches entregues a validate/review; apenas o detector de ciclos ignora a pasta de registros da tarefa corrente.
+3. O host reexecuta esse controle antes dos testes e antes de `deliver` (incluindo PR draft), para impedir entrega de um diff que deixou de cumprir a autorização. Todos os caminhos alterados, inclusive OpenSpec gerado pelo coordenador, entram nos patches entregues a validate/review. Só os arquivos exatos registrados pelo host e verificados por SHA-256 podem ser omitidos da classificação de risco; qualquer alteração neles bloqueia o fluxo. O detector de ciclos também exclui somente esses caminhos exatos.
 4. Arquivos desconhecidos tratados como R1 **não provam** que o conteúdo é seguro. Essa heurística é um piso conservador, não substitui análise semântica, políticas nativas ou revisão humana.
 
 ## Matriz de qualidade por mudança

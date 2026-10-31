@@ -279,7 +279,8 @@ class LocalTeamTests(unittest.TestCase):
                         dict(plan(sha, getattr(self, 'planned_risk', 'R1')),
                              capability_decisions=getattr(self, 'plan_decisions', [])))
         elif label.endswith('-implement'):
-            (path / 'workspace' / 'file').write_text('after ' + label)
+            if not getattr(self, 'skip_default_file_change', False):
+                (path / 'workspace' / 'file').write_text('after ' + label)
             extra_path = getattr(self, 'extra_changed_path', None)
             if extra_path:
                 extra = path / 'workspace' / extra_path
@@ -312,6 +313,34 @@ class LocalTeamTests(unittest.TestCase):
         self.assertTrue(all(x['resolved_model'] is None for x in state['stage_runs']))
         self.assertIn('after 0-implement', (path / 'handoff-0-review' / 'changes.patch').read_text())
         self.assertFalse((path / 'handoff-0-review' / 'validate.json').exists())
+
+    def test_r0_document_task_with_unchanged_host_records_reaches_review(self):
+        task, path, target, base = self.setup_run()
+        self.skip_default_file_change = True
+        self.extra_changed_path = 'docs/audit.md'
+        self.planned_risk = 'R0'
+        with patch.object(team, 'grant_agent_checkout_access'), patch.object(team, 'image_present'), patch.object(team, 'execute', side_effect=self.controlled_executor):
+            team.worker(task)
+        state = team.read(path / 'state.json')
+        self.assertEqual(state['status'], 'REVIEWED')
+        self.assertEqual(state['change_surface']['risk'], 'R0')
+        self.assertEqual(state['change_surface']['paths'], ['docs/audit.md'])
+        review_patch = (path / 'handoff-0-review' / 'changes.patch').read_text()
+        self.assertIn('docs/audit.md', review_patch)
+        self.assertIn('openspec/changes/ai-team-' + task + '/0/tasks.md', review_patch)
+        self.assertEqual(team.git(target, 'rev-parse', 'HEAD'), base)
+
+    def test_modified_host_openspec_record_blocks_change_surface(self):
+        workspace = self.root / 'ws'; workspace.mkdir()
+        relative = 'openspec/changes/ai-team-' + ('b' * 32) + '/0/tasks.md'
+        artifact = workspace / relative
+        artifact.parent.mkdir(parents=True)
+        artifact.write_text('modified')
+        state = {'task': 'b' * 32, 'base_sha': 'a' * 40, 'plan': {'risk': 'R0'},
+            'repository': '/repo', 'request': 'R0 docs', 'config': config(),
+            'host_openspec_sha256': {relative: hashlib.sha256(b'host content').hexdigest()}}
+        with patch.object(team, 'git', return_value=relative), self.assertRaisesRegex(team.Blocked, 'changed after coordinator generation'):
+            team.verify_change_surface(workspace, state)
 
     def test_review_handoff_and_quality_gates_include_ai_team_prefixed_product_changes(self):
         task, path, target, base = self.setup_run()

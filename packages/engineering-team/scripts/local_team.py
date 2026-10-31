@@ -6,7 +6,7 @@ import fcntl
 import hashlib
 import json
 import os
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 import re
 import shutil
 import signal
@@ -696,7 +696,37 @@ def verify_change_surface(workspace, state):
     """Check actual changed paths against the plan and operator-authorized risk ceiling."""
     raw = git(workspace, 'diff', '--name-only', '--no-renames',
               state['base_sha'], 'HEAD')
-    paths = [p for p in raw.splitlines() if p]
+    all_paths = [p for p in raw.splitlines() if p]
+    host_paths = state.get('host_openspec_sha256', {})
+    if not isinstance(host_paths, dict):
+        raise Blocked('invalid host OpenSpec manifest')
+    task = state.get('task')
+    if host_paths and not isinstance(task, str):
+        raise Blocked('invalid host OpenSpec manifest')
+    task_prefix = f"openspec/changes/ai-team-{task}/" if task else None
+    for relative, expected in host_paths.items():
+        if not isinstance(relative, str):
+            raise Blocked('host OpenSpec artifact path is missing or unsafe')
+        parsed = PurePosixPath(relative)
+        parts = parsed.parts
+        if (parsed.is_absolute() or '..' in parts or task_prefix is None
+                or not relative.startswith(task_prefix) or len(parts) < 5):
+            raise Blocked('host OpenSpec artifact path is missing or unsafe')
+        artifact = workspace
+        for part in parts:
+            artifact = artifact / part
+            if artifact.is_symlink():
+                raise Blocked('host OpenSpec artifact path is missing or unsafe')
+        if relative not in all_paths or not artifact.is_file():
+            raise Blocked('host OpenSpec artifact path is missing or unsafe')
+        try:
+            actual = hashlib.sha256(artifact.read_bytes()).hexdigest()
+        except OSError as exc:
+            raise Blocked('cannot verify host OpenSpec artifact') from exc
+        if not isinstance(expected, str) or actual != expected:
+            raise Blocked('host OpenSpec artifact changed after coordinator generation')
+    generated = set(host_paths)
+    paths = [p for p in all_paths if p not in generated]
     try:
         risk = ensure_authorized(state['plan']['risk'], paths, risk_authorization_ceiling(state))
     except ValueError as exc:
@@ -718,9 +748,7 @@ def record_product_progress(workspace, state):
     Persist the small history in the existing atomic checkpoint. No provider
     retry, permission change or new runtime is introduced.
     """
-    paths = ['--', '.']
-    if state.get('task'):
-        paths.append(f":(exclude)openspec/changes/ai-team-{state['task']}/**")
+    paths = ['--', '.'] + [f':(exclude){p}' for p in state.get('host_openspec_sha256', {})]
     delta = git(workspace, 'diff', '--no-ext-diff', '--no-textconv', '--binary',
                 state['base_sha'], 'HEAD', *paths)
     fingerprint = hashlib.sha256(delta.encode()).hexdigest()
@@ -831,8 +859,10 @@ def record_openspec(workspace, state):
     for name, contents in contents.items():
         artifact = directory / name
         with artifact.open('x') as handle:
-            handle.write(contents + '\n')
+            content = contents + '\n'
+            handle.write(content)
         artifact.chmod(0o644)
+        state.setdefault('host_openspec_sha256', {})[artifact.relative_to(workspace).as_posix()] = hashlib.sha256(content.encode()).hexdigest()
     # Reapply narrow ACL after chmod: chmod may have reduced the inherited ACL mask.
     # Never make newly generated OpenSpec files writable by every local user.
     grant_agent_checkout_access(workspace)
