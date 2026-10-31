@@ -858,7 +858,7 @@ def record_openspec(workspace, state):
     }
     for name, contents in contents.items():
         artifact = directory / name
-        with artifact.open('x') as handle:
+        with artifact.open('x', encoding='utf-8', newline='\n') as handle:
             content = contents + '\n'
             handle.write(content)
         artifact.chmod(0o644)

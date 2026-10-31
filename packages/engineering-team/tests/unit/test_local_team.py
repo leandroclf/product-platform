@@ -344,6 +344,16 @@ class LocalTeamTests(unittest.TestCase):
         with patch.object(team, 'git', return_value=relative), self.assertRaisesRegex(team.Blocked, 'changed after coordinator generation'):
             team.verify_change_surface(workspace, state)
 
+    def test_host_openspec_hash_matches_utf8_bytes_for_portuguese_request(self):
+        workspace = self.root / 'workspace'; workspace.mkdir()
+        planned = plan()
+        state = {'task': 'b' * 32, 'cycle': 0, 'plan': planned, 'plan_id': team.plan_id(planned),
+                 'request': 'Corrigir a descrição do café'}
+        with patch.object(team, 'grant_agent_checkout_access'):
+            team.record_openspec(workspace, state)
+        for relative, digest in state['host_openspec_sha256'].items():
+            self.assertEqual(hashlib.sha256((workspace / relative).read_bytes()).hexdigest(), digest)
+
     def test_review_handoff_and_quality_gates_include_ai_team_prefixed_product_changes(self):
         task, path, target, base = self.setup_run()
         self.extra_changed_path = 'openspec/changes/ai-team-older/security-policy.md'
