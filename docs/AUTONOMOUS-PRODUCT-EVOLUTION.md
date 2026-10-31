@@ -20,7 +20,7 @@ Reutilizar a fila e os componentes existentes, sem adicionar gateway, Agent Serv
 | Revisão GitHub e integração | `docs/AUTOMERGE-OPERATIONS.md` e gates nativos |
 | Capacidades de produto | Kit e harness; produtos consomem releases imutáveis |
 
-Manter o mapeamento de estágios já existente: OpenAI planeja e valida; Claude implementa e revisa, em sessões isoladas. O runtime bloqueia R2/R3 no fluxo automático atual. Não remover esse bloqueio para aproximar uma promessa de autonomia.
+Manter o mapeamento de estágios já existente: OpenAI planeja e valida; Claude implementa e revisa, em sessões isoladas. O fluxo automático de backlog bloqueia R2/R3. O CLI local permite autorizar individualmente planos até R2 com `ai-team run --authorize-r2`, mas R3 continua bloqueado e planos R2 não podem ser entregues pelo CLI. Não ampliar a fila automática com essa autorização por tarefa.
 
 ## Contrato de execução
 

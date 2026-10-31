@@ -176,6 +176,9 @@ usar `ai-team deliver`.
 - O runtime foi atualizado e testado pelo procedimento oficial: Codex CLI
   0.164.0 e Claude Code 2.1.310. O teste de isolamento passou quando o diretório
   temporário foi colocado sob o workspace compartilhado pelo Docker Desktop.
+  Essas versões registram a verificação de 26/10/2026. Na atualização de
+  31/10/2026, npm, Dockerfile e preflight confirmaram Codex 0.166.0 e Claude
+  Code 2.1.316; veja a baseline atual em `runtimes/Dockerfile` e `scripts/preflight.py`.
 - Os 11 prompts desta sequência foram submetidos ao `ai-team`, usando o perfil
   econômico declarado acima e `--authorize-r2 --rules` com as regras locais.
   A tabela registra o resultado terminal de cada prompt. `FAILED` significa que

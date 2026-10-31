@@ -944,9 +944,9 @@ def worker(task_id):
                     clean(workspace)
                     implementation_base = git(workspace, 'rev-parse', 'HEAD')
                     prompt = ('You are Argus, implementing the accepted plan in /handoff/plan.json. '
-                              'Read AGENTS.md and existing OpenSpec first. The host-generated openspec/changes/ai-team-<task>/<cycle>/ files are orchestration records: preserve them and do not count or edit them as product output. Preserve the original request and acceptance. '
+                              'Read AGENTS.md and existing OpenSpec first. Update product-owned OpenSpec tasks with truthful evidence. Do not edit host-generated openspec/changes/ai-team-<task>/<cycle>/ records; the coordinator verifies their recorded hashes. Preserve the original request and acceptance. '
                               f'Plan ID: {state["plan_id"]}. Return the supplied implementation schema. '
-                              'Update OpenSpec tasks with truthful evidence. Use REPLAN_REQUIRED if the plan is invalid; '
+                              'Use REPLAN_REQUIRED if the plan is invalid; '
                               'use BLOCKED if critical context or authorization is missing. '
                               'Do not run repository tests/commands '
                               'that execute checkout code; the host runs those without credentials. '
