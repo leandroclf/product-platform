@@ -1,0 +1,99 @@
+{
+  "schema_version": 2,
+  "task_sha256": "877a1a99d6daaeaab4972146eb0d9703e5bbc89ab1d3e68137b9cc5c522f4091",
+  "head_sha": "3ff63351fca2ca3b0166bfe3056bca44e93368b1",
+  "source_tree_sha": "8a899ac11b4f10c535dfb5816815def6b240bc23",
+  "condition": "baseline",
+  "status": "captured",
+  "iterations": 0,
+  "elapsed_seconds": 6.073,
+  "cost_usd": null,
+  "model_execution": "not-run",
+  "screenshots": [
+    {
+      "viewport_id": "desktop",
+      "state_id": "ready",
+      "artifact": {
+        "path": "screenshots/desktop-ready.png",
+        "sha256": "261d3485214737b6325384dcdf63b1f2654878a433da6fe2325b41f76b9ca426"
+      }
+    },
+    {
+      "viewport_id": "mobile",
+      "state_id": "ready",
+      "artifact": {
+        "path": "screenshots/mobile-ready.png",
+        "sha256": "ea2a940c23e8cf3f107853447b2483c2a30bd77479c401266475dd1d8884a4fc"
+      }
+    }
+  ],
+  "checks": [
+    {
+      "criterion_id": "layout",
+      "status": "pass",
+      "evidence": "Inspeção direta das capturas desktop/mobile: header, conteúdo principal, espaçamento visível e ausência de overflow horizontal. É baseline autorreferenciada, sem comparação com deployment ou design externo.",
+      "artifacts": [
+        {
+          "path": "checks/browser-report.json",
+          "sha256": "3d729cb32347d22d8062c0a4701e1b43e6d5d321c5f37a4a4873f38f35fca4dd"
+        }
+      ]
+    },
+    {
+      "criterion_id": "navigation",
+      "status": "pass",
+      "evidence": "No browser isolado, o menu mobile abriu e fechou ao navegar para #servicos; dropdown abriu com ArrowDown e fechou com Escape; o alvo ficou visível.",
+      "artifacts": [
+        {
+          "path": "checks/browser-report.json",
+          "sha256": "3d729cb32347d22d8062c0a4701e1b43e6d5d321c5f37a4a4873f38f35fca4dd"
+        }
+      ]
+    },
+    {
+      "criterion_id": "keyboard",
+      "status": "pass",
+      "evidence": "No browser isolado, Tab revelou skip-link, Enter moveu foco para main e próximo Tab ficou dentro do conteúdo; dropdown preservou foco em abertura/fechamento. Verificação limitada a estes fluxos, sem alegação WCAG.",
+      "artifacts": [
+        {
+          "path": "checks/browser-report.json",
+          "sha256": "3d729cb32347d22d8062c0a4701e1b43e6d5d321c5f37a4a4873f38f35fca4dd"
+        }
+      ]
+    }
+  ],
+  "regression_results": [
+    {
+      "id": "nav-smoke",
+      "status": "pass",
+      "artifact": {
+        "path": "checks/browser-report.json",
+        "sha256": "3d729cb32347d22d8062c0a4701e1b43e6d5d321c5f37a4a4873f38f35fca4dd"
+      }
+    },
+    {
+      "id": "keyboard-smoke",
+      "status": "pass",
+      "artifact": {
+        "path": "checks/browser-report.json",
+        "sha256": "3d729cb32347d22d8062c0a4701e1b43e6d5d321c5f37a4a4873f38f35fca4dd"
+      }
+    },
+    {
+      "id": "layout-smoke",
+      "status": "pass",
+      "artifact": {
+        "path": "checks/browser-report.json",
+        "sha256": "3d729cb32347d22d8062c0a4701e1b43e6d5d321c5f37a4a4873f38f35fca4dd"
+      }
+    }
+  ],
+  "performance_results": [],
+  "limitations": [
+    "Captura executada via file:// porque o namespace sem rede não permitiu subir loopback HTTP; comportamento de servidor/deployment HTTP não foi verificado.",
+    "O browser rodou em namespace de rede isolado e perfil temporário sem arquivos de credencial montados; o ambiente do processo pai não foi auditado e foi herdado pelo runner.",
+    "A referência visual é a própria captura desktop da baseline; não houve comparação com ambiente publicado ou mock aprovado.",
+    "A inspeção de acessibilidade cobriu os fluxos de teclado descritos; não é auditoria WCAG completa.",
+    "Nenhum modelo foi executado; custo permanece null; não foram medidos performance, benefício de feedback visual nem regressões fora dos fluxos registrados."
+  ]
+}

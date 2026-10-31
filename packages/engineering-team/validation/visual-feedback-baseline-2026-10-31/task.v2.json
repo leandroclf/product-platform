@@ -1,0 +1,146 @@
+{
+  "schema_version": 2,
+  "task_id": "lf-home-baseline-2026-10-31",
+  "repository": "leandroclf/site-lf-solucoes",
+  "base_sha": "3ff63351fca2ca3b0166bfe3056bca44e93368b1",
+  "reference": {
+    "artifact": {
+      "path": "screenshots/reference-desktop.png",
+      "sha256": "261d3485214737b6325384dcdf63b1f2654878a433da6fe2325b41f76b9ca426"
+    },
+    "usage": "owned",
+    "source": "Captura desktop criada nesta baseline do site próprio leandroclf/site-lf-solucoes, commit 3ff63351fca2ca3b0166bfe3056bca44e93368b1; serve como referência visual de linha de base, não como especificação externa."
+  },
+  "design_system": "Baseline do design system existente em brand-system.css/styles.css; screenshot desktop de referência é a própria captura imutável do commit fixado.",
+  "viewports": [
+    {
+      "id": "desktop",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "id": "mobile",
+      "width": 390,
+      "height": 844
+    }
+  ],
+  "criteria": [
+    {
+      "id": "layout",
+      "kind": "visual",
+      "description": "Inspect header, primary content, spacing and overflow in both viewports."
+    },
+    {
+      "id": "navigation",
+      "kind": "functional",
+      "description": "Verify primary links and menu with local-only destinations; no production API calls."
+    },
+    {
+      "id": "keyboard",
+      "kind": "accessibility",
+      "description": "Check navigation semantics, focus visibility and keyboard access; do not claim full WCAG conformance."
+    }
+  ],
+  "budget": {
+    "max_iterations": 2,
+    "max_elapsed_seconds": 600,
+    "max_cost_usd": 1,
+    "unknown_cost_policy": "stop"
+  },
+  "ux": {
+    "user_goal": "Encontrar capacidades e navegar para uma solução sem perder orientação.",
+    "entry": "Home pública do site LF Soluções.",
+    "exit": "Seção ou página de solução selecionada.",
+    "patterns_status": "existing",
+    "pattern_refs": [
+      "index.html: main-menu, solutions-menu, skip-link",
+      "script.js: menu-toggle, ArrowDown/Escape e prefers-reduced-motion"
+    ],
+    "design_constraints": [
+      "Preservar styles.css/brand-system.css e componentes atuais.",
+      "Não redesenhar nem enviar formulários/chamadas a produção neste piloto."
+    ],
+    "states": [
+      {
+        "id": "ready",
+        "applicable": true,
+        "behavior": "Home estática com menu fechado e conteúdo carregado."
+      },
+      {
+        "id": "loading",
+        "applicable": false,
+        "behavior": "Sem carregamento assíncrono do conteúdo principal neste escopo; assets precisam estar resolvidos antes da captura."
+      },
+      {
+        "id": "empty",
+        "applicable": false,
+        "behavior": "A home fixada contém conteúdo estático; estado sem dados fica fora deste piloto."
+      },
+      {
+        "id": "error",
+        "applicable": false,
+        "behavior": "Falha de infraestrutura é bloqueio do piloto, não tela de erro implementada na home."
+      },
+      {
+        "id": "disabled",
+        "applicable": false,
+        "behavior": "Não há ação desabilitada definida no escopo inicial; validar interações em seus critérios próprios."
+      }
+    ]
+  },
+  "impact": {
+    "paths": [
+      "index.html",
+      "styles.css",
+      "brand-system.css",
+      "script.js"
+    ],
+    "preserved_behaviors": [
+      {
+        "id": "navigation",
+        "behavior": "Menu e links continuam alcançáveis em desktop/mobile."
+      },
+      {
+        "id": "keyboard",
+        "behavior": "Pular para conteúdo e navegação de teclado permanecem funcionais."
+      },
+      {
+        "id": "brand",
+        "behavior": "Hierarquia e identidade visual existentes permanecem reconhecíveis."
+      }
+    ]
+  },
+  "regressions": [
+    {
+      "id": "nav-smoke",
+      "behavior_ids": [
+        "navigation"
+      ],
+      "criterion_ids": [
+        "navigation"
+      ],
+      "check_name": "Menu mobile, dropdown e links internos no runner do produto."
+    },
+    {
+      "id": "keyboard-smoke",
+      "behavior_ids": [
+        "keyboard"
+      ],
+      "criterion_ids": [
+        "keyboard"
+      ],
+      "check_name": "Tab/foco, ArrowDown/Escape, skip-link e preferência de movimento reduzido."
+    },
+    {
+      "id": "layout-smoke",
+      "behavior_ids": [
+        "brand"
+      ],
+      "criterion_ids": [
+        "layout"
+      ],
+      "check_name": "Captura e inspeção desktop/mobile contra referência autorizada."
+    }
+  ],
+  "performance_budgets": []
+}

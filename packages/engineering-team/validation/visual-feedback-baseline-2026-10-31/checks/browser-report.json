@@ -1,0 +1,244 @@
+{
+  "browser": {
+    "protocolVersion": "1.3",
+    "product": "Chrome/152.0.7977.54",
+    "revision": "@24072c1aa400ec4a89dc738b6b6acd12a8589b6f",
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/152.0.0.0 Safari/537.36",
+    "jsVersion": "15.2.124.13"
+  },
+  "runner": {
+    "network": "bubblewrap --unshare-net",
+    "profile": "temporary /tmp/profile",
+    "source": "read-only /site",
+    "credentials": "Temporary browser profile; no profile or credential files mounted. Parent runner environment was inherited and not credential-audited.",
+    "routeFile": "Iface\tDestination\tGateway \tFlags\tRefCnt\tUse\tMetric\tMask\t\tMTU\tWindow\tIRTT"
+  },
+  "captures": [
+    {
+      "viewportId": "desktop",
+      "file": "desktop-ready.png",
+      "stateId": "ready",
+      "snapshot": {
+        "url": "file:///site/index.html",
+        "title": "LF Soluções | Tecnologia que gera valor",
+        "readyState": "complete",
+        "viewport": {
+          "width": 1440,
+          "height": 900,
+          "devicePixelRatio": 1
+        },
+        "documentWidth": 1425,
+        "horizontalOverflow": false,
+        "mainCount": 1,
+        "mainId": "conteudo",
+        "skipCount": 1,
+        "fontInterLoaded": true,
+        "images": [
+          {
+            "alt": "LF Soluções — Tecnologia que gera valor",
+            "complete": true,
+            "naturalWidth": 620
+          },
+          {
+            "alt": "LF Soluções — Tecnologia que gera valor",
+            "complete": true,
+            "naturalWidth": 620
+          }
+        ],
+        "active": {
+          "tag": "BODY",
+          "id": null,
+          "className": "",
+          "text": "Pular para o conteúdo Capacidades Soluções ⌄ Produtos Como atuamos Empresa FAQ D"
+        },
+        "menuExpanded": "false"
+      }
+    },
+    {
+      "viewportId": "mobile",
+      "file": "mobile-ready.png",
+      "stateId": "ready",
+      "snapshot": {
+        "url": "file:///site/index.html",
+        "title": "LF Soluções | Tecnologia que gera valor",
+        "readyState": "complete",
+        "viewport": {
+          "width": 390,
+          "height": 844,
+          "devicePixelRatio": 1
+        },
+        "documentWidth": 390,
+        "horizontalOverflow": false,
+        "mainCount": 1,
+        "mainId": "conteudo",
+        "skipCount": 1,
+        "fontInterLoaded": true,
+        "images": [
+          {
+            "alt": "LF Soluções — Tecnologia que gera valor",
+            "complete": true,
+            "naturalWidth": 620
+          },
+          {
+            "alt": "LF Soluções — Tecnologia que gera valor",
+            "complete": true,
+            "naturalWidth": 620
+          }
+        ],
+        "active": {
+          "tag": "BODY",
+          "id": null,
+          "className": "",
+          "text": "Pular para o conteúdo ☰ LF SOLUÇÕES · CORPORATE TECH Confiável. Profissional. At"
+        },
+        "menuExpanded": "false"
+      }
+    }
+  ],
+  "checks": {
+    "layoutDesktop": {
+      "pass": true,
+      "detail": {
+        "url": "file:///site/index.html",
+        "title": "LF Soluções | Tecnologia que gera valor",
+        "readyState": "complete",
+        "viewport": {
+          "width": 1440,
+          "height": 900,
+          "devicePixelRatio": 1
+        },
+        "documentWidth": 1425,
+        "horizontalOverflow": false,
+        "mainCount": 1,
+        "mainId": "conteudo",
+        "skipCount": 1,
+        "fontInterLoaded": true,
+        "images": [
+          {
+            "alt": "LF Soluções — Tecnologia que gera valor",
+            "complete": true,
+            "naturalWidth": 620
+          },
+          {
+            "alt": "LF Soluções — Tecnologia que gera valor",
+            "complete": true,
+            "naturalWidth": 620
+          }
+        ],
+        "active": {
+          "tag": "BODY",
+          "id": null,
+          "className": "",
+          "text": "Pular para o conteúdo Capacidades Soluções ⌄ Produtos Como atuamos Empresa FAQ D"
+        },
+        "menuExpanded": "false"
+      }
+    },
+    "keyboardDesktop": {
+      "pass": true,
+      "skip": {
+        "isSkip": true,
+        "visible": true,
+        "top": "16px"
+      },
+      "afterEnter": {
+        "hash": "#conteudo",
+        "activeTag": "MAIN",
+        "activeId": "conteudo"
+      },
+      "afterNextTab": {
+        "insideMain": true,
+        "tag": "A",
+        "text": "Discutir um projeto"
+      }
+    },
+    "dropdownKeyboard": {
+      "pass": true,
+      "before": {
+        "isToggle": true,
+        "expanded": "false"
+      },
+      "open": {
+        "expanded": "true",
+        "focusedInPanel": true
+      },
+      "afterEscape": {
+        "expanded": "false",
+        "focusReturned": true
+      }
+    },
+    "layoutMobile": {
+      "pass": true,
+      "detail": {
+        "url": "file:///site/index.html",
+        "title": "LF Soluções | Tecnologia que gera valor",
+        "readyState": "complete",
+        "viewport": {
+          "width": 390,
+          "height": 844,
+          "devicePixelRatio": 1
+        },
+        "documentWidth": 390,
+        "horizontalOverflow": false,
+        "mainCount": 1,
+        "mainId": "conteudo",
+        "skipCount": 1,
+        "fontInterLoaded": true,
+        "images": [
+          {
+            "alt": "LF Soluções — Tecnologia que gera valor",
+            "complete": true,
+            "naturalWidth": 620
+          },
+          {
+            "alt": "LF Soluções — Tecnologia que gera valor",
+            "complete": true,
+            "naturalWidth": 620
+          }
+        ],
+        "active": {
+          "tag": "BODY",
+          "id": null,
+          "className": "",
+          "text": "Pular para o conteúdo ☰ LF SOLUÇÕES · CORPORATE TECH Confiável. Profissional. At"
+        },
+        "menuExpanded": "false"
+      }
+    },
+    "mobileMenu": {
+      "pass": true,
+      "toggleClicked": true,
+      "open": {
+        "expanded": "true",
+        "open": true,
+        "visible": true
+      },
+      "itemClicked": true,
+      "closed": {
+        "hash": "",
+        "scrollY": 1047,
+        "targetTop": 86.203125,
+        "expanded": "false",
+        "open": false
+      }
+    },
+    "keyboardMobile": {
+      "pass": true,
+      "skip": {
+        "isSkip": true,
+        "visible": true
+      },
+      "afterEnter": {
+        "hash": "#conteudo",
+        "activeTag": "MAIN",
+        "activeId": "conteudo"
+      },
+      "afterNextTab": {
+        "insideMain": true,
+        "tag": "A"
+      }
+    }
+  },
+  "elapsedSeconds": 6.073,
+  "ok": true
+}
