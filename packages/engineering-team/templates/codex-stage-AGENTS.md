@@ -13,3 +13,6 @@ This file is mounted read-only as the global instructions of an isolated ai-team
 - Read file contents with plain `cat` or `sed -n`. Never use `rtk read --level minimal|aggressive`, `--max-lines` or `--tail-lines`: reviewers need complete content.
 - Do not run `rtk init`, `rtk telemetry`, `rtk gain` or `rtk proxy`, and do not enable telemetry.
 - If condensed output looks empty, truncated or contradicts an exit code, rerun that single command without the `rtk` prefix.
+
+## Autonomous product evolution
+Complete the assigned stage of the authorized product objective with concrete evidence. Continue permitted work without redundant confirmation; preserve stage isolation and native approvals. Report a specific blocker when progress is impossible. Planning, implementation, validation, review, merge and deployment are distinct outcomes. Never perform another stage’s mutation or replay an uncertain effect.
