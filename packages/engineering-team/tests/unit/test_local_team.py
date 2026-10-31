@@ -434,6 +434,21 @@ class LocalTeamTests(unittest.TestCase):
         self.assertEqual(team.read(path / 'state.json')['status'], 'FAILED')
         self.assertEqual(team.git(target, 'rev-parse', 'HEAD'), base)
 
+    def test_legacy_in_progress_task_without_openspec_hashes_fails_closed(self):
+        task, path, target, base = self.setup_run()
+        state = team.read(path / 'state.json')
+        state.update(phase='IMPLEMENT', plan=plan(base))
+        team.atomic(path / 'state.json', state)
+        calls = []
+        def execute(*args, **kwargs):
+            calls.append(args[3])
+            return self.controlled_executor(*args, **kwargs)
+        with patch.object(team, 'grant_agent_checkout_access'), patch.object(team, 'image_present'), patch.object(team, 'execute', side_effect=execute), self.assertRaisesRegex(team.Blocked, 'lacks coordinator OpenSpec hashes'):
+            team.worker(task)
+        self.assertEqual(calls, [])
+        self.assertEqual(team.read(path / 'state.json')['status'], 'FAILED')
+        self.assertEqual(team.git(target, 'rev-parse', 'HEAD'), base)
+
     def test_plan_capability_decisions_must_match_the_platform_handoff(self):
         handoff = {'registry_fingerprint': 'a' * 64, 'product': 'site',
                    'capabilities': [{'name': 'entitlements', 'decision': 'REUSE', 'owner': 'product-platform-harness'}]}

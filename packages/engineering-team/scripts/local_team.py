@@ -883,6 +883,8 @@ def worker(task_id):
             validate_config(state['config'])
             if state['phase'] not in ('CLONE', 'PLAN', 'IMPLEMENT', 'TEST', 'REVIEW'):
                 raise Blocked('unknown or completed checkpoint')
+            if state['phase'] in ('IMPLEMENT', 'TEST', 'REVIEW') and not isinstance(state.get('host_openspec_sha256'), dict):
+                raise Blocked('legacy task lacks coordinator OpenSpec hashes; start a new task')
             image_present(state['config']['provider_image'])
             image_present(state['config']['test_image'])
             if state['phase'] == 'CLONE':
