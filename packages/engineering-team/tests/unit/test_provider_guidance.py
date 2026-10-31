@@ -79,8 +79,8 @@ class ProviderGuidanceTests(unittest.TestCase):
 
 
 class ProbeTests(unittest.TestCase):
-    def responses(self, provider, help_text=None, auth_code=0):
-        return [subprocess.CompletedProcess([], 0, 'cli 1.2.3', ''),
+    def responses(self, provider, help_text=None, auth_code=0, version='1.2.3'):
+        return [subprocess.CompletedProcess([], 0, 'cli ' + version, ''),
                 subprocess.CompletedProcess([], 0, help_text if help_text is not None else ' '.join(REQUIRED_FLAGS[provider]), ''),
                 subprocess.CompletedProcess([], auth_code, '{"access_token":"DO_NOT_PERSIST","email":"private"}', '')]
 
@@ -94,6 +94,12 @@ class ProbeTests(unittest.TestCase):
                 self.assertEqual(run.call_args.args[0], ['/cli', *command])
                 self.assertNotIn('DO_NOT_PERSIST', json.dumps(result))
                 self.assertNotIn('private', json.dumps(result))
+
+    def test_reviewed_versions_match_updated_runtime_baseline(self):
+        for provider, version in [('codex', '0.166.0'), ('claude', '2.1.316')]:
+            with self.subTest(provider=provider), patch('scripts.preflight.shutil.which', return_value='/cli'), \
+                 patch('scripts.preflight.subprocess.run', side_effect=self.responses(provider, version=version)):
+                self.assertTrue(probe(provider)['version_matches_reviewed'])
 
     def test_missing_feature_blocks_before_auth(self):
         with patch('scripts.preflight.shutil.which', return_value='/cli'), \
