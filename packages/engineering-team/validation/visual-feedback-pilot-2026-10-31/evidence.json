@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "task_sha256": "147faa043283b8c2cd0a7cafc15f501abc78456c1158181b91637c77e2b1e2aa",
+  "head_sha": "fad21f52d42b25a9fe9268156d1c0f2fdd83a73d",
+  "condition": "baseline",
+  "status": "blocked",
+  "iterations": 0,
+  "elapsed_seconds": 0,
+  "cost_usd": null,
+  "model_execution": "not-run",
+  "screenshots": [],
+  "checks": [
+    {
+      "criterion_id": "layout",
+      "status": "not-run",
+      "evidence": "Browser could not start: Chromium executable missing; download installation failed with invalid ZIP."
+    },
+    {
+      "criterion_id": "navigation",
+      "status": "not-run",
+      "evidence": "Browser could not start: Chromium executable missing; download installation failed with invalid ZIP."
+    },
+    {
+      "criterion_id": "keyboard",
+      "status": "not-run",
+      "evidence": "Browser could not start: Chromium executable missing; download installation failed with invalid ZIP."
+    }
+  ],
+  "limitations": [
+    "Blocked preflight: no capture, visual inspection, functional or accessibility browser check executed.",
+    "elapsed_seconds=0 represents capture-stage execution only; no browser capture started. Setup/download time is not a benchmark measurement.",
+    "Playwright available in host tooling; Chromium absent. Install attempt failed: End of central directory record signature not found.",
+    "No new browser dependency installed in repository; no credentials, production request, live model, product modification or productivity comparison.",
+    "Reference is source metadata, not a captured visual reference; replace/freeze a new task once authorized reference images are available."
+  ]
+}
