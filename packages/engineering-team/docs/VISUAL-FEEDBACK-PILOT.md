@@ -28,6 +28,27 @@ python3 scripts/validate_visual_feedback.py \
 
 O validador não executa comandos/URLs do manifesto. Verifica schema, conjuntos de critérios/viewports, SHA/digests, contenção de caminhos, container PNG/CRCs e dimensões. Não decodifica pixels, não compara aparência, não autentica a autoria, não verifica o checkout e não concede aceite. O HEAD esperado deve vir de `git rev-parse HEAD` e de checkout limpo conferido pelo operador. Evidência com status bloqueado ou critérios reprovados pode ser estruturalmente válida; o exit code zero não é um gate de qualidade.
 
+## Evolução iterativa e gate v2
+
+O contrato v1 e o comando acima mantêm sua semântica de integridade. Para novas mudanças de interface, use `task.v2.schema.json` e `evidence.v2.schema.json`, com o [modelo de especificação de UX](../templates/UX-CHANGE-SPEC.md). A v2 acrescenta objetivo/entrada/saída, padrões de interação, aplicabilidade dos cinco estados, escopo de arquivos, comportamentos preservados e referências aos testes de regressão reais. Direção de produto e UX entram no planejamento OpenAI; Claude implementa; OpenAI verifica; Claude revisa isoladamente. Não há diretoria extra, mudança de modelos ou fan-out obrigatório.
+
+As capturas cobrem **cada estado aplicável em cada viewport**, incluindo mobile e desktop. `ready` sempre se aplica. Para estados não aplicáveis, registre o motivo. Logs/relatórios de cada critério e regressão são arquivos com hash, não só declarações de sucesso. Orçamentos de performance são opcionais, mas, quando definidos, exigem métricas antes/depois, unidade, baseline congelada e limite posterior. Sem essas medições não existe alegação de melhora de performance.
+
+```bash
+python3 scripts/validate_visual_feedback.py \
+  --task /evidence/task.json --evidence /evidence/evidence.json \
+  --root /evidence --expected-head SHA_CAPTURADO \
+  --require-acceptance --checkout /caminho/do/checkout
+```
+
+Esse modo retorna não zero para v1, bloqueio, resultado não avaliado/reprovado, evidência ausente ou alterada, referência não PNG, padrão não avaliado, orçamento excedido, HEAD/árvore divergente, working tree suja, flags de índice que escondem mudanças ou diff fora dos arquivos declarados. Compara também **bytes e bit executável de todos os arquivos versionados com os blobs de HEAD**, sem confiar em mtime/stat nem executar filtros Git. Exige raiz de checkout Git completo e base ancestral; sparse checkouts não são aceitos. O primeiro gate aceita somente arquivos regulares byte a byte: symlinks, submodules e materializações transformadas CRLF/LFS exigem tratamento explícito antes da adoção, sem executar clean filters. Limites: 25 MiB por arquivo e 256 MiB no snapshot, com saída Git limitada a 256 KiB. PNG com container válido ainda depende de decodificação/inspeção real pelo avaliador. Resultados, autoria e origem das capturas não são autenticados por JSON/hash; revisão independente continua necessária.
+
+**Integração com a execução existente:** configure `quality_checks.frontend` pelo `ai-team init --quality-check frontend=COMMAND`, usando ferramenta da plataforma fixada em imagem de teste confiável, sem credenciais. O comando deve executar os testes nativos e este gate, propagando falhas. A imagem deve disponibilizar o checkout completo e os artefatos; não executar um validador alterável pelo agente como se fosse política do host. O gate não foi ativado globalmente nem inserido silenciosamente em configurações dos produtos. A configuração existente aceita comandos do operador; não verifica automaticamente que um comando arbitrário realmente chama este validador.
+
+A classificação de superfícies passa a exigir o check `frontend` também para HTML/CSS, Vue/Svelte, SVG e imagens sob public/assets. A extensão nova exclui fixtures/tests e imagens de documentação; HTML de documentação executável ainda pode exigir frontend. Trata-se de um detector por caminhos, não análise completa do grafo de renderização: o operador deve exigir o check para fixtures que sejam entradas reais de runtime. Um alvo estático antes sem esse check pode bloquear pedindo configuração, em vez de declarar qualidade sem verificação. Isso não reduz a classificação de risco nem dispensa testes. O comportamento anterior de TSX/JSX e o contrato v1 permanecem compatíveis.
+
+Registre capturas fora do checkout ou em área de evidências ignorada que não contenha código de runtime. A árvore Git prova somente os arquivos versionados: dependências/build, arquivos ignorados e recursos externos precisam de ambiente/artefato fixados e evidências próprias. Nunca publicar capturas com dados reais sensíveis.
+
 ## Orçamento e isolamento
 
 O orçamento abrange toda a tarefa, não cada variante: até três iterações, tempo e teto USD explícitos. Antes de cada chamada o executor deve verificar o saldo/limite de saída; custo desconhecido bloqueia continuação. O relatório é retrospectivo e não impõe teto preventivo a um provedor. Não transplante o limite pós-resposta do projeto de referência como garantia financeira rígida.
@@ -43,3 +64,5 @@ Primeiro alvo: home estática de `leandroclf/site-lf-solucoes` em checkout local
 Referência arquitetural: [abi/screenshot-to-code, SHA a813977](https://github.com/abi/screenshot-to-code/tree/a8139779f7c5ae231b7f2a86fa7f83ddc5f7badc), especialmente `agent/engine.py`, `agent/tools/screenshot_preview.py` e prompts. Implementação própria dos contratos e validador; nenhum código, prompt ou ativo do upstream foi transplantado. Se futuramente forem copiados trechos substanciais, preservar LICENSE/avisos MIT e registrar commit, arquivos e alterações. A licença do código não determina o direito de uso de imagens/marcas.
 
 Contribuições externas opcionais depois da medição: testes de orçamento com preços ausentes, estabilização da renderização e isolamento configurável. Não abrir PR genérico upstream nem manter fork permanente sem caso reproduzível e benefício demonstrado.
+
+Referência adicional: [Claude-Code-Game-Studios, SHA 05ad7c8](https://github.com/Donchitos/Claude-Code-Game-Studios/tree/05ad7c8a5b8aa2aa86bbd3439ae7cf7295cac418). Adaptados como conceitos: separação UX/visual/implementação, biblioteca de padrões, mapa de regressões, revisão por delta e explicitação de não avaliado. Não copiamos arquivos, prompts ou código. Não adotamos a hierarquia de 49 agentes, dispensa de testes, permissões/hooks do template nem alertas de evidência obsoleta meramente informativos.

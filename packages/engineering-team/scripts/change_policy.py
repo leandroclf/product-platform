@@ -62,7 +62,14 @@ def required_quality_surfaces(paths):
             kinds.add("api_contract")
         if any(x in p for x in ("database/", "schema", "migration", ".sql", ".prisma")):
             kinds.add("database_migration")
-        if p.endswith((".tsx", ".jsx")) or p.startswith(("app/", "pages/", "components/")):
+        asset = PurePosixPath(p)
+        fixture = bool(set(asset.parts) & {'tests', 'test', '__tests__', 'fixtures'})
+        documentation_image = p.startswith('docs/') and asset.suffix in {'.svg', '.png', '.jpg', '.jpeg', '.webp', '.avif', '.gif'}
+        visual_asset = (bool(set(asset.parts) & {'public', 'assets'}) and
+                        asset.suffix in {'.png', '.jpg', '.jpeg', '.webp', '.avif', '.gif'})
+        new_surface = (p.endswith(('.html', '.htm', '.css', '.scss', '.sass', '.less', '.vue', '.svelte', '.svg')) or visual_asset)
+        if (p.endswith((".tsx", ".jsx")) or p.startswith(("app/", "pages/", "components/"))
+                or new_surface and not fixture and not documentation_image):
             kinds.add("frontend")
         if p.endswith((".tf", ".tfvars")) or "/helm/" in p or "/k8s/" in p:
             kinds.add("infrastructure")

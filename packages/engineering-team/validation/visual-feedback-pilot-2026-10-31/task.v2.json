@@ -1,0 +1,146 @@
+{
+  "schema_version": 2,
+  "task_id": "lf-home-visual-baseline",
+  "repository": "leandroclf/site-lf-solucoes",
+  "base_sha": "fad21f52d42b25a9fe9268156d1c0f2fdd83a73d",
+  "reference": {
+    "artifact": {
+      "path": "reference-source.json",
+      "sha256": "684119c4f39f09d55b9e19d9c769028395705352466bc78a1a7647b395033e44"
+    },
+    "usage": "owned",
+    "source": "User-owned public home source. Metadata only; visual reference blocked until capture."
+  },
+  "design_system": "Reuse existing brand-system.css/styles.css; no redesign in this baseline.",
+  "viewports": [
+    {
+      "id": "desktop",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "id": "mobile",
+      "width": 390,
+      "height": 844
+    }
+  ],
+  "criteria": [
+    {
+      "id": "layout",
+      "kind": "visual",
+      "description": "Inspect header, primary content, spacing and overflow in both viewports."
+    },
+    {
+      "id": "navigation",
+      "kind": "functional",
+      "description": "Verify primary links and menu with local-only destinations; no production API calls."
+    },
+    {
+      "id": "keyboard",
+      "kind": "accessibility",
+      "description": "Check navigation semantics, focus visibility and keyboard access; do not claim full WCAG conformance."
+    }
+  ],
+  "budget": {
+    "max_iterations": 2,
+    "max_elapsed_seconds": 600,
+    "max_cost_usd": 1,
+    "unknown_cost_policy": "stop"
+  },
+  "ux": {
+    "user_goal": "Encontrar capacidades e navegar para uma solução sem perder orientação.",
+    "entry": "Home pública do site LF Soluções.",
+    "exit": "Seção ou página de solução selecionada.",
+    "patterns_status": "existing",
+    "pattern_refs": [
+      "index.html: main-menu, solutions-menu, skip-link",
+      "script.js: menu-toggle, ArrowDown/Escape e prefers-reduced-motion"
+    ],
+    "design_constraints": [
+      "Preservar styles.css/brand-system.css e componentes atuais.",
+      "Não redesenhar nem enviar formulários/chamadas a produção neste piloto."
+    ],
+    "states": [
+      {
+        "id": "ready",
+        "applicable": true,
+        "behavior": "Home estática com menu fechado e conteúdo carregado."
+      },
+      {
+        "id": "loading",
+        "applicable": false,
+        "behavior": "Sem carregamento assíncrono do conteúdo principal neste escopo; assets precisam estar resolvidos antes da captura."
+      },
+      {
+        "id": "empty",
+        "applicable": false,
+        "behavior": "A home fixada contém conteúdo estático; estado sem dados fica fora deste piloto."
+      },
+      {
+        "id": "error",
+        "applicable": false,
+        "behavior": "Falha de infraestrutura é bloqueio do piloto, não tela de erro implementada na home."
+      },
+      {
+        "id": "disabled",
+        "applicable": false,
+        "behavior": "Não há ação desabilitada definida no escopo inicial; validar interações em seus critérios próprios."
+      }
+    ]
+  },
+  "impact": {
+    "paths": [
+      "index.html",
+      "styles.css",
+      "brand-system.css",
+      "script.js"
+    ],
+    "preserved_behaviors": [
+      {
+        "id": "navigation",
+        "behavior": "Menu e links continuam alcançáveis em desktop/mobile."
+      },
+      {
+        "id": "keyboard",
+        "behavior": "Pular para conteúdo e navegação de teclado permanecem funcionais."
+      },
+      {
+        "id": "brand",
+        "behavior": "Hierarquia e identidade visual existentes permanecem reconhecíveis."
+      }
+    ]
+  },
+  "regressions": [
+    {
+      "id": "nav-smoke",
+      "behavior_ids": [
+        "navigation"
+      ],
+      "criterion_ids": [
+        "navigation"
+      ],
+      "check_name": "Menu mobile, dropdown e links internos no runner do produto."
+    },
+    {
+      "id": "keyboard-smoke",
+      "behavior_ids": [
+        "keyboard"
+      ],
+      "criterion_ids": [
+        "keyboard"
+      ],
+      "check_name": "Tab/foco, ArrowDown/Escape, skip-link e preferência de movimento reduzido."
+    },
+    {
+      "id": "layout-smoke",
+      "behavior_ids": [
+        "brand"
+      ],
+      "criterion_ids": [
+        "layout"
+      ],
+      "check_name": "Captura e inspeção desktop/mobile contra referência autorizada."
+    }
+  ],
+  "performance_budgets": []
+}

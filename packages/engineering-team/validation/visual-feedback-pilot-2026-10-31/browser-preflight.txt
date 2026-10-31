@@ -1,0 +1,8 @@
+Preflight complementar, 31/10/2026.
+Alvo: https://lfsolucoes.etc.br/ em browser cloud dedicado, sem login ou envio de formulários.
+Tentativa 1: 7.2047s (wall_time_seconds do resultado da ferramenta).
+Estado visível: upstream connect error or disconnect/reset before headers. reset reason: remote connection failure
+Reload único: 0.8408s. Mesmo erro visível.
+Nenhuma captura da aplicação, teste de interação ou comparação foi obtido.
+Não é evidência de bot detection nem prova de indisponibilidade global do site.
+O runtime local continuou sem Chromium instalado; nenhuma proteção foi reduzida para executar código.
