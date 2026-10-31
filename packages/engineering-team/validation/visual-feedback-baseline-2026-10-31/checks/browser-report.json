@@ -240,5 +240,15 @@
     }
   },
   "elapsedSeconds": 6.073,
-  "ok": true
+  "ok": true,
+  "fontAvailability": {
+    "fontFaceSetCheck": "inconclusive; document.fonts.check returned true but this does not prove an externally defined font was downloaded",
+    "externalFontStylesheet": "Google Fonts is declared by the pinned source and unreachable in the no-route network namespace",
+    "hostFallbackResolution": "fc-match Inter resolved to Noto Sans in the capture host; rendered font was not verified in Chrome"
+  },
+  "reducedMotion": {
+    "requested": "CDP emulation set prefers-reduced-motion=reduce before mobile-menu navigation",
+    "asserted": false,
+    "limitation": "The report does not record matchMedia or a scroll-duration assertion; no pass is claimed for reduced-motion behavior."
+  }
 }

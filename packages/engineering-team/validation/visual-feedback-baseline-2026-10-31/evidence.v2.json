@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "task_sha256": "877a1a99d6daaeaab4972146eb0d9703e5bbc89ab1d3e68137b9cc5c522f4091",
+  "task_sha256": "043bb78d4bcff589ca4a2d4013fff4d7f85344822d994a2f99820d781a00d06b",
   "head_sha": "3ff63351fca2ca3b0166bfe3056bca44e93368b1",
   "source_tree_sha": "8a899ac11b4f10c535dfb5816815def6b240bc23",
   "condition": "baseline",
@@ -35,7 +35,7 @@
       "artifacts": [
         {
           "path": "checks/browser-report.json",
-          "sha256": "3d729cb32347d22d8062c0a4701e1b43e6d5d321c5f37a4a4873f38f35fca4dd"
+          "sha256": "4ba3c05a499938ab9461c40498950f54368d6caed7368d8e6add708456eefbe8"
         }
       ]
     },
@@ -46,7 +46,7 @@
       "artifacts": [
         {
           "path": "checks/browser-report.json",
-          "sha256": "3d729cb32347d22d8062c0a4701e1b43e6d5d321c5f37a4a4873f38f35fca4dd"
+          "sha256": "4ba3c05a499938ab9461c40498950f54368d6caed7368d8e6add708456eefbe8"
         }
       ]
     },
@@ -57,7 +57,7 @@
       "artifacts": [
         {
           "path": "checks/browser-report.json",
-          "sha256": "3d729cb32347d22d8062c0a4701e1b43e6d5d321c5f37a4a4873f38f35fca4dd"
+          "sha256": "4ba3c05a499938ab9461c40498950f54368d6caed7368d8e6add708456eefbe8"
         }
       ]
     }
@@ -68,7 +68,7 @@
       "status": "pass",
       "artifact": {
         "path": "checks/browser-report.json",
-        "sha256": "3d729cb32347d22d8062c0a4701e1b43e6d5d321c5f37a4a4873f38f35fca4dd"
+        "sha256": "4ba3c05a499938ab9461c40498950f54368d6caed7368d8e6add708456eefbe8"
       }
     },
     {
@@ -76,7 +76,7 @@
       "status": "pass",
       "artifact": {
         "path": "checks/browser-report.json",
-        "sha256": "3d729cb32347d22d8062c0a4701e1b43e6d5d321c5f37a4a4873f38f35fca4dd"
+        "sha256": "4ba3c05a499938ab9461c40498950f54368d6caed7368d8e6add708456eefbe8"
       }
     },
     {
@@ -84,7 +84,7 @@
       "status": "pass",
       "artifact": {
         "path": "checks/browser-report.json",
-        "sha256": "3d729cb32347d22d8062c0a4701e1b43e6d5d321c5f37a4a4873f38f35fca4dd"
+        "sha256": "4ba3c05a499938ab9461c40498950f54368d6caed7368d8e6add708456eefbe8"
       }
     }
   ],
@@ -92,6 +92,8 @@
   "limitations": [
     "Captura executada via file:// porque o namespace sem rede não permitiu subir loopback HTTP; comportamento de servidor/deployment HTTP não foi verificado.",
     "O browser rodou em namespace de rede isolado e perfil temporário sem arquivos de credencial montados; o ambiente do processo pai não foi auditado e foi herdado pelo runner.",
+    "A folha Google Fonts não pôde ser acessada. document.fonts.check retornou true, mas esse resultado é inconclusivo; fc-match Inter no host resolveu para Noto Sans. A fonte renderizada no Chrome não foi confirmada.",
+    "A preferência reduce foi solicitada por emulação no teste do menu mobile, mas matchMedia e duração da rolagem não foram registrados; não se declara esse comportamento aprovado.",
     "A referência visual é a própria captura desktop da baseline; não houve comparação com ambiente publicado ou mock aprovado.",
     "A inspeção de acessibilidade cobriu os fluxos de teclado descritos; não é auditoria WCAG completa.",
     "Nenhum modelo foi executado; custo permanece null; não foram medidos performance, benefício de feedback visual nem regressões fora dos fluxos registrados."
