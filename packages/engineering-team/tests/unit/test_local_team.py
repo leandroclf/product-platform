@@ -406,6 +406,9 @@ class LocalTeamTests(unittest.TestCase):
         self.assertEqual(result['status'], 'REVIEWED')
         self.assertEqual(result['authorized_risk'], 'R2')
         self.assertEqual(team.git(target, 'rev-parse', 'HEAD'), base)
+        planning_prompt = (path / '0-plan.prompt').read_text()
+        self.assertIn('Repository-specific approvals and checks remain required', planning_prompt)
+        self.assertIn('do not ask again for the same operator authorization', planning_prompt)
 
     def test_r2_authorization_is_bound_to_request_and_base(self):
         task, path, target, base = self.setup_run()

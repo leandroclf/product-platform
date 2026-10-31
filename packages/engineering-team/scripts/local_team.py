@@ -919,8 +919,8 @@ def worker(task_id):
                               'Fill capability_decisions with exactly the capabilities, decisions and owners of /handoff/capabilities.json when present, else []. '
                               f'Operator-authorized risk ceiling: {risk_authorization_ceiling(state)}. '
                               'A missing target-local AGENTS.md is a fact to report, not by itself a blocker when repository docs and parent instructions are available. '
-                              'When the ceiling is R2, the operator has explicitly authorized this task through the CLI; do not block for missing R2 approval. '
-                              'Use BLOCKED for missing critical context or required approval; never authorize R3. '
+                              'When the ceiling is R2, the operator has explicitly authorized this task up to R2 through the CLI; do not ask again for the same operator authorization. '
+                              'Repository-specific approvals and checks remain required. Use BLOCKED for missing critical context or required approval; never authorize R3. '
                               'Original request: ' + state['request'] + '\nFeedback requiring replanning: '
                               + json.dumps(state.get('feedback', [])))
                     result = stage_run(path, state, 'plan', prompt)
