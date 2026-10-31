@@ -10,7 +10,12 @@
     "network": "bubblewrap --unshare-net",
     "profile": "temporary /tmp/profile",
     "source": "read-only /site",
-    "credentials": "Temporary browser profile; no profile or credential files mounted. Parent runner environment was inherited and not credential-audited.",
+    "credentials": "no browser profile or credentials files mounted; Chrome child received only HOME, PATH, LANG",
+    "childEnvironment": [
+      "HOME",
+      "PATH",
+      "LANG"
+    ],
     "routeFile": "Iface\tDestination\tGateway \tFlags\tRefCnt\tUse\tMetric\tMask\t\tMTU\tWindow\tIRTT"
   },
   "captures": [
@@ -33,6 +38,8 @@
         "mainId": "conteudo",
         "skipCount": 1,
         "fontInterLoaded": true,
+        "fontFaceEntries": [],
+        "bodyFontFamily": "Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
         "images": [
           {
             "alt": "LF Soluções — Tecnologia que gera valor",
@@ -73,6 +80,8 @@
         "mainId": "conteudo",
         "skipCount": 1,
         "fontInterLoaded": true,
+        "fontFaceEntries": [],
+        "bodyFontFamily": "Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
         "images": [
           {
             "alt": "LF Soluções — Tecnologia que gera valor",
@@ -113,6 +122,8 @@
         "mainId": "conteudo",
         "skipCount": 1,
         "fontInterLoaded": true,
+        "fontFaceEntries": [],
+        "bodyFontFamily": "Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
         "images": [
           {
             "alt": "LF Soluções — Tecnologia que gera valor",
@@ -184,6 +195,8 @@
         "mainId": "conteudo",
         "skipCount": 1,
         "fontInterLoaded": true,
+        "fontFaceEntries": [],
+        "bodyFontFamily": "Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
         "images": [
           {
             "alt": "LF Soluções — Tecnologia que gera valor",
@@ -207,6 +220,10 @@
     },
     "mobileMenu": {
       "pass": true,
+      "reducedMotion": {
+        "matches": true,
+        "scrollBehavior": "auto"
+      },
       "toggleClicked": true,
       "open": {
         "expanded": "true",
@@ -239,16 +256,21 @@
       }
     }
   },
-  "elapsedSeconds": 6.073,
+  "elapsedSeconds": 6.071,
   "ok": true,
   "fontAvailability": {
-    "fontFaceSetCheck": "inconclusive; document.fonts.check returned true but this does not prove an externally defined font was downloaded",
-    "externalFontStylesheet": "Google Fonts is declared by the pinned source and unreachable in the no-route network namespace",
-    "hostFallbackResolution": "fc-match Inter resolved to Noto Sans in the capture host; rendered font was not verified in Chrome"
+    "requestedStack": "Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+    "fontFaceSetCheck": "document.fonts.check returned true, but no matching FontFace entries were registered; this check is inconclusive",
+    "fontFaceEntries": [],
+    "externalFontStylesheet": "Google Fonts could not be reached in the no-route network namespace",
+    "fontconfigResolution": "fc-match Inter inside the isolated namespace resolved Noto Sans; screenshots show sans-serif fallback; actual glyph font was not independently measured"
   },
-  "reducedMotion": {
-    "requested": "CDP emulation set prefers-reduced-motion=reduce before mobile-menu navigation",
-    "asserted": false,
-    "limitation": "The report does not record matchMedia or a scroll-duration assertion; no pass is claimed for reduced-motion behavior."
-  }
+  "limitations": [
+    "file:// was necessary because the isolated namespace did not permit loopback HTTP; deployed HTTP behavior was not tested.",
+    "The page requested Inter from Google Fonts, but network was disabled. Fontconfig resolved Inter to Noto Sans; text metrics are not a production font baseline.",
+    "The desktop capture is also used as its own reference; no published deployment or independent design reference was compared.",
+    "Accessibility validation covers only the recorded keyboard and reduced-motion paths, not full WCAG conformance.",
+    "The Node capture runner inherited the host environment, but the Chrome child received only HOME, PATH and LANG. No credential/profile files were mounted in the network-isolated namespace.",
+    "No model was run; cost remains null; performance, productivity benefit, visual-feedback benefit and unlisted regressions were not measured."
+  ]
 }

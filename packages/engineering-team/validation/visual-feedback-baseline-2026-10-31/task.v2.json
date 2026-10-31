@@ -129,7 +129,7 @@
       "criterion_ids": [
         "keyboard"
       ],
-      "check_name": "Tab/foco, ArrowDown/Escape e skip-link no Chrome isolado."
+      "check_name": "Tab/foco, ArrowDown/Escape, skip-link e prefers-reduced-motion (matchMedia e scroll-behavior) no Chrome isolado."
     },
     {
       "id": "layout-smoke",

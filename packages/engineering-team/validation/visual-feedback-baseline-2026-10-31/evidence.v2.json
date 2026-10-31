@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "task_sha256": "043bb78d4bcff589ca4a2d4013fff4d7f85344822d994a2f99820d781a00d06b",
+  "task_sha256": "f66fd6a022421c49fc50580e0e558c2dfaf1dcb5da89be1164a73dfdad596d3c",
   "head_sha": "3ff63351fca2ca3b0166bfe3056bca44e93368b1",
   "source_tree_sha": "8a899ac11b4f10c535dfb5816815def6b240bc23",
   "condition": "baseline",
@@ -31,11 +31,11 @@
     {
       "criterion_id": "layout",
       "status": "pass",
-      "evidence": "Inspeção direta das capturas desktop/mobile: header, conteúdo principal, espaçamento visível e ausência de overflow horizontal. É baseline autorreferenciada, sem comparação com deployment ou design externo.",
+      "evidence": "Capturas desktop/mobile inspecionadas: estrutura e conteúdo visíveis, sem overflow horizontal. Inter não estava disponível; o browser usou fallback Noto Sans. As quebras de linha não representam a tipografia publicada.",
       "artifacts": [
         {
           "path": "checks/browser-report.json",
-          "sha256": "4ba3c05a499938ab9461c40498950f54368d6caed7368d8e6add708456eefbe8"
+          "sha256": "4b1a7547a89c97fdca61a1c2f078e5adad38bff3c13bbacb2d42f6926f9eb942"
         }
       ]
     },
@@ -46,18 +46,18 @@
       "artifacts": [
         {
           "path": "checks/browser-report.json",
-          "sha256": "4ba3c05a499938ab9461c40498950f54368d6caed7368d8e6add708456eefbe8"
+          "sha256": "4b1a7547a89c97fdca61a1c2f078e5adad38bff3c13bbacb2d42f6926f9eb942"
         }
       ]
     },
     {
       "criterion_id": "keyboard",
       "status": "pass",
-      "evidence": "No browser isolado, Tab revelou skip-link, Enter moveu foco para main e próximo Tab ficou dentro do conteúdo; dropdown preservou foco em abertura/fechamento. Verificação limitada a estes fluxos, sem alegação WCAG.",
+      "evidence": "Tab revelou skip-link, Enter moveu foco para main, próximo Tab permaneceu no conteúdo, dropdown preservou foco; prefers-reduced-motion retornou true com scroll-behavior auto. Não é auditoria WCAG completa.",
       "artifacts": [
         {
           "path": "checks/browser-report.json",
-          "sha256": "4ba3c05a499938ab9461c40498950f54368d6caed7368d8e6add708456eefbe8"
+          "sha256": "4b1a7547a89c97fdca61a1c2f078e5adad38bff3c13bbacb2d42f6926f9eb942"
         }
       ]
     }
@@ -68,7 +68,7 @@
       "status": "pass",
       "artifact": {
         "path": "checks/browser-report.json",
-        "sha256": "4ba3c05a499938ab9461c40498950f54368d6caed7368d8e6add708456eefbe8"
+        "sha256": "4b1a7547a89c97fdca61a1c2f078e5adad38bff3c13bbacb2d42f6926f9eb942"
       }
     },
     {
@@ -76,7 +76,7 @@
       "status": "pass",
       "artifact": {
         "path": "checks/browser-report.json",
-        "sha256": "4ba3c05a499938ab9461c40498950f54368d6caed7368d8e6add708456eefbe8"
+        "sha256": "4b1a7547a89c97fdca61a1c2f078e5adad38bff3c13bbacb2d42f6926f9eb942"
       }
     },
     {
@@ -84,18 +84,17 @@
       "status": "pass",
       "artifact": {
         "path": "checks/browser-report.json",
-        "sha256": "4ba3c05a499938ab9461c40498950f54368d6caed7368d8e6add708456eefbe8"
+        "sha256": "4b1a7547a89c97fdca61a1c2f078e5adad38bff3c13bbacb2d42f6926f9eb942"
       }
     }
   ],
   "performance_results": [],
   "limitations": [
-    "Captura executada via file:// porque o namespace sem rede não permitiu subir loopback HTTP; comportamento de servidor/deployment HTTP não foi verificado.",
-    "O browser rodou em namespace de rede isolado e perfil temporário sem arquivos de credencial montados; o ambiente do processo pai não foi auditado e foi herdado pelo runner.",
-    "A folha Google Fonts não pôde ser acessada. document.fonts.check retornou true, mas esse resultado é inconclusivo; fc-match Inter no host resolveu para Noto Sans. A fonte renderizada no Chrome não foi confirmada.",
-    "A preferência reduce foi solicitada por emulação no teste do menu mobile, mas matchMedia e duração da rolagem não foram registrados; não se declara esse comportamento aprovado.",
-    "A referência visual é a própria captura desktop da baseline; não houve comparação com ambiente publicado ou mock aprovado.",
-    "A inspeção de acessibilidade cobriu os fluxos de teclado descritos; não é auditoria WCAG completa.",
-    "Nenhum modelo foi executado; custo permanece null; não foram medidos performance, benefício de feedback visual nem regressões fora dos fluxos registrados."
+    "file:// foi necessário porque o namespace isolado não permitiu loopback HTTP; comportamento HTTP/deployment não foi verificado.",
+    "Google Fonts ficou inacessível. fontconfig resolveu Inter para Noto Sans no namespace; texto e métricas tipográficas não representam produção.",
+    "A referência visual é a própria captura desktop da baseline; não houve comparação com site publicado ou mock independente.",
+    "A validação de acessibilidade cobre somente os fluxos de teclado e movimento reduzido registrados; não é auditoria WCAG completa.",
+    "O processo Node de captura herdou o ambiente do host; o Chrome recebeu apenas HOME, PATH e LANG, sem arquivos de perfil/credencial montados.",
+    "Nenhum modelo foi executado; custo permanece null; performance, benefício de produtividade/feedback visual e regressões fora dos fluxos descritos não foram medidos."
   ]
 }
