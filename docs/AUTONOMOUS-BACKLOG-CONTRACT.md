@@ -24,27 +24,33 @@ As cinco rotinas ChatGPT continuam **analíticas**; não são o executor. Suas d
 - Orçamento e limites de tentativas definidos antes de executar.
 - Existe rollback para mudanças com impacto operacional.
 
-## Estado operacional atual — revisão manual
+## Estado operacional atual — implementação e revisão são etapas distintas
 
-Até a conclusão da configuração de contas e GitHub Apps no Linux, seguimos a [fase de revisão manual](MANUAL-REVIEW-TRANSITION.md). Nesta fase, scripts e agentes podem **preparar** tarefas, executar os checks já disponíveis e abrir PRs; **o proprietário deve conferir o diff, testes, riscos e fazer o merge manualmente**.
+A fila e o handoff permanecem PREVIEW_ONLY. A implementação depende de runner,
+CLIs autenticadas, configuração do alvo, orçamento e acionamento autorizado.
+Criar issue ou aplicar agent-candidate não inicia implementação.
 
-O check denominado `independent-review-gate` no modo `manual` **é apenas estrutural** (HEAD e caminhos protegidos). Seu resultado verde não significa aprovação humana nem parecer de um revisor independente. O workflow de auto-merge não é executado no modo manual. A classificação R0/R1 de uma issue não dispensa a análise do risco real.
+O piloto de revisão independente e automerge R1 já foi observado no PR #114:
+App revisor aprovou o HEAD e App integrador realizou o merge sob rulesets.
+Ver [evidência](validation/2026-10-23-automerge-pilot.md) e
+[operação](AUTOMERGE-OPERATIONS.md). Esse resultado substitui a descrição antiga
+de automerge integralmente futuro/desativado, sem certificar toda a plataforma.
 
-A fila e o handoff permanecem `PREVIEW_ONLY`; a execução do `ai-team` depende de CLIs autenticadas, de uma configuração local válida e da decisão operacional explícita. Não apresentar documentação, testes offline ou artefatos de fila como evidência de execução real dos modelos.
+## Invariantes
 
-## Fase futura — revisão independente e integração automatizada
-
-A fase abaixo é **objetivo futuro, não capacidade operacional comprovada**. Só pode ser ativada após identidades de revisão distintas, testes com provedores reais, rulesets nativos, verificação da identidade e do HEAD, custo controlado e piloto ponta a ponta. O modo de execução automático nunca deve ser habilitado pelo simples fato de um issue receber `agent-candidate`.
-
-## Invariantes da implantação
-1. O modelo planejador é OpenAI; implementador Claude; validador OpenAI; revisor Claude em sessão independente, respeitando as configurações já adotadas do `ai-team`.
-2. Agentes não podem aprovar seus próprios PRs, criar aprovações fictícias ou contornar rulesets.
-3. **Somente no modo futuro `independent`**, o gate R1 deve confirmar uma revisão GitHub independente do HEAD exato; no modo atual `manual` ele verifica apenas aspectos estruturais. A revisão técnica especializada real ainda exige integração com CLIs autenticadas.
-4. **Na fase atual o auto-merge permanece desativado.** Na fase futura, ele apenas poderá solicitar o serviço nativo GitHub após todos os gates; reviews/CI obrigatórios devem estar configurados em rulesets.
-5. Sem segredo de App, execução autenticada e teste fim a fim, a plataforma permanece **parcialmente automatizada**.
-
-## Pendências PC / administradores
-Ver `docs/AUTONOMOUS-BOOTSTRAP.md` e `docs/AUTONOMY-PENDING-PC.md`. Criar GitHub Apps/identidades separadas, habilitar rulesets e auto-merge, configurar `PORTFOLIO_READ_TOKEN`, `AGENT_MERGE_TOKEN`, `AGENT_TRUSTED_REVIEWERS`, autenticador real do revisor, teste de ponta a ponta em piloto, expansão controlada.
+1. OpenAI planeja, Claude implementa, OpenAI valida e Claude revisa em sessão
+   isolada no fluxo ai-team; não declarar etapas reais a partir de testes mock.
+2. O piloto automático exige opt-in, escopo R1 real, checks do pacote e revisão
+   independente do HEAD. Pagamentos, segurança e workflows são R2 mesmo que uma
+   heurística de caminhos não os reconheça.
+3. R2/R3 não entram no merge R1. Mudanças protegidas exigem a allowlist/revisão
+   elevada, sem bypass. Produção mantém os gates próprios.
+4. O ruleset observado exige aprovação e invalidação após push. Configuração,
+   identidade e validade das credenciais precisam de evidência atual.
+5. PORTFOLIO_READ_TOKEN é leitura opcional do inventário; não credencial de merge.
+   Integrador usa App e environment próprios, conforme o runbook atual.
+6. Em contingência manual, o gate não protegido é estrutural; sua aprovação não
+   atesta uma revisão técnica. Não inventar resultados de providers ou CI.
 
 ## Adoção progressiva
 1. `product-platform`: executar primeiro o piloto com revisão e merge humanos; em etapa posterior, demonstrar bloqueio, aprovação independente real, CI e merge nativo no HEAD.
