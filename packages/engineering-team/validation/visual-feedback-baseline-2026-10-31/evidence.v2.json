@@ -1,0 +1,100 @@
+{
+  "schema_version": 2,
+  "task_sha256": "f66fd6a022421c49fc50580e0e558c2dfaf1dcb5da89be1164a73dfdad596d3c",
+  "head_sha": "3ff63351fca2ca3b0166bfe3056bca44e93368b1",
+  "source_tree_sha": "8a899ac11b4f10c535dfb5816815def6b240bc23",
+  "condition": "baseline",
+  "status": "captured",
+  "iterations": 0,
+  "elapsed_seconds": 6.073,
+  "cost_usd": null,
+  "model_execution": "not-run",
+  "screenshots": [
+    {
+      "viewport_id": "desktop",
+      "state_id": "ready",
+      "artifact": {
+        "path": "screenshots/desktop-ready.png",
+        "sha256": "261d3485214737b6325384dcdf63b1f2654878a433da6fe2325b41f76b9ca426"
+      }
+    },
+    {
+      "viewport_id": "mobile",
+      "state_id": "ready",
+      "artifact": {
+        "path": "screenshots/mobile-ready.png",
+        "sha256": "ea2a940c23e8cf3f107853447b2483c2a30bd77479c401266475dd1d8884a4fc"
+      }
+    }
+  ],
+  "checks": [
+    {
+      "criterion_id": "layout",
+      "status": "pass",
+      "evidence": "Capturas desktop/mobile inspecionadas: estrutura e conteúdo visíveis, sem overflow horizontal. Inter não estava disponível; o browser usou fallback Noto Sans. As quebras de linha não representam a tipografia publicada.",
+      "artifacts": [
+        {
+          "path": "checks/browser-report.json",
+          "sha256": "4b1a7547a89c97fdca61a1c2f078e5adad38bff3c13bbacb2d42f6926f9eb942"
+        }
+      ]
+    },
+    {
+      "criterion_id": "navigation",
+      "status": "pass",
+      "evidence": "No browser isolado, o menu mobile abriu e fechou ao navegar para #servicos; dropdown abriu com ArrowDown e fechou com Escape; o alvo ficou visível.",
+      "artifacts": [
+        {
+          "path": "checks/browser-report.json",
+          "sha256": "4b1a7547a89c97fdca61a1c2f078e5adad38bff3c13bbacb2d42f6926f9eb942"
+        }
+      ]
+    },
+    {
+      "criterion_id": "keyboard",
+      "status": "pass",
+      "evidence": "Tab revelou skip-link, Enter moveu foco para main, próximo Tab permaneceu no conteúdo, dropdown preservou foco; prefers-reduced-motion retornou true com scroll-behavior auto. Não é auditoria WCAG completa.",
+      "artifacts": [
+        {
+          "path": "checks/browser-report.json",
+          "sha256": "4b1a7547a89c97fdca61a1c2f078e5adad38bff3c13bbacb2d42f6926f9eb942"
+        }
+      ]
+    }
+  ],
+  "regression_results": [
+    {
+      "id": "nav-smoke",
+      "status": "pass",
+      "artifact": {
+        "path": "checks/browser-report.json",
+        "sha256": "4b1a7547a89c97fdca61a1c2f078e5adad38bff3c13bbacb2d42f6926f9eb942"
+      }
+    },
+    {
+      "id": "keyboard-smoke",
+      "status": "pass",
+      "artifact": {
+        "path": "checks/browser-report.json",
+        "sha256": "4b1a7547a89c97fdca61a1c2f078e5adad38bff3c13bbacb2d42f6926f9eb942"
+      }
+    },
+    {
+      "id": "layout-smoke",
+      "status": "pass",
+      "artifact": {
+        "path": "checks/browser-report.json",
+        "sha256": "4b1a7547a89c97fdca61a1c2f078e5adad38bff3c13bbacb2d42f6926f9eb942"
+      }
+    }
+  ],
+  "performance_results": [],
+  "limitations": [
+    "file:// foi necessário porque o namespace isolado não permitiu loopback HTTP; comportamento HTTP/deployment não foi verificado.",
+    "Google Fonts ficou inacessível. fontconfig resolveu Inter para Noto Sans no namespace; texto e métricas tipográficas não representam produção.",
+    "A referência visual é a própria captura desktop da baseline; não houve comparação com site publicado ou mock independente.",
+    "A validação de acessibilidade cobre somente os fluxos de teclado e movimento reduzido registrados; não é auditoria WCAG completa.",
+    "O processo Node de captura herdou o ambiente do host; o Chrome recebeu apenas HOME, PATH e LANG, sem arquivos de perfil/credencial montados.",
+    "Nenhum modelo foi executado; custo permanece null; performance, benefício de produtividade/feedback visual e regressões fora dos fluxos descritos não foram medidos."
+  ]
+}
