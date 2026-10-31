@@ -172,6 +172,8 @@ usar `ai-team deliver`.
 
 ## Execução autônoma — estado em 26/10/2026
 
+O registro abaixo é um relato operacional do operador baseado em evidências locais não versionadas. Ele documenta o histórico informado, mas não constitui evidência de CI nem pode ser verificado apenas por este repositório.
+
 - `ai-team doctor` passou; todos os quatro logins aparecem autenticados.
 - O runtime foi atualizado e testado pelo procedimento oficial: Codex CLI
   0.164.0 e Claude Code 2.1.310. O teste de isolamento passou quando o diretório
