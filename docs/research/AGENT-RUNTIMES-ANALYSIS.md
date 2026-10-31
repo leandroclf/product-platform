@@ -29,12 +29,27 @@ Consequência: referências externas são padrões para avaliar, não autorizaç
 
 | Projeto | Mecanismo relevante | Já coberto na plataforma | Ganho incremental possível | Decisão |
 | --- | --- | --- | --- | --- |
+| [OpenHands](https://github.com/OpenHands/OpenHands) | Agent Canvas para operação, SDK/Agent Server para execução e Automation para agendamento/dispatch; goal loop, budget acumulado, event store e stuck detector | Sessões isoladas, acceptance independente, estado/checkpoints e fingerprints por ciclo já existem; backlog supervisor e budget monetário estão no plano atual | Usar a leitura como referência para a retomada reconciliada e budget P2; só considerar detector por evento se o piloto provar loops longos dentro de uma sessão | **Não importar SDK/Canvas/Automation; reaproveitar as adaptações e prioridades já existentes** |
 | [OpenAI Symphony](https://github.com/openai/symphony) | Scheduler que consulta tracker, despacha tarefas elegíveis com concorrência limitada, workspace por tarefa, parada quando deixa de ser elegível, logs e recuperação orientada a tracker/arquivos | Handoff, launcher, fila, checkpoints, hashes e piloto já existem; execução ainda é uma tarefa por invocação | Completar o supervisor local previsto com ciclo de seleção/reconciliação, começando serial | **Adotar padrões na evolução do supervisor; não adotar implementação ou serviço agora** |
 | [Ralph](https://github.com/KLIEBHAN/ralph-loop) | Loop externo simples, sessões novas e progresso comunicado por arquivos/Git | Sessões por etapa, estado por ciclo, limite de prazo/ciclos e guard de repetição já existem | Reafirmar que conclusão precisa de validação verificável, nunca só de marcador do agente | **Não adicionar runner; conservar o princípio onde já está implementado** |
 | [Open SWE](https://github.com/langchain-ai/open-swe) | Fluxo de issue até PR, revisão, monitoramento de CI e follow-up; sandbox por thread e integrações | Implementação, validação, revisão isolada, entrega draft e CI GitHub são fases existentes, mas CI fica após a entrega | Futuro diagnóstico limitado de falha de CI como nova entrada de reparo, com gates completos no SHA atualizado | **Candidato pós-piloto; estudar apenas a função de feedback** |
 | [Gas Town](https://github.com/gastownhall/gastown) | Coordenação de múltiplos workers e worktrees, supervisores, fila/merge queue e estado de trabalho próprio | Workspaces isolados, fila autorizada, checkpoints e fluxo Git existem; locks atuais são locais | Coordenação distribuída e merge queue podem ser úteis se throughput multi-host for gargalo demonstrado | **Adiar até haver métricas que justifiquem paralelismo** |
 
 ## Análise dos projetos
+
+### OpenHands: capacidades separadas, com pouca lacuna nova
+
+A análise aprofundada já integrada na plataforma está em [OPENHANDS-ANALYSIS.md](OPENHANDS-ANALYSIS.md). Ela inventariou 5.126 arquivos em três snapshots fixados: `OpenHands/OpenHands` (Agent Canvas), `OpenHands/software-agent-sdk` (SDK e Agent Server) e `OpenHands/automation`. O inventário de caminhos/SHA permite auditar escopo e proveniência, mas não equivale à leitura semântica linha a linha de todo o monorepo; a análise aprofundada focou runtime, estado, segurança, execução, loops, scheduler e integrações. Os sistemas e testes upstream não foram executados como parte dessa análise.
+
+A separação de responsabilidades é uma lição útil: Canvas cuida da experiência e dos backends; SDK/Agent Server executa conversas; Automation mantém triggers, histórico e dispatch. Essa modularidade não é razão para reproduzir a topologia na Product Platform: o `ai-team` já é o executor canônico, enquanto a fila/handoff existentes coordenam o backlog. Importar Agent Server, SDK e Automation aumentaria dependências, serviços, modelos de estado e esforço de operação, sem preencher uma lacuna demonstrada.
+
+**O que já foi aproveitado:** missão explícita de evolução autônoma, evidências/checkpoints e detector de falta de progresso por fingerprints persistidos foram incorporados no trabalho anterior documentado em `OPENHANDS-ANALYSIS.md`. Logo, essa capacidade não deve ser cadastrada novamente como recomendação nova.
+
+**O que ainda pode evoluir, dentro do plano existente:** OpenHands agrega budgets de execução ao longo de turns e custo de componentes auxiliares; isso reforça a prioridade P2 de contabilizar custo monetário dos provedores e revisões no `ai-team`. O detector OpenHands observa padrões de ações/observações repetidas durante a conversa, enquanto o guard da plataforma trabalha no diff após ciclos. A diferença é real, mas adicionar hooks eventuais no provider/runtime pode ampliar acoplamento e falsos positivos. Só vale prototipar se o piloto registrar loops intrassessão que os limites de turnos e ciclos não resolvam; até lá, manter a proteção atual e o backlog P2 de budget/retomada reconciliada.
+
+O Automation oferece polling/dispatch com locks de banco e deduplicação transacional por assunto. Isso é relevante se a plataforma precisar de workers distribuídos ou dedupe concorrente entre hosts. No estado atual, o supervisor é local e serial, e a fila tem contratos de autorização próprios. Não substituir esses contratos por um segundo scheduler nem adicionar PostgreSQL só para espelhar OpenHands. Reavaliar com evidência de contenção, duplicação ou throughput insuficiente em multi-host.
+
+As políticas de confirmação e classificação de risco do SDK são defesa em profundidade; um classificador de risco não deve virar fronteira de segurança. A Product Platform já bloqueia R2/R3 fora das autorizações específicas. Preservar os gates nativos e usar a análise OpenHands apenas como referência para auditar ferramentas/permissões, sem trocar autorização determinística por julgamento do agente.
 
 ### Symphony: o melhor encaixe para o próximo incremento
 
@@ -116,6 +131,7 @@ Só investigar se métricas demonstrarem gargalo serial e houver tarefas indepen
 
 ## Fontes primárias
 
+- [OpenHands — análise profunda e inventários fixados](OPENHANDS-ANALYSIS.md), [Agent Canvas](https://github.com/OpenHands/OpenHands), [SDK/Agent Server](https://github.com/OpenHands/software-agent-sdk) e [Automation](https://github.com/OpenHands/automation).
 - [Symphony — especificação](https://github.com/openai/symphony/blob/main/SPEC.md) e [status do projeto](https://github.com/openai/symphony/blob/main/README.md).
 - [Ralph Loop — implementação e comportamento](https://github.com/KLIEBHAN/ralph-loop).
 - [Open SWE — arquitetura e capacidades](https://github.com/langchain-ai/open-swe) e [guia de instalação e confiança](https://github.com/langchain-ai/open-swe/blob/main/docs/INSTALLATION.md).
