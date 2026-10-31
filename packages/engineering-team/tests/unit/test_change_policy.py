@@ -56,6 +56,16 @@ class RiskAndQualityPolicyTests(unittest.TestCase):
                          'integration', 'infrastructure', 'security_and_approval'):
             self.assertIn(expected, result)
 
+    def test_static_sites_and_visual_assets_require_frontend_checks(self):
+        for path in ['index.html', 'styles.css', 'src/theme.scss', 'src/Product.vue',
+                     'src/Card.svelte', 'assets/hero.webp', 'public/logo.svg']:
+            with self.subTest(path=path):
+                self.assertIn('frontend', change_policy.required_quality_surfaces([path]))
+        for path in ['src/parser.py', 'docs/guide.md', 'tests/fixtures/reference.png',
+                     'tests/fixtures/sample.html', 'tests/fixtures/theme.css', 'docs/architecture.svg']:
+            with self.subTest(path=path):
+                self.assertNotIn('frontend', change_policy.required_quality_surfaces([path]))
+
 
 if __name__ == '__main__':
     unittest.main()

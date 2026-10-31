@@ -4,6 +4,8 @@
 
 ## Contrato visual inicial
 
+Os [padrões de interação candidatos](INTERACTION-PATTERNS.md) documentam comportamentos reutilizáveis e critérios de regressão; sua validação no browser e adoção pelos produtos permanecem explícitas.
+
 - Cores oficiais: `#061B4F` navy, `#0757E8` blue, `#008CFF` electric, `#00D4FF` cyan, `#EAF6FF` ice, `#172033` graphite/text, `#526079` muted, `#D8E7F4` border, `#FFFFFF` white, `#14804A` success.
 - Fonte institucional: **Inter**, seguida de system sans.
 - Raio padrão: `14px`.

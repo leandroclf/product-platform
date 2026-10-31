@@ -44,6 +44,7 @@ O CLI local não instancia Dots, não é um serviço sempre ativo e não substit
 - [Documentação consolidada e baseline de requisitos](docs/00-toc.md)
 - [Marketplace de skills](skills/README.md) e [catálogo versionado](skills/catalog.yaml)
 - [Benchmarks e avaliação de skills](docs/SKILL-BENCHMARKS.md) e [contrato interno de avaliação](evaluation/benchmarks.yaml)
+- [Feedback visual verificável para frontend](docs/VISUAL-FEEDBACK-PILOT.md): contrato, evidência e piloto, sem novo executor.
 
 ## Governança e prontidão
 

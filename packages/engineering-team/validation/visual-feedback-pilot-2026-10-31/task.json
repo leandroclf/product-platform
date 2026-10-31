@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "task_id": "lf-home-visual-baseline",
+  "repository": "leandroclf/site-lf-solucoes",
+  "base_sha": "fad21f52d42b25a9fe9268156d1c0f2fdd83a73d",
+  "reference": {
+    "artifact": {
+      "path": "reference-source.json",
+      "sha256": "684119c4f39f09d55b9e19d9c769028395705352466bc78a1a7647b395033e44"
+    },
+    "usage": "owned",
+    "source": "User-owned public home source. Metadata only; visual reference blocked until capture."
+  },
+  "design_system": "Reuse existing brand-system.css/styles.css; no redesign in this baseline.",
+  "viewports": [
+    {
+      "id": "desktop",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "id": "mobile",
+      "width": 390,
+      "height": 844
+    }
+  ],
+  "criteria": [
+    {
+      "id": "layout",
+      "kind": "visual",
+      "description": "Inspect header, primary content, spacing and overflow in both viewports."
+    },
+    {
+      "id": "navigation",
+      "kind": "functional",
+      "description": "Verify primary links and menu with local-only destinations; no production API calls."
+    },
+    {
+      "id": "keyboard",
+      "kind": "accessibility",
+      "description": "Check navigation semantics, focus visibility and keyboard access; do not claim full WCAG conformance."
+    }
+  ],
+  "budget": {
+    "max_iterations": 2,
+    "max_elapsed_seconds": 600,
+    "max_cost_usd": 1,
+    "unknown_cost_policy": "stop"
+  }
+}

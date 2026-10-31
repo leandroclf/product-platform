@@ -1,0 +1,56 @@
+{
+  "schema_version": 2,
+  "task_sha256": "8d75c1979e6715b9d0cee86e50d9c2d825780b6affa729c5e053b4551cc41473",
+  "head_sha": "fad21f52d42b25a9fe9268156d1c0f2fdd83a73d",
+  "source_tree_sha": "6df7e1d970d55d9a18ce9419f5ed29b797f1496e",
+  "condition": "baseline",
+  "status": "blocked",
+  "iterations": 0,
+  "elapsed_seconds": 8.0455,
+  "cost_usd": null,
+  "model_execution": "not-run",
+  "screenshots": [],
+  "checks": [
+    {
+      "criterion_id": "layout",
+      "status": "not-run",
+      "evidence": "Preflight de navegador falhou antes de renderizar a aplicação.",
+      "artifacts": [
+        {
+          "path": "browser-preflight.txt",
+          "sha256": "dd4c033f0ee4f8e1c93ff94c7c49d292e3ec548d023b872904b156193bfb6098"
+        }
+      ]
+    },
+    {
+      "criterion_id": "navigation",
+      "status": "not-run",
+      "evidence": "Preflight de navegador falhou antes de renderizar a aplicação.",
+      "artifacts": [
+        {
+          "path": "browser-preflight.txt",
+          "sha256": "dd4c033f0ee4f8e1c93ff94c7c49d292e3ec548d023b872904b156193bfb6098"
+        }
+      ]
+    },
+    {
+      "criterion_id": "keyboard",
+      "status": "not-run",
+      "evidence": "Preflight de navegador falhou antes de renderizar a aplicação.",
+      "artifacts": [
+        {
+          "path": "browser-preflight.txt",
+          "sha256": "dd4c033f0ee4f8e1c93ff94c7c49d292e3ec548d023b872904b156193bfb6098"
+        }
+      ]
+    }
+  ],
+  "regression_results": [],
+  "performance_results": [],
+  "limitations": [
+    "O tempo é a soma medida das duas chamadas de preflight cloud, não latência da aplicação nem benchmark de implementação.",
+    "Referência é apenas procedência do código; exige PNG visual autorizado antes de aceite v2.",
+    "Não foram executados os quatro estágios autenticados, capturas de aplicação, regressões no browser ou comparação baseline/feedback.",
+    "Métricas de performance não foram medidas e não há orçamento definido neste registro; nenhuma aprovação de performance é declarada."
+  ]
+}
