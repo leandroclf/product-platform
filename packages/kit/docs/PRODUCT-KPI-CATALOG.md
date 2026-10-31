@@ -1,6 +1,6 @@
 # Catálogo de KPIs — CI-01 v1
 
-Incremento de #123. O catálogo define a semântica; `calculateKpi` no harness calcula agregados fornecidos pelo produto. Não coleta dados, não publica telemetria e não comprova baseline operacional. Sem novos eventos, serviços, dependências ou banco central.
+Incremento de #123. O catálogo define a semântica; o harness calcula agregados fornecidos pelo produto com `calculateKpi` (TypeScript, export da raiz `@leandroclf/product-platform-harness`) e `calculate_kpi` (Python, `product_platform_harness`), com resultados equivalentes verificados pelos casos compartilhados `fixtures/kpi-cases.json`. Não coleta dados, não publica telemetria e não comprova baseline operacional. Sem novos eventos, serviços, dependências ou banco central.
 
 ## Contexto obrigatório
 
@@ -23,4 +23,21 @@ Cada cálculo identifica fonte auditável, janela `[windowStart, windowEnd)` com
 
 Os contadores devem ser inteiros seguros não negativos; numeradores de taxas não excedem a coorte. O harness rejeita inconsistências em vez de ajustar silenciosamente. `durationsMs` contém durações inteiras de entregas aceitas. O consumidor calcula esses deltas a partir de timestamps auditáveis.
 
-Para concluir CI-01, selecionar um produto com fontes reais, registrar baseline e limitações, testar o adapter de agregação e obter revisão independente/checks. Nenhuma meta numérica é definida antes dessa baseline. Este incremento não altera ProductEvent, registry de capacidades, ledger ou o estado planejado do roadmap. Publicação e adoção exigem novo release imutável; não sobrescrever harness-v0.2.1.
+Para concluir CI-01, selecionar um produto com fontes reais, registrar baseline e limitações, testar o adapter de agregação e obter revisão independente/checks. Nenhuma meta numérica é definida antes dessa baseline. Este incremento não altera ProductEvent, registry de capacidades, ledger ou o estado planejado do roadmap. Publicação e adoção exigem novo release imutável; não sobrescrever harness-v0.2.1. As funções existem no checkout local; não se afirma que integrem o artefato `harness-v0.2.1` publicado.
+
+## Estado da baseline real: parcial
+
+A primeira baseline real de CI-01 **segue parcial**: nenhum KPI tem medição operacional registrada. As evidências disponíveis são técnicas — fórmulas deste catálogo, `calculateKpi`/`calculate_kpi`, casos sintéticos em `fixtures/kpi-cases.json` e os checks do harness. Esses casos (`source: fixture-only`) não são observações de produto e não devem ser citados como baseline, zero observado ou meta. A baseline histórica de validação da plataforma não mede estes KPIs. Até haver evidência, cada KPI é “não disponível”; não registrar zero nem inferir valores.
+
+Pendências comuns a todos os KPIs: escolher um produto e um ambiente; fixar janela `[windowStart, windowEnd)` com timezone; definir a coorte e a deduplicação; reconciliar as fontes; declarar a cobertura; implementar e testar o adapter de agregação do consumidor; obter revisão independente da primeira medição.
+
+| KPI | Evidência real disponível | Pendências específicas |
+| --- | --- | --- |
+| `lead_time_ms` | Não disponível | Fonte auditável de `executionStartedAt` e `acceptedAt` por entrega; incluir inícios anteriores à janela; relatar o WIP (entregas não aceitas) separadamente |
+| `change_failure_rate` | Não disponível | Receipts G6 vinculados a incidentes, rollbacks e remediações; horizonte de acompanhamento de incidentes; marcar parcial enquanto houver deploys em observação; não contar falhas de CI |
+| `cost_per_delivery_minor` | Não disponível | Custos de IA/CI/infra reconciliados e atribuídos à coorte, em uma única moeda; declarar custos não atribuídos e a cobertura; não apresentar como TCO |
+| `acceptance_rate` | Não disponível | Critérios de aceite versionados e histórico de submissões; deduplicar reenvios; manter decisões pendentes no denominador com cobertura parcial |
+| `contribution_margin_minor` | Não disponível | Ledger reconciliado por produto, com receita líquida e custos variáveis atribuíveis na mesma moeda; evitar dupla dedução de taxas/impostos |
+| `validated_demand_rate` | Não disponível | Registro de hipóteses com critério prévio e evidência de demanda comprovada; avaliações inconclusivas no denominador; entrega técnica não conta como demanda |
+
+A revisão local de paridade, documentação e checks não conclui CI-01. A conclusão exige a primeira medição real com as pendências acima resolvidas e a adoção via release imutável.

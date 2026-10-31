@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { calculateKpi, type KpiEvidence, type KpiInput } from './kpis.js';
+import { calculateKpi as rootCalculateKpi } from '../index.js';
 
 const evidence: KpiEvidence = { windowStart: '2026-10-01T00:00:00Z', windowEnd: '2026-11-01T00:00:00Z', source: 'fixture-only', coverage: 'complete' };
 test('matches the cross-language KPI contract', () => {
@@ -69,4 +70,24 @@ test('windows reject impossible calendar dates and compare timezone instants', (
   }
   assert.equal(calculateKpi(input, { ...evidence, windowStart: '2024-02-29T00:00:00-03:00' }).value, 1);
   assert.throws(() => calculateKpi(input, { ...evidence, windowStart: '2026-10-01T00:00:00Z', windowEnd: '2026-09-30T21:00:00-03:00' }));
+  assert.equal(calculateKpi(input, { ...evidence, windowStart: '9999-12-31T23:59:59.999+23:59', windowEnd: '9999-12-31T23:59:59.999Z' }).value, 1);
+});
+test('public root export is the documented TypeScript entry point', () => {
+  assert.equal(rootCalculateKpi, calculateKpi);
+  assert.equal(rootCalculateKpi({ kind: 'acceptance_rate', accepted: 1, submitted: 2 }, evidence).value, 0.5);
+});
+test('values JSON cannot represent stay rejected and never become empty or zero', () => {
+  const lead = (durationsMs: unknown) => calculateKpi({ kind: 'lead_time_ms', durationsMs } as unknown as KpiInput, evidence);
+  for (const durationsMs of [undefined, {}, { length: 0 }, '', 0, new Set<number>(), new Float64Array(0), [Infinity], [-Infinity], [1n]]) {
+    assert.throws(() => lead(durationsMs));
+  }
+  for (const accepted of [-Infinity, 2n, undefined]) {
+    assert.throws(() => calculateKpi({ kind: 'acceptance_rate', accepted, submitted: 4 } as unknown as KpiInput, evidence));
+  }
+  const coerced = { toString: () => evidence.windowStart };
+  assert.throws(() => calculateKpi({ kind: 'lead_time_ms', durationsMs: [1] }, { ...evidence, windowStart: coerced } as unknown as KpiEvidence));
+  assert.throws(() => calculateKpi({ kind: 'lead_time_ms', durationsMs: [1] }, { ...evidence, source: ['x'] } as unknown as KpiEvidence));
+  const margin = calculateKpi({ kind: 'contribution_margin_minor', netRevenueMinor: -0, variableCostMinor: 0, currency: 'BRL' }, evidence);
+  assert.ok(Object.is(margin.value, 0));
+  assert.ok(Object.is(calculateKpi({ kind: 'cost_per_delivery_minor', costMinor: -0, accepted: 3, currency: 'BRL' }, evidence).value, 0));
 });

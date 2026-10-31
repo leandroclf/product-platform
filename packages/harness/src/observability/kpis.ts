@@ -26,16 +26,28 @@ function count(value: number | null): void {
   }
 }
 
-function timestamp(value: string): number {
-  const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d{1,3})?(Z|[+-]\d{2}:\d{2})$/.exec(value);
+const TIMESTAMP = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.(\d{1,3}))?(Z|[+-]\d{2}:\d{2})$/;
+
+/** Milliseconds on a proleptic Gregorian scale, computed like the Python runtime
+ * (no Date.parse leniency for fractions, two-digit years or non-string values). */
+function timestamp(value: unknown): number {
+  const match = typeof value === 'string' ? TIMESTAMP.exec(value) : null;
   if (!match) return NaN;
-  const [, y, m, d, h, min, s, zone] = match;
-  const year = Number(y), month = Number(m), day = Number(d);
+  const [year, month, day, hour, minute, second] = match.slice(1, 7).map(Number);
+  const fraction = match[7] ?? '', zone = match[8];
   const leap = year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
   const days = [31, leap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-  if (month < 1 || month > 12 || day < 1 || day > days[month - 1] || Number(h) > 23 || Number(min) > 59 || Number(s) > 59) return NaN;
-  if (zone !== 'Z' && (Number(zone.slice(1, 3)) > 23 || Number(zone.slice(4)) > 59)) return NaN;
-  return Date.parse(value);
+  if (month < 1 || month > 12 || day < 1 || day > days[month - 1] || hour > 23 || minute > 59 || second > 59) return NaN;
+  let offset = 0;
+  if (zone !== 'Z') {
+    const zoneHour = Number(zone.slice(1, 3)), zoneMinute = Number(zone.slice(4));
+    if (zoneHour > 23 || zoneMinute > 59) return NaN;
+    offset = (zoneHour * 60 + zoneMinute) * (zone[0] === '+' ? 1 : -1);
+  }
+  let elapsedDays = 365 * year + Math.floor((year + 3) / 4) - Math.floor((year + 99) / 100) + Math.floor((year + 399) / 400);
+  for (let index = 0; index < month - 1; index++) elapsedDays += days[index];
+  elapsedDays += day - 1;
+  return ((elapsedDays * 1440 + hour * 60 + minute - offset) * 60 + second) * 1000 + Number(fraction.padEnd(3, '0'));
 }
 
 /** Rates are fractions [0,1]. Money is in one explicit currency's minor units;
@@ -47,17 +59,20 @@ export function calculateKpi(input: KpiInput, evidence: KpiEvidence): KpiResult 
   if (!Number.isFinite(start) || !Number.isFinite(end) || start >= end) {
     throw new Error('KPI requires an ordered window with explicit timezone');
   }
-  if (!evidence.source.trim() || !['complete', 'partial'].includes(evidence.coverage)) throw new Error('KPI requires source and coverage');
+  if (typeof evidence.source !== 'string' || !evidence.source.trim() || !['complete', 'partial'].includes(evidence.coverage)) throw new Error('KPI requires source and coverage');
   const monetary = input.kind === 'cost_per_delivery_minor' || input.kind === 'contribution_margin_minor';
   const currency = monetary ? input.currency : undefined;
   if (monetary && (typeof currency !== 'string' || !/^[A-Z]{3}$/.test(currency))) throw new Error('KPI requires an explicit currency code');
   const result = (value: number | null, reason: KpiResult['reason'] = null) => ({
     windowStart: evidence.windowStart, windowEnd: evidence.windowEnd,
     source: evidence.source, coverage: evidence.coverage, kind: input.kind,
-    ...(currency === undefined ? {} : { currency }), value, reason,
+    // `-0` (valid JSON) is normalized to 0 so both runtimes serialize the same value.
+    ...(currency === undefined ? {} : { currency }), value: value === 0 ? 0 : value, reason,
   });
   if (input.kind === 'lead_time_ms') {
     if (input.durationsMs === null) return result(null, 'missing_data');
+    // Untyped callers: objects, strings, numbers or array-likes are malformed, not empty.
+    if (!Array.isArray(input.durationsMs)) throw new Error('KPI durations must be an array');
     if (!input.durationsMs.length) return result(null, 'empty_denominator');
     let total = 0;
     for (const duration of input.durationsMs) {
