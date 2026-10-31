@@ -57,4 +57,4 @@ Para operação independente do notebook, usar host dedicado disponível. Os tim
 | P2 | Retomada reconciliada | Classificar checkpoint seguro versus chamada remota incerta; testar crash em cada fronteira antes de ampliar replay |
 | Condicional | Painel operacional | Somente após demanda comprovada; consumir evidências existentes, sem duplicar runtime |
 
-Análise de referência e decisões: [OpenHands](research/OPENHANDS-ANALYSIS.md).
+Análises de referência e decisões: [OpenHands](research/OPENHANDS-ANALYSIS.md) e [Hive](research/HIVE-ANALYSIS.md).
