@@ -139,5 +139,12 @@ class VisualFeedbackTests(unittest.TestCase):
             visual.artifact_bytes(self.root, self.artifact)
 
 
+class VisualFeedbackBaselineIntegrityTests(unittest.TestCase):
+    def test_committed_lf_home_baseline_artifacts_keep_integrity(self):
+        root = Path(__file__).resolve().parents[2] / 'validation/visual-feedback-baseline-2026-10-31'
+        self.assertEqual(visual.validate(root / 'task.v2.json', root / 'evidence.v2.json', root,
+                                         '3ff63351fca2ca3b0166bfe3056bca44e93368b1'), 'captured')
+
+
 if __name__ == '__main__':
     unittest.main()
