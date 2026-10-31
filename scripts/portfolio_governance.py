@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 """Read portfolio metadata; write only the canonical inventory issue."""
 import json
+import http.client
 from pathlib import Path
 from portal_live_catalog_audit import PORTAL_PATH, audit, decode_github_content, summarize
 from portal_editorial_packet import editorial_packet, render_packet
 import os
 import subprocess
+import urllib.request
 from datetime import datetime, timezone
 
 OWNER = os.environ.get("GH_OWNER", "leandroclf")
@@ -18,6 +20,16 @@ def gh(*args, read_portfolio=False):
         env["GH_TOKEN"] = env["PORTFOLIO_READ_TOKEN"]
     result = subprocess.run(["gh", "api", *args], check=True, text=True, capture_output=True, env=env)
     return json.loads(result.stdout)
+
+def public_catalog():
+    request = urllib.request.Request('https://api.github.com/' + PORTAL_PATH,
+                                     headers={'Accept': 'application/vnd.github+json',
+                                              'User-Agent': 'portfolio-governance'})
+    with urllib.request.urlopen(request, timeout=15) as response:
+        data = response.read(3_000_001)
+    if len(data) > 3_000_000:
+        raise ValueError('Portal response too large')
+    return decode_github_content(json.loads(data))
 
 def inventory():
     repos = []
@@ -36,6 +48,7 @@ def inventory():
     return sorted(repos, key=lambda x: x["name"].lower())
 
 def render(repos, portal_report=None, editorial_report=None, coverage="unverified"):
+    repos = [r for r in repos if r.get("private") is False]
     active = [r for r in repos if not r.get("archived")]
     archived = [r for r in repos if r.get("archived")]
     lines = [
@@ -67,13 +80,13 @@ def main():
     repos = inventory()
     try:
         registry = json.loads((Path(__file__).resolve().parents[1] / "packages/kit/contracts/portfolio-products.json").read_text(encoding="utf-8"))
-        catalog = decode_github_content(gh(PORTAL_PATH, read_portfolio=True))
+        catalog = public_catalog()
         portal_report = audit(registry, catalog)
         editorial_report = editorial_packet(registry, catalog) if portal_report["state"] in ("CONSISTENT", "DRIFT") else {"status": "UNVERIFIED"}
-    except (ValueError, OSError, KeyError, TypeError, json.JSONDecodeError, subprocess.CalledProcessError) as exc:
+    except (ValueError, OSError, http.client.HTTPException, KeyError, TypeError, json.JSONDecodeError, subprocess.CalledProcessError) as exc:
         portal_report = {"state": "UNVERIFIED", "issues": ["Não foi possível confirmar a versão remota do catálogo: " + type(exc).__name__]}
         editorial_report = {"status": "UNVERIFIED"}
-    coverage = "token-scoped (inclui privados autorizados)" if os.environ.get("PORTFOLIO_READ_TOKEN") else "public-only (privados não verificados)"
+    coverage = "public-only (dados privados omitidos)" if os.environ.get("PORTFOLIO_READ_TOKEN") else "public-only (privados não verificados)"
     body = render(repos, portal_report, editorial_report, coverage)
     issues = []
     for page in range(1, 11):

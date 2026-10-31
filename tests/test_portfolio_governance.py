@@ -1,4 +1,5 @@
 import json
+import http.client
 from pathlib import Path
 import sys
 import unittest
@@ -8,6 +9,61 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'scripts'))
 import portfolio_governance as pg
 
 class InventoryTests(unittest.TestCase):
+    def test_public_report_excludes_private_and_unknown_visibility(self):
+        public = {'name': 'public-repo', 'html_url': 'https://example.test/public', 'private': False}
+        private = {'name': 'private-repo', 'html_url': 'https://example.test/private', 'private': True,
+                   'description': 'confidential-description'}
+        unknown = {'name': 'unknown-repo', 'html_url': 'https://example.test/unknown'}
+        report = pg.render([public, private, unknown])
+        self.assertIn('public-repo', report)
+        self.assertIn('Total visível: 1;', report)
+        for forbidden in ('private-repo', 'confidential-description', 'example.test/private',
+                          'unknown-repo', 'example.test/unknown'):
+            self.assertNotIn(forbidden, report)
+
+    def test_token_inventory_publishes_only_public_metadata(self):
+        repos = [
+            {'name': 'public-repo', 'html_url': 'https://example.test/public', 'private': False},
+            {'name': 'private-repo', 'html_url': 'https://example.test/private', 'private': True},
+        ]
+        with patch.dict(pg.os.environ, {'PORTFOLIO_READ_TOKEN': 'synthetic-read'}), \
+             patch.object(pg, 'inventory', return_value=repos), \
+             patch.object(pg, 'gh', return_value=[]) as get, \
+             patch.object(pg, 'public_catalog', return_value={}), \
+             patch.object(pg, 'audit', return_value={'state': 'UNVERIFIED', 'issues': []}), \
+             patch.object(pg.subprocess, 'run') as write:
+            pg.main()
+        get.assert_called_once()
+        body = json.loads(write.call_args.kwargs['input'])['body']
+        self.assertIn('public-repo', body)
+        self.assertNotIn('private-repo', body)
+        self.assertNotIn('example.test/private', body)
+        self.assertIn('public-only (dados privados omitidos)', body)
+
+    def test_catalog_request_is_anonymous_and_bounded(self):
+        response = unittest.mock.MagicMock()
+        response.__enter__.return_value.read.return_value = b'{}'
+        with patch.dict(pg.os.environ, {'GH_TOKEN': 'synthetic-write', 'PORTFOLIO_READ_TOKEN': 'synthetic-read'}), \
+             patch.object(pg.urllib.request, 'urlopen', return_value=response) as open_url, \
+             patch.object(pg, 'decode_github_content', return_value={}) as decode:
+            pg.public_catalog()
+        request = open_url.call_args.args[0]
+        self.assertIsNone(request.get_header('Authorization'))
+        response.__enter__.return_value.read.assert_called_once_with(3_000_001)
+        decode.assert_called_once_with({})
+
+    def test_inaccessible_catalog_fails_closed(self):
+        for error in (OSError('synthetic-private-catalog'), http.client.IncompleteRead(b'partial')):
+            with self.subTest(error=type(error).__name__), \
+                 patch.object(pg, 'inventory', return_value=[]), \
+                 patch.object(pg, 'public_catalog', side_effect=error), \
+                 patch.object(pg, 'gh', return_value=[]), \
+                 patch.object(pg.subprocess, 'run') as write:
+                pg.main()
+            body = json.loads(write.call_args.kwargs['input'])['body']
+            self.assertIn('UNVERIFIED', body)
+            self.assertNotIn('synthetic-private-catalog', body)
+
     def test_missing_private_token_selects_public_endpoint_and_marks_coverage(self):
         with patch.dict(pg.os.environ,{'PORTFOLIO_READ_TOKEN':''}),patch.object(pg,'gh',return_value=[]) as get:
             self.assertEqual(pg.inventory(),[])
