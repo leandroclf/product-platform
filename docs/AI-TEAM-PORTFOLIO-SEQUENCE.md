@@ -68,7 +68,8 @@ O `--upgrade` substitui a configuração do projeto e grava backup; não o rode
 com tarefa ativa. Rode `ai-team models` e `ai-team doctor` antes do primeiro
 run. Os modelos baratos também fazem validação e revisão, então podem deixar
 escapar problemas que os modelos mais fortes detectariam; mantenha os gates e
-inspecione relatório e diff antes de `deliver`.
+inspecione relatório e diff. Somente tarefas R0/R1 que cumpram os gates podem
+seguir para `deliver`; tarefas R2 permanecem locais e o fluxo bloqueia sua entrega.
 
 Cada tarefa deve ser exclusivamente de auditoria report-only: não altere código,
 configuração, migrations nem documentação de produto; crie somente
@@ -167,10 +168,11 @@ harness ou contratos podem afetar consumidores já auditados. Se uma auditoria
 não encontrar defeito crítico/alto verificável, finalize sem criar mudanças.
 
 Esta sequência não autoriza release, publicação, push, merge, deploy, uso de
-credenciais ou operação em produção. Inspecione cada relatório e diff antes de
-usar `ai-team deliver`.
+credenciais ou operação em produção. Revise cada relatório e diff antes de
+qualquer entrega R0/R1 permitida; auditorias R2 permanecem nos workspaces locais
+e não podem ser entregues pelo `ai-team`.
 
-## Execução autônoma — estado em 26/10/2026
+## Execução autônoma — registro de 26/10/2026, pins atualizados em 31/10/2026
 
 O registro abaixo é um relato operacional do operador baseado em evidências locais não versionadas. Ele documenta o histórico informado, mas não constitui evidência de CI nem pode ser verificado apenas por este repositório.
 
