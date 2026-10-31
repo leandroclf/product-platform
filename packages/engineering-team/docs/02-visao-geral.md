@@ -56,7 +56,7 @@ As camadas lógicas do design de bootstrap complementam esse quadro: L0 governan
 | Bibliotecas Python | PyYAML 6.0.3 e jsonschema 4.26.0, fixadas | `requirements-validation.txt` |
 | CI | GitHub Actions, `ubuntu-latest`, checkout/setup-python v7 fixados por SHA, Python 3.12 | `.github/workflows/validate.yml` |
 | Imagem dos contêineres | `node:22-bookworm-slim` com Git, Python/venv, dependências de validação, ripgrep e ca-certificates | `runtimes/Dockerfile` |
-| CLIs de provedor | `@openai/codex` 0.159.3 e `@anthropic-ai/claude-code` 2.1.287, versões fixadas por argumento de build | `runtimes/Dockerfile` |
+| CLIs de provedor | `@openai/codex` 0.166.0 e `@anthropic-ai/claude-code` 2.1.316, versões estáveis verificadas em 31/10/2026 e fixadas por argumento de build | `runtimes/Dockerfile` |
 | Isolamento do contêiner | Local: UID 1001, rootfs somente leitura, tmpfs, capabilities removidas, limites e Git metadata read-only; Compose histórico admite UID do host | `scripts/local_team.py`, `runtimes/compose.yaml` |
 | Orquestração local | Linux, Python 3.10+ com venv/ensurepip, Git e Docker Engine; gh para PR; Compose apenas no harness histórico | `scripts/install-local.sh`, `scripts/local_team.py`, `scripts/pr_chain.sh` |
 

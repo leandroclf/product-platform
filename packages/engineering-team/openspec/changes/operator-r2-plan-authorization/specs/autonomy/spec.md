@@ -21,3 +21,11 @@ R2 work MUST remain blocked by default in the local CLI. The operator MAY explic
 - **WHEN** an R2-authorized implementation changes a sensitive path
 - **THEN** the independent path classifier applies
 - **AND** the required specialized offline quality check must be configured and pass before review
+
+### Requirement: Reviews receive the complete changed-file patch
+The coordinator MUST include every changed path in the validation and review patch, including files under `openspec/changes/ai-team-*`. Generated task records MAY be excluded from the no-progress fingerprint only for the current task; files under other `ai-team-*` paths MUST remain visible to risk classification.
+
+#### Scenario: Product file uses the ai-team prefix
+- **WHEN** a change modifies `openspec/changes/ai-team-older/security-policy.md`
+- **THEN** the file appears in both independent review patches
+- **AND** it is included in path classification and requires `security_and_approval`

@@ -1,7 +1,7 @@
 # Provider CLI runtime: the container is the sandbox (host bwrap is unavailable).
 FROM node:22-bookworm-slim
-ARG CODEX_VERSION=0.163.0
-ARG CLAUDE_VERSION=2.1.304
+ARG CODEX_VERSION=0.166.0
+ARG CLAUDE_VERSION=2.1.316
 ARG UID=1001
 COPY requirements-validation.txt /tmp/requirements-validation.txt
 RUN apt-get update \

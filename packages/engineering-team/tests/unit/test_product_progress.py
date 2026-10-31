@@ -16,7 +16,7 @@ class ProductProgressTests(unittest.TestCase):
         self.git('config', 'user.email', 'test@example.invalid')
         self.git('config', 'user.name', 'test')
         self.commit('initial')
-        self.state = {'base_sha': self.git('rev-parse', 'HEAD')}
+        self.state = {'base_sha': self.git('rev-parse', 'HEAD'), 'task': 'test'}
 
     def git(self, *args):
         return subprocess.run(['git', *args], cwd=self.repo, text=True,

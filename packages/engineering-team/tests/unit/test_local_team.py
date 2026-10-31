@@ -280,6 +280,11 @@ class LocalTeamTests(unittest.TestCase):
                              capability_decisions=getattr(self, 'plan_decisions', [])))
         elif label.endswith('-implement'):
             (path / 'workspace' / 'file').write_text('after ' + label)
+            extra_path = getattr(self, 'extra_changed_path', None)
+            if extra_path:
+                extra = path / 'workspace' / extra_path
+                extra.parent.mkdir(parents=True, exist_ok=True)
+                extra.write_text('security policy change')
             output.write_text(json.dumps({'structured_output': dict(plan_id=state['plan_id'], status='COMPLETE', summary='Implemented')}))
         elif label.endswith('-validate'):
             sha = team.git(path / 'workspace', 'rev-parse', 'HEAD')
@@ -308,7 +313,27 @@ class LocalTeamTests(unittest.TestCase):
         self.assertIn('after 0-implement', (path / 'handoff-0-review' / 'changes.patch').read_text())
         self.assertFalse((path / 'handoff-0-review' / 'validate.json').exists())
 
-    def test_review_handoff_excludes_only_coordinator_generated_openspec(self):
+    def test_review_handoff_and_quality_gates_include_ai_team_prefixed_product_changes(self):
+        task, path, target, base = self.setup_run()
+        self.extra_changed_path = 'openspec/changes/ai-team-older/security-policy.md'
+        state = team.read(path / 'state.json')
+        state['authorized_risk'] = 'R2'
+        state['risk_authorization'] = dict(method='cli --authorize-r2', repository=str(target), base_sha=base,
+            request_sha256=hashlib.sha256(state['request'].encode()).hexdigest())
+        state['config']['quality_checks'] = {'security_and_approval': 'python -m unittest tests.test_security'}
+        team.atomic(path / 'state.json', state)
+        self.planned_risk = 'R2'
+        with patch.object(team, 'grant_agent_checkout_access'), patch.object(team, 'image_present'), patch.object(team, 'execute', side_effect=self.controlled_executor):
+            team.worker(task)
+        result = team.read(path / 'state.json')
+        self.assertEqual(result['status'], 'REVIEWED')
+        self.assertIn('openspec/changes/ai-team-older/security-policy.md', result['change_surface']['paths'])
+        self.assertIn('security_and_approval', result['change_surface']['required_gates'])
+        review_patch = (path / 'handoff-0-review' / 'changes.patch').read_text()
+        self.assertIn('openspec/changes/ai-team-older/security-policy.md', review_patch)
+        self.assertIn('openspec/changes/ai-team-' + task + '/0/tasks.md', review_patch)
+
+    def test_review_handoff_contains_product_and_coordinator_openspec(self):
         task, path, target, base = self.setup_run()
         workspace = path / 'workspace'
         subprocess.run(['git', 'clone', '-q', str(target), str(workspace)], check=True)
@@ -322,10 +347,9 @@ class LocalTeamTests(unittest.TestCase):
         (project_spec / 'proposal.md').write_text('product proposal')
         subprocess.run(['git', '-C', str(workspace), 'add', '.'], check=True)
         subprocess.run(['git', '-C', str(workspace), '-c', 'user.name=test', '-c', 'user.email=test@local', 'commit', '-qm', 'fixture'], check=True)
-        diff = team.git(workspace, 'diff', '--no-ext-diff', '--no-textconv', base, 'HEAD',
-                        '--', '.', ':(exclude)openspec/changes/ai-team-*/**')
+        diff = team.git(workspace, 'diff', '--no-ext-diff', '--no-textconv', base, 'HEAD')
         self.assertIn('docs/audits/report.md', diff)
-        self.assertNotIn('openspec/changes/ai-team-', diff)
+        self.assertIn('openspec/changes/ai-team-' + task + '/0/proposal.md', diff)
         self.assertIn('openspec/changes/product-change/proposal.md', diff)
 
     def test_explicit_r2_authorization_allows_plan_but_keeps_target_isolated(self):

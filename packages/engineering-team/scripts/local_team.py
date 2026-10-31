@@ -696,7 +696,7 @@ def verify_change_surface(workspace, state):
     """Check actual changed paths against the plan and operator-authorized risk ceiling."""
     raw = git(workspace, 'diff', '--name-only', '--no-renames',
               state['base_sha'], 'HEAD')
-    paths = [p for p in raw.splitlines() if p and not p.startswith('openspec/changes/ai-team-')]
+    paths = [p for p in raw.splitlines() if p]
     try:
         risk = ensure_authorized(state['plan']['risk'], paths, risk_authorization_ceiling(state))
     except ValueError as exc:
@@ -718,9 +718,11 @@ def record_product_progress(workspace, state):
     Persist the small history in the existing atomic checkpoint. No provider
     retry, permission change or new runtime is introduced.
     """
+    paths = ['--', '.']
+    if state.get('task'):
+        paths.append(f":(exclude)openspec/changes/ai-team-{state['task']}/**")
     delta = git(workspace, 'diff', '--no-ext-diff', '--no-textconv', '--binary',
-                state['base_sha'], 'HEAD', '--', '.',
-                ':(exclude)openspec/changes/ai-team-*')
+                state['base_sha'], 'HEAD', *paths)
     fingerprint = hashlib.sha256(delta.encode()).hexdigest()
     history = state.setdefault('product_progress', [])
     history.append(fingerprint)
@@ -766,8 +768,7 @@ def stage_run(path, state, kind, prompt, part=1, parts=1, notes=None):
         artifact = handoff / 'tests.json'
         atomic(artifact, state['test_evidence']); artifact.chmod(0o444)
     if kind in ('validate', 'review'):
-        diff = git(path / 'workspace', 'diff', '--no-ext-diff', '--no-textconv', state['base_sha'], 'HEAD',
-                   '--', '.', ':(exclude)openspec/changes/ai-team-*/**')
+        diff = git(path / 'workspace', 'diff', '--no-ext-diff', '--no-textconv', state['base_sha'], 'HEAD')
         if len(diff.encode()) > 2 * 1024 * 1024:
             raise Blocked('review diff exceeds bounded handoff; split the task')
         artifact = handoff / 'changes.patch'
@@ -991,7 +992,7 @@ def worker(task_id):
                         prompt = (f'You are {role}, performing {kind} only. HEAD {sha}, base {state["base_sha"]}. '
                                   'Read project instructions. Quality/security gates are mandatory. '
                                   f'Plan ID: {state["plan_id"]}. Read /handoff/plan.json, /handoff/tests.json and /handoff/changes.patch. '
-                                  'The host-generated OpenSpec files under openspec/changes/ai-team-<task>/<cycle>/ are orchestration records, not product changes; /handoff/changes.patch intentionally excludes them. '
+                                  'The host-generated OpenSpec files under openspec/changes/ai-team-<task>/<cycle>/ are included in /handoff/changes.patch for complete visibility; treat them as orchestration records, not product deliverables. '
                                   'Validate the original request independently of planner/implementer claims. '
                                   'Return acceptance_results for every plan criterion with concrete evidence. '
                                   'Use plan_status REPLAN_REQUIRED when the plan misses the original objective. '
