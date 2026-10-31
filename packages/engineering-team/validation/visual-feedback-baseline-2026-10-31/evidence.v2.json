@@ -35,7 +35,7 @@
       "artifacts": [
         {
           "path": "checks/browser-report.json",
-          "sha256": "4e8f50af17bc6aca8a2a45726ac031b9c7d038d56aa4bc0d3392132c4f13eb41"
+          "sha256": "9a5a74455100eec40542bdabd0a279c5c5170e948fcbd825e88f6a29383e6f54"
         }
       ]
     },
@@ -46,7 +46,7 @@
       "artifacts": [
         {
           "path": "checks/browser-report.json",
-          "sha256": "4e8f50af17bc6aca8a2a45726ac031b9c7d038d56aa4bc0d3392132c4f13eb41"
+          "sha256": "9a5a74455100eec40542bdabd0a279c5c5170e948fcbd825e88f6a29383e6f54"
         }
       ]
     },
@@ -57,7 +57,7 @@
       "artifacts": [
         {
           "path": "checks/browser-report.json",
-          "sha256": "4e8f50af17bc6aca8a2a45726ac031b9c7d038d56aa4bc0d3392132c4f13eb41"
+          "sha256": "9a5a74455100eec40542bdabd0a279c5c5170e948fcbd825e88f6a29383e6f54"
         }
       ]
     }
@@ -68,7 +68,7 @@
       "status": "pass",
       "artifact": {
         "path": "checks/browser-report.json",
-        "sha256": "4e8f50af17bc6aca8a2a45726ac031b9c7d038d56aa4bc0d3392132c4f13eb41"
+        "sha256": "9a5a74455100eec40542bdabd0a279c5c5170e948fcbd825e88f6a29383e6f54"
       }
     },
     {
@@ -76,7 +76,7 @@
       "status": "pass",
       "artifact": {
         "path": "checks/browser-report.json",
-        "sha256": "4e8f50af17bc6aca8a2a45726ac031b9c7d038d56aa4bc0d3392132c4f13eb41"
+        "sha256": "9a5a74455100eec40542bdabd0a279c5c5170e948fcbd825e88f6a29383e6f54"
       }
     },
     {
@@ -84,7 +84,7 @@
       "status": "pass",
       "artifact": {
         "path": "checks/browser-report.json",
-        "sha256": "4e8f50af17bc6aca8a2a45726ac031b9c7d038d56aa4bc0d3392132c4f13eb41"
+        "sha256": "9a5a74455100eec40542bdabd0a279c5c5170e948fcbd825e88f6a29383e6f54"
       }
     }
   ],
