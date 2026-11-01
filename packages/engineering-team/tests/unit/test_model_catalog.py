@@ -7,6 +7,7 @@ from scripts import local_team as team
 
 CODEX = json.dumps({'models': [
     {'slug': 'gpt-6.1-sol', 'description': 'workhorse', 'visibility': 'list', 'supported_reasoning_levels': [{'effort': e} for e in ('low', 'medium', 'high', 'xhigh')]},
+    {'slug': 'gpt-6-astra', 'description': 'reasoning', 'visibility': 'list', 'supported_reasoning_levels': [{'effort': e} for e in ('low', 'medium', 'high', 'xhigh')]},
     {'slug': 'gpt-6-luna', 'description': 'fast', 'visibility': 'list', 'supported_reasoning_levels': [{'effort': e} for e in ('low', 'medium')]},
     {'slug': 'codex-auto-review', 'description': 'hidden', 'visibility': 'hide', 'supported_reasoning_levels': [{'effort': 'medium'}]}]})
 CLAUDE = json.dumps({'catalog': {'config': {'models': [
@@ -73,6 +74,39 @@ class ModelCatalogTests(unittest.TestCase):
             text = team.render_models(models(review=('claude-terra', 'medium')))
         self.assertIn('✖ review', text); self.assertIn('✔ plan', text); self.assertIn('DISPONÍVEIS (codex)', text)
         self.assertIn('gpt-6-luna', text); self.assertNotIn('codex-auto-review', text)
+
+    def test_model_routing_economizes_only_small_documentation_tasks(self):
+        available = catalogs()
+        routed, decision = team.task_model_route('Update the README spelling and wording', team.DEFAULT_MODELS, available)
+        self.assertEqual(decision['profile'], 'economy')
+        self.assertEqual(routed, team.ECONOMY_MODELS)
+        routed, decision = team.task_model_route('Update docs and fix the authentication API endpoint', team.DEFAULT_MODELS, available)
+        self.assertEqual(decision['profile'], 'configured')
+        self.assertEqual(routed, team.DEFAULT_MODELS)
+        routed, decision = team.task_model_route('Update the README and change src/main.py to use the new algorithm', team.DEFAULT_MODELS, available)
+        self.assertEqual(decision['profile'], 'configured')
+        self.assertEqual(routed, team.DEFAULT_MODELS)
+        routed, decision = team.task_model_route('Atualize README e ajuste `app.py` para ordenar os resultados', team.DEFAULT_MODELS, available)
+        self.assertEqual(decision['profile'], 'configured')
+        routed, decision = team.task_model_route('Atualize o README e altere o código para corrigir o algoritmo', team.DEFAULT_MODELS, available)
+        self.assertEqual(decision['profile'], 'configured')
+        routed, decision = team.task_model_route('Update privacy documentation', team.DEFAULT_MODELS, available)
+        self.assertEqual(decision['profile'], 'configured')
+        configured = models(implement=('claude-sonnet-5-5', 'low'))
+        routed, decision = team.task_model_route('Update the README spelling and wording', configured, available)
+        self.assertEqual(decision['reason'], 'explicit stage profiles are preserved')
+        self.assertEqual(routed, configured)
+        planned = {'objective': 'Update README', 'status': 'READY', 'risk': 'R2',
+                   'tasks': [{'description': 'Update README'}], 'acceptance_criteria': [{'id': 'AC1'}]}
+        routed, decision = team.task_model_route('Update README spelling', team.DEFAULT_MODELS, available, planned)
+        self.assertEqual(decision['profile'], 'configured')
+        self.assertEqual(routed, team.DEFAULT_MODELS)
+        planned['risk'] = 'R1'
+        routed, decision = team.task_model_route('Update README spelling', team.DEFAULT_MODELS, None, planned)
+        self.assertEqual(decision['reason'], 'economical profile was not validated before planning')
+        self.assertEqual(routed, team.DEFAULT_MODELS)
+        routed, decision = team.task_model_route('Update README spelling', team.DEFAULT_MODELS, None, planned, validated_economy=True)
+        self.assertEqual(decision['profile'], 'economy')
 
 
 if __name__ == '__main__':

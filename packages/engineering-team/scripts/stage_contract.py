@@ -17,6 +17,12 @@ DEFAULT_MODELS = {
     'validate': {'model': 'gpt-6-astra', 'effort': 'xhigh'},
     'review': {'model': 'claude-opus-5-5', 'effort': 'high'},
 }
+ECONOMY_MODELS = {
+    'plan': {'model': 'gpt-6.1-sol', 'effort': 'medium'},
+    'implement': {'model': 'claude-sonnet-5-5', 'effort': 'medium'},
+    'validate': {'model': 'gpt-6-astra', 'effort': 'medium'},
+    'review': {'model': 'claude-opus-5-5', 'effort': 'medium'},
+}
 PLAN_SCHEMA = ROOT / 'schemas/local-plan.schema.json'
 REVIEW_SCHEMA = ROOT / 'schemas/local-review.schema.json'
 IMPLEMENT_SCHEMA = ROOT / 'schemas/local-implementation.schema.json'

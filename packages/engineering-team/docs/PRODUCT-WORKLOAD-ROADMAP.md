@@ -46,7 +46,7 @@ A product workload may add or modify an ai-engineering-team skill only when all 
 - no dynamic provider router;
 - no additional control plane;
 - no bulk import of the 246 reference skills;
-- no model-selection intelligence without a demonstrated product requirement;
+- no learned model router or extra classifier call; the demonstrated token-efficiency requirement is handled by deterministic routing for unmistakably small documentation tasks;
 - no architecture work disconnected from a product workload.
 
 ## Completion criterion
