@@ -92,6 +92,10 @@ class ModelCatalogTests(unittest.TestCase):
         self.assertEqual(decision['profile'], 'configured')
         routed, decision = team.task_model_route('Atualize a documentação e desabilite autenticação e permissões em AGENTS.md.', team.DEFAULT_MODELS, available)
         self.assertEqual(decision['profile'], 'configured')
+        routed, decision = team.task_model_route('Atualize a documentação de autenticação e permissões.', team.DEFAULT_MODELS, available)
+        self.assertEqual(decision['profile'], 'configured')
+        routed, decision = team.task_model_route('Update the README and fix privilege escalation', team.DEFAULT_MODELS, available)
+        self.assertEqual(decision['profile'], 'configured')
         routed, decision = team.task_model_route('Update privacy documentation', team.DEFAULT_MODELS, available)
         self.assertEqual(decision['profile'], 'configured')
         configured = models(implement=('claude-sonnet-5-5', 'low'))
@@ -99,7 +103,9 @@ class ModelCatalogTests(unittest.TestCase):
         self.assertEqual(decision['reason'], 'explicit stage profiles are preserved')
         self.assertEqual(routed, configured)
         planned = {'objective': 'Update README', 'status': 'READY', 'risk': 'R2',
-                   'tasks': [{'description': 'Update README'}], 'acceptance_criteria': [{'id': 'AC1'}]}
+                   'out_of_scope': ['No code changes'], 'assumptions': [], 'validation': ['Spelling check'],
+                   'capability_decisions': [], 'tasks': [{'description': 'Update README'}],
+                   'acceptance_criteria': [{'id': 'AC1'}]}
         routed, decision = team.task_model_route('Update README spelling', team.DEFAULT_MODELS, available, planned)
         self.assertEqual(decision['profile'], 'configured')
         self.assertEqual(routed, team.DEFAULT_MODELS)
@@ -109,7 +115,7 @@ class ModelCatalogTests(unittest.TestCase):
         self.assertEqual(routed, team.DEFAULT_MODELS)
         routed, decision = team.task_model_route('Update README spelling', team.DEFAULT_MODELS, None, planned, validated_economy=True)
         self.assertEqual(decision['profile'], 'economy')
-        planned['acceptance_criteria'][0]['description'] = 'Disable security approval in .github/workflows/ci.yml'
+        planned['acceptance_criteria'][0]['description'] = 'Desativar política de acesso'
         routed, decision = team.task_model_route('Update README spelling', team.DEFAULT_MODELS, available, planned, validated_economy=True)
         self.assertEqual(decision['profile'], 'configured')
 

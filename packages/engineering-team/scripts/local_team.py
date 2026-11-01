@@ -651,14 +651,14 @@ def task_model_route(request, configured, catalogs, plan=None, validated_economy
     if configured != DEFAULT_MODELS:
         return {key: dict(value) for key, value in configured.items()}, {'profile': 'configured', 'reason': 'explicit stage profiles are preserved'}
     words = request.split()
-    excluded = r'(?<![\w.-])[\w./-]+\.(?:py|js|jsx|ts|tsx|go|java|kt|kts|rs|rb|php|sql|sh|yaml|yml|toml|json)(?!\w)|\b(AGENTS|CLAUDE)\.md\b|\b(auth(?:entication|orization)?|autentic\w*|autoriz\w*|permission\w*|permiss\w*|credential\w*|credencial\w*|security|seguran[cç]a|payment|pagamento|database|migration|schema|api|endpoint|concurren\w*|race|infra|deploy|secret|performance|bug|incident|production|code|c[oó]digo|software|src|packages|scripts|tests|implement\w*|refactor\w*|algorithm|algoritmo|architecture|arquitetura|privacidade|privacy|lgpd|gdpr|logic|l[oó]gica|behavior|comportamento|function|fun[cç][aã]o|class|classe|alter\w*|modific\w*|mude?\w*|corrig\w*|policy|pol[ií]tica)\b'
+    excluded = r'(?<![\w.-])[\w./-]+\.(?:py|js|jsx|ts|tsx|go|java|kt|kts|rs|rb|php|sql|sh|yaml|yml|toml|json)(?!\w)|\b(AGENTS|CLAUDE)\.md\b|\b(auth(?:entication|orization)?|autentic\w*|autoriz\w*|permission\w*|permiss\w*|credential\w*|credencial\w*|security|seguran[cç]a|payment|pagamento|database|migration|schema|api|endpoint|concurren\w*|race|infra|deploy|secret|performance|bug|incident|production|code|c[oó]digo|software|src|packages|scripts|tests|implement\w*|refactor\w*|fix\w*|privilege\w*|privil[eé]gio\w*|escalat\w*|algorithm|algoritmo|architecture|arquitetura|privacidade|privacy|lgpd|gdpr|logic|l[oó]gica|behavior|comportamento|function|fun[cç][aã]o|class|classe|alter\w*|modific\w*|mude?\w*|corrig\w*|policy|pol[ií]tica)\b'
     code_or_mixed = re.search(excluded, request, re.I)
     simple_request = (len(words) <= 80
         and not code_or_mixed
-        and re.search(r'\b(docs?|documentation|readme|markdown|changelog|typo|texto|ortografia|documenta[cç][aã]o|relat[oó]rio)\b', request, re.I)
-        and not code_or_mixed)
+        and re.search(r'\b(docs?|documentation|readme|markdown|changelog|typo|texto|ortografia|documenta[cç][aã]o|relat[oó]rio)\b', request, re.I))
     if plan is not None:
-        plan_text = json.dumps(plan, ensure_ascii=True)
+        plan_text = json.dumps({key: plan[key] for key in (
+            'objective', 'tasks', 'acceptance_criteria', 'validation', 'assumptions', 'capability_decisions')}, ensure_ascii=False)
         simple = (simple_request and plan['status'] == 'READY' and plan['risk'] in ('R0', 'R1')
             and len(plan['tasks']) <= 2 and len(plan['acceptance_criteria']) <= 3
             and not re.search(excluded, plan_text, re.I))
