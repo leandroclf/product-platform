@@ -20,9 +20,9 @@ try:
 except ImportError:
     from change_policy import authorize_plan, ensure_authorized, required_quality_surfaces
 try:
-    from .stage_contract import STAGES, DEFAULT_MODELS, PLAN_SCHEMA, REVIEW_SCHEMA, IMPLEMENT_SCHEMA, validate_plan, plan_id, validate_assessment
+    from .stage_contract import STAGES, DEFAULT_MODELS, ECONOMY_MODELS, PLAN_SCHEMA, REVIEW_SCHEMA, IMPLEMENT_SCHEMA, validate_plan, plan_id, validate_assessment
 except ImportError:
-    from stage_contract import STAGES, DEFAULT_MODELS, PLAN_SCHEMA, REVIEW_SCHEMA, IMPLEMENT_SCHEMA, validate_plan, plan_id, validate_assessment
+    from stage_contract import STAGES, DEFAULT_MODELS, ECONOMY_MODELS, PLAN_SCHEMA, REVIEW_SCHEMA, IMPLEMENT_SCHEMA, validate_plan, plan_id, validate_assessment
 
 try:
     from .review_contract import read_json, validate_review
@@ -245,7 +245,7 @@ def clean(repo):
         raise Blocked('checkout has changes; commit or save them yourself before starting')
 
 
-OPTIONAL_CONFIG = {'implement_parts', 'codex_sandbox', 'test_tmpfs_exec', 'quality_checks'}
+OPTIONAL_CONFIG = {'implement_parts', 'codex_sandbox', 'test_tmpfs_exec', 'quality_checks', 'model_routing'}
 
 
 def validate_config(value):
@@ -280,6 +280,8 @@ def validate_config(value):
         raise Blocked('codex_sandbox must be read-only or danger-full-access')
     if type(value.get('test_tmpfs_exec', False)) is not bool:
         raise Blocked('test_tmpfs_exec must be a boolean')
+    if type(value.get('model_routing', False)) is not bool:
+        raise Blocked('model_routing must be a boolean')
     if 'implement_parts' in value and (type(value['implement_parts']) is not int or not 1 <= value['implement_parts'] <= 4):
         raise Blocked('implement_parts must be an integer from 1 to 4')
     for key, limit in [('timeout', 3600), ('max_cycles', 5), ('max_seconds', 28800)]:
@@ -637,11 +639,52 @@ def render_models(models, show_all=False):
     return '\n'.join(lines)
 
 
-def require_valid_models(models):
+def require_valid_models(models, catalogs=None):
     """Fail before spending quota: an unknown model would only fail at its own stage, after earlier stages ran."""
-    bad = [f'{stage}: {msg}' for stage, level, msg in check_models(models) if level == 'error']
+    bad = [f'{stage}: {msg}' for stage, level, msg in check_models(models, catalogs) if level == 'error']
     if bad:
         raise Blocked('invalid model configuration: ' + '; '.join(bad))
+
+
+def task_model_route(request, configured, catalogs, plan=None, validated_economy=False):
+    """Use the measured economical profile only for unmistakably small, low-risk documentation work."""
+    if configured != DEFAULT_MODELS:
+        return {key: dict(value) for key, value in configured.items()}, {'profile': 'configured', 'reason': 'explicit stage profiles are preserved'}
+    words = request.split()
+    editorial_words = set('a an and the do da de para por please update revise review proofread copyedit copy edit correct fix typo typos spelling grammar wording punctuation capitalization formatting format check texto textual ortografia gramática redação pontuação formatação documentação revisão revisar corrigir correção document docs doc documentation readme readme.md markdown changelog report relatório reuse extend create'.split())
+
+    def documentary_only(text):
+        terms = re.findall(r"[^\W_]+(?:[.'’][^\W_]+)*", text.casefold())
+        return (all(term in editorial_words for term in terms)
+            and re.search(r'\b(docs?|documentation|readme|markdown|changelog|texto|documenta[cç][aã]o|relat[oó]rio)\b', text, re.I)
+            and re.search(r'\b(typos?|spelling|grammar|wording|punctuation|capitalization|proofread|copyedit|formatting|typo|ortografia|gram[aá]tica|reda[cç][aã]o|pontua[cç][aã]o|formata[cç][aã]o|revis[aã]o textual)\b', text, re.I))
+    excluded = r'(?<![\w.-])[\w./-]+\.(?:py|js|jsx|ts|tsx|go|java|kt|kts|rs|rb|php|sql|sh|yaml|yml|toml|json)(?!\w)|\b(AGENTS|CLAUDE)\.md\b|\b(auth(?:entication|orization)?|autentic\w*|autoriz\w*|permission\w*|permiss\w*|credential\w*|credencial\w*|login|log[ -]?in|sign[ -]?in|password|senha|token|session|sess[aã]o|identity|identidade|access control|controle de acesso|bypass|contorn\w*|security|seguran[cç]a|payment|pagamento|database|migration|schema|api|endpoint|concurren\w*|race|infra|deploy|secret|performance|bug|incident|production|code|c[oó]digo|software|src|packages|scripts|tests|implement\w*|refactor\w*|fix\w*|privilege\w*|privil[eé]gio\w*|escalat\w*|algorithm|algoritmo|architecture|arquitetura|privacidade|privacy|lgpd|gdpr|logic|l[oó]gica|behavior|comportamento|function|fun[cç][aã]o|class|classe|alter\w*|modific\w*|mude?\w*|corrig\w*|policy|pol[ií]tica|delet\w*|delete|remov\w*|remove|erase|wipe|drop|purge|truncate|destroy|exclu\w*|apag\w*|elimin\w*|limp\w*)\b'
+    code_or_mixed = re.search(excluded, request, re.I)
+    simple_request = (len(words) <= 80
+        and not code_or_mixed
+        and documentary_only(request))
+    if plan is not None:
+        plan_text = ' '.join([
+            plan['objective'], *plan['assumptions'], *plan['validation'],
+            *(task['description'] for task in plan['tasks']),
+            *(criterion['description'] for criterion in plan['acceptance_criteria']),
+            *(value for decision in plan['capability_decisions'] for value in (
+                decision['name'], decision['decision'], decision['owner']))])
+        simple = (simple_request and plan['status'] == 'READY' and plan['risk'] in ('R0', 'R1')
+            and len(plan['tasks']) <= 2 and len(plan['acceptance_criteria']) <= 3
+            and not re.search(excluded, plan_text, re.I) and documentary_only(plan_text))
+    else:
+        simple = simple_request
+    if not simple:
+        return {key: dict(value) for key, value in configured.items()}, {'profile': 'configured', 'reason': 'scope or risk is not clearly low'}
+    if plan is not None and not validated_economy:
+        return {key: dict(value) for key, value in configured.items()}, {'profile': 'configured', 'reason': 'economical profile was not validated before planning'}
+    if catalogs is not None and any(catalogs.get(stage) is None for stage in STAGES):
+        return {key: dict(value) for key, value in configured.items()}, {'profile': 'configured', 'reason': 'model catalog unavailable'}
+    if catalogs is not None and any(level == 'error' for _, level, _ in check_models(ECONOMY_MODELS, catalogs)):
+        return {key: dict(value) for key, value in configured.items()}, {'profile': 'configured', 'reason': 'economical profile unavailable in a stage catalog'}
+    return ({key: dict(value) for key, value in ECONOMY_MODELS.items()},
+            {'profile': 'economy', 'reason': 'short, explicit documentation scope; plan risk and size rechecked before implementation'})
 
 
 def plan_parts(plan, parts):
@@ -938,6 +981,10 @@ def worker(task_id):
                         raise Blocked('plan exceeds operator-authorized risk: ' + str(exc)) from exc
                     if (path / 'stop').exists():
                         raise Blocked('stop requested before recording plan')
+                    if state.get('model_routing') and state['authorized_risk'] == 'R1':
+                        if state['model_routing_decision'].get('profile') == 'economy':
+                            state['config']['models'], state['model_routing_decision'] = task_model_route(
+                                state['request'], state['configured_models'], None, result, validated_economy=True)
                     state['plan'] = result; state['plan_id'] = plan_id(result)
                     state['plan_cycle'] = cycle
                     record_openspec(workspace, state)
@@ -1313,6 +1360,8 @@ def main(argv=None):
                       help='Codex sandbox inside the stage container; danger-full-access only where bwrap cannot start (container stays the boundary)')
     init.add_argument('--test-exec', action='store_true', help='mount the checks tmpfs /work with exec (needed for node_modules/.bin)')
     init.add_argument('--max-seconds', type=int, default=7200)
+    init.add_argument('--model-routing', action=argparse.BooleanOptionalAction, default=True,
+                      help='select a measured lower-cost profile for clearly small documentation tasks (default: enabled)')
     init.add_argument('--upgrade', action='store_true', help='replace existing config deliberately, preserving a backup')
     for kind, profile in DEFAULT_MODELS.items():
         init.add_argument('--' + kind + '-model', default=profile['model'])
@@ -1398,7 +1447,8 @@ def main(argv=None):
             test_image=args.test_image, checks=args.check, quality_checks=specialized,
             timeout=args.timeout, max_cycles=args.max_cycles,
             max_seconds=args.max_seconds, models=models, implement_parts=args.implement_parts,
-            codex_sandbox=args.codex_sandbox, test_tmpfs_exec=args.test_exec))
+            codex_sandbox=args.codex_sandbox, test_tmpfs_exec=args.test_exec,
+            model_routing=args.model_routing))
         path = project_path(repo) / 'config.json'
         with lock(path.parent / 'execution.lock'):
             if path.exists():
@@ -1429,9 +1479,10 @@ def main(argv=None):
             raise Blocked('provider CLIs are not the current stable versions; run '
                           'python3 scripts/update_provider_clis.py and promote the tested candidate')
         warn_quota()
-        require_valid_models(config['models'])
         if config['repository'] != str(repo) or not args.request.strip() or len(args.request) > 16000:
             raise Blocked('invalid project/request')
+        catalogs = {kind: read_stage_catalog(kind) for kind in STAGES}
+        require_valid_models(config['models'], catalogs)
         inputs = platform_inputs(args.handoff, args.rules, args.registry, git(repo, 'rev-parse', 'HEAD'))
         # Freeze local image content before creating a task; do not update mid-run.
         config['test_image'] = image_present(config['test_image'])
@@ -1440,13 +1491,18 @@ def main(argv=None):
         platform = freeze_platform(path, inputs)
         base_sha = git(repo, 'rev-parse', 'HEAD')
         authorized_risk = 'R2' if args.authorize_r2 else 'R1'
+        configured_models = {kind: dict(profile) for kind, profile in config['models'].items()}
+        routing_decision = {'profile': 'configured', 'reason': 'model routing disabled'}
+        if config.get('model_routing', False) and authorized_risk == 'R1':
+            config['models'], routing_decision = task_model_route(args.request, configured_models, catalogs)
         risk_authorization = ({'method': 'cli --authorize-r2', 'repository': str(repo), 'base_sha': base_sha,
             'request_sha256': hashlib.sha256(args.request.encode()).hexdigest()} if args.authorize_r2 else None)
         state = dict(version=2, task=task_id, repository=str(repo), config=config, request=args.request,
             base_sha=base_sha, base_branch=git(repo, 'branch', '--show-current'),
             origin=git(repo, 'remote', 'get-url', 'origin'), created_at=time.time(), status='RUNNING',
             phase='CLONE', cycle=0, active=None, authorized_risk=authorized_risk,
-            risk_authorization=risk_authorization)
+            risk_authorization=risk_authorization, model_routing=config.get('model_routing', False),
+            model_routing_decision=routing_decision, configured_models=configured_models)
         if platform:
             state['platform'] = platform
         if not state['base_branch']:
@@ -1470,7 +1526,9 @@ def main(argv=None):
             worker_state = state.get('worker') or {}
             stale = state['status'] == 'RUNNING' and worker_state and proc_identity(worker_state['pid']) != worker_state['identity']
             print(json.dumps({'task': path.name, 'status': 'INTERRUPTED' if stale else state['status'],
-                'phase': state['phase'], 'head_sha': state.get('head_sha'), 'reason': state.get('reason'), 'evidence': str(path)}))
+                'phase': state['phase'], 'head_sha': state.get('head_sha'), 'reason': state.get('reason'),
+                'model_routing': state.get('model_routing_decision'), 'models': state['config'].get('models'),
+                'evidence': str(path)}))
         return 0
     if args.command == 'resume':
         return start(run_path(args.task))

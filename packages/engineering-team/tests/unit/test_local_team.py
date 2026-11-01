@@ -746,6 +746,7 @@ class LocalTeamTests(unittest.TestCase):
                 team.main(args)
             self.assertEqual(team.main(args + ['--upgrade']), 0)
         self.assertEqual(team.read(stored)['models'], team.DEFAULT_MODELS)
+        self.assertTrue(team.read(stored)['model_routing'])
         backups = list(stored.parent.glob('config-backup-*.json'))
         self.assertEqual(len(backups), 1)
         self.assertEqual(team.read(backups[0]), old)
