@@ -651,18 +651,24 @@ def task_model_route(request, configured, catalogs, plan=None, validated_economy
     if configured != DEFAULT_MODELS:
         return {key: dict(value) for key, value in configured.items()}, {'profile': 'configured', 'reason': 'explicit stage profiles are preserved'}
     words = request.split()
+    editorial_words = set('a an and the do da de para por please update revise review proofread copyedit copy edit correct fix typo typos spelling grammar wording punctuation capitalization formatting format check texto textual ortografia gramática redação pontuação formatação revisão revisar corrigir correção document docs doc documentation readme readme.md markdown changelog report relatório objective tasks acceptance criteria validation assumptions capability decisions description id ac1'.split())
+
+    def documentary_only(text):
+        terms = re.findall(r"[^\W_]+(?:[.'’][^\W_]+)*", text.casefold())
+        return (all(term in editorial_words for term in terms)
+            and re.search(r'\b(docs?|documentation|readme|markdown|changelog|texto|documenta[cç][aã]o|relat[oó]rio)\b', text, re.I)
+            and re.search(r'\b(typos?|spelling|grammar|wording|punctuation|capitalization|proofread|copyedit|formatting|typo|ortografia|gram[aá]tica|reda[cç][aã]o|pontua[cç][aã]o|formata[cç][aã]o|revis[aã]o textual)\b', text, re.I))
     excluded = r'(?<![\w.-])[\w./-]+\.(?:py|js|jsx|ts|tsx|go|java|kt|kts|rs|rb|php|sql|sh|yaml|yml|toml|json)(?!\w)|\b(AGENTS|CLAUDE)\.md\b|\b(auth(?:entication|orization)?|autentic\w*|autoriz\w*|permission\w*|permiss\w*|credential\w*|credencial\w*|login|log[ -]?in|sign[ -]?in|password|senha|token|session|sess[aã]o|identity|identidade|access control|controle de acesso|bypass|contorn\w*|security|seguran[cç]a|payment|pagamento|database|migration|schema|api|endpoint|concurren\w*|race|infra|deploy|secret|performance|bug|incident|production|code|c[oó]digo|software|src|packages|scripts|tests|implement\w*|refactor\w*|fix\w*|privilege\w*|privil[eé]gio\w*|escalat\w*|algorithm|algoritmo|architecture|arquitetura|privacidade|privacy|lgpd|gdpr|logic|l[oó]gica|behavior|comportamento|function|fun[cç][aã]o|class|classe|alter\w*|modific\w*|mude?\w*|corrig\w*|policy|pol[ií]tica|delet\w*|delete|remov\w*|remove|erase|wipe|drop|purge|truncate|destroy|exclu\w*|apag\w*|elimin\w*|limp\w*)\b'
     code_or_mixed = re.search(excluded, request, re.I)
     simple_request = (len(words) <= 80
         and not code_or_mixed
-        and re.search(r'\b(docs?|documentation|readme|markdown|changelog|texto|documenta[cç][aã]o|relat[oó]rio)\b', request, re.I)
-        and re.search(r'\b(typos?|spelling|grammar|wording|punctuation|capitalization|proofread|copyedit|formatting|typo|ortografia|gram[aá]tica|reda[cç][aã]o|pontua[cç][aã]o|formata[cç][aã]o|revis[aã]o textual)\b', request, re.I))
+        and documentary_only(request))
     if plan is not None:
         plan_text = json.dumps({key: plan[key] for key in (
             'objective', 'tasks', 'acceptance_criteria', 'validation', 'assumptions', 'capability_decisions')}, ensure_ascii=False)
         simple = (simple_request and plan['status'] == 'READY' and plan['risk'] in ('R0', 'R1')
             and len(plan['tasks']) <= 2 and len(plan['acceptance_criteria']) <= 3
-            and not re.search(excluded, plan_text, re.I))
+            and not re.search(excluded, plan_text, re.I) and documentary_only(plan_text))
     else:
         simple = simple_request
     if not simple:
