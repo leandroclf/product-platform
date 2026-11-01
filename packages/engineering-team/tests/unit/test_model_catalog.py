@@ -96,6 +96,8 @@ class ModelCatalogTests(unittest.TestCase):
         self.assertEqual(decision['profile'], 'configured')
         routed, decision = team.task_model_route('Update the README and fix privilege escalation', team.DEFAULT_MODELS, available)
         self.assertEqual(decision['profile'], 'configured')
+        routed, decision = team.task_model_route('Update the README and disable login', team.DEFAULT_MODELS, available)
+        self.assertEqual(decision['profile'], 'configured')
         routed, decision = team.task_model_route('Update privacy documentation', team.DEFAULT_MODELS, available)
         self.assertEqual(decision['profile'], 'configured')
         configured = models(implement=('claude-sonnet-5-5', 'low'))
