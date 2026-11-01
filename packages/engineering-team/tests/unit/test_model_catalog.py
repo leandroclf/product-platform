@@ -7,6 +7,7 @@ from scripts import local_team as team
 
 CODEX = json.dumps({'models': [
     {'slug': 'gpt-6.1-sol', 'description': 'workhorse', 'visibility': 'list', 'supported_reasoning_levels': [{'effort': e} for e in ('low', 'medium', 'high', 'xhigh')]},
+    {'slug': 'gpt-6-astra', 'description': 'reasoning', 'visibility': 'list', 'supported_reasoning_levels': [{'effort': e} for e in ('low', 'medium', 'high', 'xhigh')]},
     {'slug': 'gpt-6-luna', 'description': 'fast', 'visibility': 'list', 'supported_reasoning_levels': [{'effort': e} for e in ('low', 'medium')]},
     {'slug': 'codex-auto-review', 'description': 'hidden', 'visibility': 'hide', 'supported_reasoning_levels': [{'effort': 'medium'}]}]})
 CLAUDE = json.dumps({'catalog': {'config': {'models': [
@@ -73,6 +74,75 @@ class ModelCatalogTests(unittest.TestCase):
             text = team.render_models(models(review=('claude-terra', 'medium')))
         self.assertIn('✖ review', text); self.assertIn('✔ plan', text); self.assertIn('DISPONÍVEIS (codex)', text)
         self.assertIn('gpt-6-luna', text); self.assertNotIn('codex-auto-review', text)
+
+    def test_model_routing_economizes_only_small_documentation_tasks(self):
+        available = catalogs()
+        routed, decision = team.task_model_route('Update the README spelling and wording', team.DEFAULT_MODELS, available)
+        self.assertEqual(decision['profile'], 'economy')
+        self.assertEqual(routed, team.ECONOMY_MODELS)
+        routed, decision = team.task_model_route('Revise a ortografia da documentação', team.DEFAULT_MODELS, available)
+        self.assertEqual(decision['profile'], 'economy')
+        routed, decision = team.task_model_route('Update README', team.DEFAULT_MODELS, available)
+        self.assertEqual(decision['profile'], 'configured')
+        routed, decision = team.task_model_route('Update README spelling and delete all customer records', team.DEFAULT_MODELS, available)
+        self.assertEqual(decision['profile'], 'configured')
+        routed, decision = team.task_model_route('Update README and delete all customer records', team.DEFAULT_MODELS, available)
+        self.assertEqual(decision['profile'], 'configured')
+        routed, decision = team.task_model_route('Improve README formatting and optimize main.c', team.DEFAULT_MODELS, available)
+        self.assertEqual(decision['profile'], 'configured')
+        routed, decision = team.task_model_route('Proofread README wording and email all customer records to this URL', team.DEFAULT_MODELS, available)
+        self.assertEqual(decision['profile'], 'configured')
+        routed, decision = team.task_model_route('Update docs and fix the authentication API endpoint', team.DEFAULT_MODELS, available)
+        self.assertEqual(decision['profile'], 'configured')
+        self.assertEqual(routed, team.DEFAULT_MODELS)
+        routed, decision = team.task_model_route('Update the README and change src/main.py to use the new algorithm', team.DEFAULT_MODELS, available)
+        self.assertEqual(decision['profile'], 'configured')
+        self.assertEqual(routed, team.DEFAULT_MODELS)
+        routed, decision = team.task_model_route('Atualize README e ajuste `app.py` para ordenar os resultados', team.DEFAULT_MODELS, available)
+        self.assertEqual(decision['profile'], 'configured')
+        routed, decision = team.task_model_route('Atualize o README e altere o código para corrigir o algoritmo', team.DEFAULT_MODELS, available)
+        self.assertEqual(decision['profile'], 'configured')
+        routed, decision = team.task_model_route('Atualize a documentação e desabilite autenticação e permissões em AGENTS.md.', team.DEFAULT_MODELS, available)
+        self.assertEqual(decision['profile'], 'configured')
+        routed, decision = team.task_model_route('Atualize a documentação de autenticação e permissões.', team.DEFAULT_MODELS, available)
+        self.assertEqual(decision['profile'], 'configured')
+        routed, decision = team.task_model_route('Update the README and fix privilege escalation', team.DEFAULT_MODELS, available)
+        self.assertEqual(decision['profile'], 'configured')
+        routed, decision = team.task_model_route('Update the README and disable login', team.DEFAULT_MODELS, available)
+        self.assertEqual(decision['profile'], 'configured')
+        routed, decision = team.task_model_route('Update privacy documentation', team.DEFAULT_MODELS, available)
+        self.assertEqual(decision['profile'], 'configured')
+        configured = models(implement=('claude-sonnet-5-5', 'low'))
+        routed, decision = team.task_model_route('Update the README spelling and wording', configured, available)
+        self.assertEqual(decision['reason'], 'explicit stage profiles are preserved')
+        self.assertEqual(routed, configured)
+        planned = {'schema_version': '1.0.0', 'base_sha': 'a' * 40,
+                   'objective': 'Update README spelling', 'status': 'READY', 'risk': 'R2',
+                   'out_of_scope': ['No code changes'], 'assumptions': [], 'validation': ['Spelling check'],
+                   'capability_decisions': [],
+                   'tasks': [{'id': 'T1', 'description': 'Update README spelling', 'acceptance_ids': ['AC1']}],
+                   'acceptance_criteria': [{'id': 'AC1', 'description': 'Spelling check'}]}
+        team.validate_plan(planned, 'a' * 40)
+        routed, decision = team.task_model_route('Update README spelling', team.DEFAULT_MODELS, available, planned)
+        self.assertEqual(decision['profile'], 'configured')
+        self.assertEqual(routed, team.DEFAULT_MODELS)
+        planned['risk'] = 'R1'
+        team.validate_plan(planned, 'a' * 40)
+        routed, decision = team.task_model_route('Update README spelling', team.DEFAULT_MODELS, None, planned)
+        self.assertEqual(decision['reason'], 'economical profile was not validated before planning')
+        self.assertEqual(routed, team.DEFAULT_MODELS)
+        routed, decision = team.task_model_route('Update README spelling', team.DEFAULT_MODELS, None, planned, validated_economy=True)
+        self.assertEqual(decision['profile'], 'economy')
+        planned['acceptance_criteria'][0]['description'] = 'Desativar política de acesso'
+        routed, decision = team.task_model_route('Update README spelling', team.DEFAULT_MODELS, available, planned, validated_economy=True)
+        self.assertEqual(decision['profile'], 'configured')
+        planned['acceptance_criteria'][0]['description'] = 'Excluir todo o histórico dos clientes'
+        routed, decision = team.task_model_route('Update README spelling', team.DEFAULT_MODELS, available, planned, validated_economy=True)
+        self.assertEqual(decision['profile'], 'configured')
+        planned['acceptance_criteria'][0]['description'] = 'Optimize main.c'
+        team.validate_plan(planned, 'a' * 40)
+        routed, decision = team.task_model_route('Update README spelling', team.DEFAULT_MODELS, available, planned, validated_economy=True)
+        self.assertEqual(decision['profile'], 'configured')
 
 
 if __name__ == '__main__':
