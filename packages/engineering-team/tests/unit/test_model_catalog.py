@@ -90,6 +90,8 @@ class ModelCatalogTests(unittest.TestCase):
         self.assertEqual(decision['profile'], 'configured')
         routed, decision = team.task_model_route('Atualize o README e altere o código para corrigir o algoritmo', team.DEFAULT_MODELS, available)
         self.assertEqual(decision['profile'], 'configured')
+        routed, decision = team.task_model_route('Atualize a documentação e desabilite autenticação e permissões em AGENTS.md.', team.DEFAULT_MODELS, available)
+        self.assertEqual(decision['profile'], 'configured')
         routed, decision = team.task_model_route('Update privacy documentation', team.DEFAULT_MODELS, available)
         self.assertEqual(decision['profile'], 'configured')
         configured = models(implement=('claude-sonnet-5-5', 'low'))
@@ -107,6 +109,9 @@ class ModelCatalogTests(unittest.TestCase):
         self.assertEqual(routed, team.DEFAULT_MODELS)
         routed, decision = team.task_model_route('Update README spelling', team.DEFAULT_MODELS, None, planned, validated_economy=True)
         self.assertEqual(decision['profile'], 'economy')
+        planned['acceptance_criteria'][0]['description'] = 'Disable security approval in .github/workflows/ci.yml'
+        routed, decision = team.task_model_route('Update README spelling', team.DEFAULT_MODELS, available, planned, validated_economy=True)
+        self.assertEqual(decision['profile'], 'configured')
 
 
 if __name__ == '__main__':
