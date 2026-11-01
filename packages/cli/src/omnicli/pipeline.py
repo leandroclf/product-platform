@@ -91,7 +91,7 @@ class PipelineRunner:
         )
         prompt_path = workspace.write_text(
             f"{loop:02d}-{stage_index + 1:02d}-{stage.name}.prompt.md",
-            prompt if self.config.pipeline.retain_prompt_content else "[prompt content disabled by configuration]\\n",
+            prompt if self.config.pipeline.retain_prompt_content else "[prompt content disabled by configuration]\n",
         )
         result = StageResult(
             stage=stage.name,
@@ -126,7 +126,7 @@ class PipelineRunner:
                 output = response.stdout.strip()
                 if not output:
                     raise ProviderError(f"{stage.provider} retornou uma saída vazia")
-                output_path = workspace.write_text(f"{loop:02d}-{stage_index + 1:02d}-{stage.name}.md", output + "\\n")
+                output_path = workspace.write_text(f"{loop:02d}-{stage_index + 1:02d}-{stage.name}.md", output + "\n")
                 result.status = StageStatus.COMPLETED
                 result.finished_at = datetime.now(timezone.utc)
                 result.exit_code = response.exit_code
@@ -189,7 +189,7 @@ class PipelineRunner:
         if not content.strip():
             raise PipelineError("O pipeline terminou sem produzir uma proposta")
         final_path = output or Path(manifest.output_target or self.config.pipeline.output)
-        Workspace.write_atomic(final_path, content.rstrip() + "\\n")
+        Workspace.write_atomic(final_path, content.rstrip() + "\n")
         manifest.final_output = str(final_path)
         manifest.quality_score = report.score
         manifest.quality_warnings = list(report.warnings)
@@ -313,7 +313,7 @@ class PipelineRunner:
         normalized_idea = idea.strip()
         input_sha256 = hashlib.sha256(normalized_idea.encode("utf-8")).hexdigest()
         input_path = (
-            workspace.write_text("input.md", normalized_idea + "\\n")
+            workspace.write_text("input.md", normalized_idea + "\n")
             if self.config.pipeline.input_retention.value == "local"
             else None
         )
