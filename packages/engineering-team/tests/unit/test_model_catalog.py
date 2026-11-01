@@ -80,6 +80,12 @@ class ModelCatalogTests(unittest.TestCase):
         routed, decision = team.task_model_route('Update the README spelling and wording', team.DEFAULT_MODELS, available)
         self.assertEqual(decision['profile'], 'economy')
         self.assertEqual(routed, team.ECONOMY_MODELS)
+        routed, decision = team.task_model_route('Update README', team.DEFAULT_MODELS, available)
+        self.assertEqual(decision['profile'], 'configured')
+        routed, decision = team.task_model_route('Update README spelling and delete all customer records', team.DEFAULT_MODELS, available)
+        self.assertEqual(decision['profile'], 'configured')
+        routed, decision = team.task_model_route('Update README and delete all customer records', team.DEFAULT_MODELS, available)
+        self.assertEqual(decision['profile'], 'configured')
         routed, decision = team.task_model_route('Update docs and fix the authentication API endpoint', team.DEFAULT_MODELS, available)
         self.assertEqual(decision['profile'], 'configured')
         self.assertEqual(routed, team.DEFAULT_MODELS)
@@ -118,6 +124,9 @@ class ModelCatalogTests(unittest.TestCase):
         routed, decision = team.task_model_route('Update README spelling', team.DEFAULT_MODELS, None, planned, validated_economy=True)
         self.assertEqual(decision['profile'], 'economy')
         planned['acceptance_criteria'][0]['description'] = 'Desativar política de acesso'
+        routed, decision = team.task_model_route('Update README spelling', team.DEFAULT_MODELS, available, planned, validated_economy=True)
+        self.assertEqual(decision['profile'], 'configured')
+        planned['acceptance_criteria'][0]['description'] = 'Excluir todo o histórico dos clientes'
         routed, decision = team.task_model_route('Update README spelling', team.DEFAULT_MODELS, available, planned, validated_economy=True)
         self.assertEqual(decision['profile'], 'configured')
 
