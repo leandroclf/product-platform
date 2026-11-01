@@ -1,8 +1,10 @@
 # Instruções para agentes
 
-## Objetivo central: evolução autônoma dos produtos
+## Objetivo estratégico: empresa operada por agentes
 
-A Product Platform existe para que agentes executem trabalho de engenharia de ponta a ponta e evoluam continuamente os produtos do ecossistema da empresa, a partir de objetivos e backlog autorizados. Autonomia é entregar resultados verificáveis com intervenção humana nas decisões necessárias.
+A Product Platform existe para ajudar a tornar a empresa do proprietário progressivamente operada por agentes de IA: administrar e executar atividades cotidianas, evoluir os produtos e, quando houver autoridade jurídica e controles comprovados, celebrar e executar contratos. A ambição é retirar pessoas de funções de gestão e emprego rotineiro; isso não significa que a legislação, a estrutura societária ou a responsabilidade formal já permitam operação sem qualquer responsável humano.
+
+O escopo executável canônico atual é engenharia de software e evolução de produtos. A administração empresarial por agentes é um objetivo estratégico a planejar e validar por fases; não deve ser descrita como capacidade já implementada. Autonomia é entregar resultados verificáveis dentro de objetivos, políticas, autoridade e limites explícitos.
 
 - Dentro do escopo autorizado, inspecione, planeje, implemente, teste, corrija falhas, valide e prepare a entrega; prossiga entre etapas sem pedir novamente autorização já concedida.
 - Não encerre no plano, na sugestão ou na criação de um PR quando ainda houver trabalho autorizado executável. Continue até os critérios de aceite ou registre um bloqueio concreto com evidência e próxima ação.
@@ -11,7 +13,7 @@ A Product Platform existe para que agentes executem trabalho de engenharia de po
 - Autonomia não concede autorização para produção, credenciais, permissões, operações destrutivas, merge ou deploy. Aplique as autorizações já existentes e os gates pertinentes; não amplie o escopo nem fabrique aprovações.
 - Só relate como concluído o resultado demonstrado pelos checks e critérios de aceite. Diferencie implementação local, revisão, merge, publicação e operação contínua.
 
-Operação e limites: `docs/AUTONOMOUS-PRODUCT-EVOLUTION.md` na raiz da plataforma.
+Operação e limites: `docs/AUTONOMOUS-PRODUCT-EVOLUTION.md`. Objetivo e fases da operação empresarial: `docs/AUTONOMOUS-COMPANY-ROADMAP.md`.
 
 ## Fluxo de pull requests
 

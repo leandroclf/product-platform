@@ -1,6 +1,6 @@
 # Product Platform
 
-Repositório único da plataforma de produtos: contratos e políticas, runtime reutilizável, geração de propostas e time de agentes de engenharia. Os produtos vivem em repositórios próprios e consomem o harness como artefato de release imutável. Decisão: [ADR 004](packages/kit/docs/adr/004-platform-monorepo.md).
+Repositório único da plataforma de produtos: contratos e políticas, runtime reutilizável, geração de propostas e time de agentes de engenharia. Seu objetivo estratégico é apoiar a operação da empresa por agentes, além de evoluir produtos. O escopo executável atual é engenharia; operação empresarial e contratos por agentes estão planejados, não implementados. Os produtos vivem em repositórios próprios e consomem o harness como artefato de release imutável. Decisão: [ADR 004](packages/kit/docs/adr/004-platform-monorepo.md).
 
 | Pacote | Papel | Depende de | Release |
 | --- | --- | --- | --- |
@@ -9,6 +9,10 @@ Repositório único da plataforma de produtos: contratos e políticas, runtime r
 | [`packages/cli`](packages/cli) | Transforma uma ideia em proposta revisável e gera o handoff de capacidades | kit | `cli-v*` |
 | [`packages/engineering-team`](packages/engineering-team) | `ai-team`: plan, implement, validate e review isolados no repositório alvo | kit | `engineering-team-v*` (quando houver) |
 | [`packages/design-system`](packages/design-system) | Tokens e ativos visuais institucionais, adotados opt-in pelos produtos | nenhum | Distribuição versionada pendente |
+
+## Objetivo estratégico
+
+O objetivo de longo prazo e suas fases estão em [docs/AUTONOMOUS-COMPANY-ROADMAP.md](docs/AUTONOMOUS-COMPANY-ROADMAP.md). O documento distingue o objetivo empresarial das capacidades já entregues e não concede autorização para executar ações externas.
 
 ## Regras
 

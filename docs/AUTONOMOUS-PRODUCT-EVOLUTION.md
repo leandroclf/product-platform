@@ -6,6 +6,12 @@ A missão da Product Platform é executar continuamente trabalho autorizado de e
 
 Instruções são uma política de comportamento; não mantêm processos vivos nem constituem evidência de autonomia operacional. A operação contínua exige um executor disponível com autenticação válida, isolamento, backlog elegível e controles efetivamente configurados.
 
+## Relação com o objetivo de operação empresarial
+
+O objetivo estratégico é apoiar a administração e a operação cotidiana da empresa por agentes de IA, além da evolução contínua dos produtos. Este documento continua descrevendo a capacidade implementável atual: execução de engenharia no backlog. Não comprova que processos empresariais, contratos ou operação contínua estejam automatizados.
+
+A evolução deve preservar os donos e limites dos pacotes. O `ai-team` permanece executor de engenharia; ações empresariais externas precisam de contratos, autoridade, adapters e controles próprios, definidos por fase e risco. Consulte [AUTONOMOUS-COMPANY-ROADMAP.md](AUTONOMOUS-COMPANY-ROADMAP.md) para a visão e as dependências.
+
 ## Arquitetura adotada
 
 Reutilizar a fila e os componentes existentes, sem adicionar gateway, Agent Server ou outro orquestrador:
