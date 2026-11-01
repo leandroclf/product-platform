@@ -80,6 +80,8 @@ class ModelCatalogTests(unittest.TestCase):
         routed, decision = team.task_model_route('Update the README spelling and wording', team.DEFAULT_MODELS, available)
         self.assertEqual(decision['profile'], 'economy')
         self.assertEqual(routed, team.ECONOMY_MODELS)
+        routed, decision = team.task_model_route('Revise a ortografia da documentação', team.DEFAULT_MODELS, available)
+        self.assertEqual(decision['profile'], 'economy')
         routed, decision = team.task_model_route('Update README', team.DEFAULT_MODELS, available)
         self.assertEqual(decision['profile'], 'configured')
         routed, decision = team.task_model_route('Update README spelling and delete all customer records', team.DEFAULT_MODELS, available)
@@ -114,14 +116,18 @@ class ModelCatalogTests(unittest.TestCase):
         routed, decision = team.task_model_route('Update the README spelling and wording', configured, available)
         self.assertEqual(decision['reason'], 'explicit stage profiles are preserved')
         self.assertEqual(routed, configured)
-        planned = {'objective': 'Update README', 'status': 'READY', 'risk': 'R2',
+        planned = {'schema_version': '1.0.0', 'base_sha': 'a' * 40,
+                   'objective': 'Update README spelling', 'status': 'READY', 'risk': 'R2',
                    'out_of_scope': ['No code changes'], 'assumptions': [], 'validation': ['Spelling check'],
-                   'capability_decisions': [], 'tasks': [{'description': 'Update README'}],
-                   'acceptance_criteria': [{'id': 'AC1'}]}
+                   'capability_decisions': [],
+                   'tasks': [{'id': 'T1', 'description': 'Update README spelling', 'acceptance_ids': ['AC1']}],
+                   'acceptance_criteria': [{'id': 'AC1', 'description': 'Spelling check'}]}
+        team.validate_plan(planned, 'a' * 40)
         routed, decision = team.task_model_route('Update README spelling', team.DEFAULT_MODELS, available, planned)
         self.assertEqual(decision['profile'], 'configured')
         self.assertEqual(routed, team.DEFAULT_MODELS)
         planned['risk'] = 'R1'
+        team.validate_plan(planned, 'a' * 40)
         routed, decision = team.task_model_route('Update README spelling', team.DEFAULT_MODELS, None, planned)
         self.assertEqual(decision['reason'], 'economical profile was not validated before planning')
         self.assertEqual(routed, team.DEFAULT_MODELS)
@@ -134,6 +140,7 @@ class ModelCatalogTests(unittest.TestCase):
         routed, decision = team.task_model_route('Update README spelling', team.DEFAULT_MODELS, available, planned, validated_economy=True)
         self.assertEqual(decision['profile'], 'configured')
         planned['acceptance_criteria'][0]['description'] = 'Optimize main.c'
+        team.validate_plan(planned, 'a' * 40)
         routed, decision = team.task_model_route('Update README spelling', team.DEFAULT_MODELS, available, planned, validated_economy=True)
         self.assertEqual(decision['profile'], 'configured')
 

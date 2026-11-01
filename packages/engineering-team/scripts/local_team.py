@@ -651,7 +651,7 @@ def task_model_route(request, configured, catalogs, plan=None, validated_economy
     if configured != DEFAULT_MODELS:
         return {key: dict(value) for key, value in configured.items()}, {'profile': 'configured', 'reason': 'explicit stage profiles are preserved'}
     words = request.split()
-    editorial_words = set('a an and the do da de para por please update revise review proofread copyedit copy edit correct fix typo typos spelling grammar wording punctuation capitalization formatting format check texto textual ortografia gramática redação pontuação formatação revisão revisar corrigir correção document docs doc documentation readme readme.md markdown changelog report relatório objective tasks acceptance criteria validation assumptions capability decisions description id ac1'.split())
+    editorial_words = set('a an and the do da de para por please update revise review proofread copyedit copy edit correct fix typo typos spelling grammar wording punctuation capitalization formatting format check texto textual ortografia gramática redação pontuação formatação documentação revisão revisar corrigir correção document docs doc documentation readme readme.md markdown changelog report relatório reuse extend create'.split())
 
     def documentary_only(text):
         terms = re.findall(r"[^\W_]+(?:[.'’][^\W_]+)*", text.casefold())
@@ -664,8 +664,12 @@ def task_model_route(request, configured, catalogs, plan=None, validated_economy
         and not code_or_mixed
         and documentary_only(request))
     if plan is not None:
-        plan_text = json.dumps({key: plan[key] for key in (
-            'objective', 'tasks', 'acceptance_criteria', 'validation', 'assumptions', 'capability_decisions')}, ensure_ascii=False)
+        plan_text = ' '.join([
+            plan['objective'], *plan['assumptions'], *plan['validation'],
+            *(task['description'] for task in plan['tasks']),
+            *(criterion['description'] for criterion in plan['acceptance_criteria']),
+            *(value for decision in plan['capability_decisions'] for value in (
+                decision['name'], decision['decision'], decision['owner']))])
         simple = (simple_request and plan['status'] == 'READY' and plan['risk'] in ('R0', 'R1')
             and len(plan['tasks']) <= 2 and len(plan['acceptance_criteria']) <= 3
             and not re.search(excluded, plan_text, re.I) and documentary_only(plan_text))
