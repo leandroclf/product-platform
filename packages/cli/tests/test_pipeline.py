@@ -5,7 +5,7 @@ import pytest
 from omnicli.adapters.base import ProviderAdapter, ProviderResponse
 from omnicli.config import DEFAULT_CONFIG
 from omnicli.exceptions import PipelineError
-from omnicli.models import StageStatus
+from omnicli.models import InputRetention, StageStatus
 from omnicli.pipeline import PipelineRunner
 
 
@@ -52,6 +52,33 @@ def test_pipeline_creates_final_document_and_artifacts(tmp_path: Path) -> None:
     assert metrics.output_chars > 0
     assert metrics.max_context_chars >= metrics.prompt_chars // len(DEFAULT_CONFIG.pipeline.stages)
     assert report.score >= 50
+
+
+def test_pipeline_artifacts_use_real_newlines(tmp_path: Path) -> None:
+    config = DEFAULT_CONFIG.model_copy(deep=True)
+    config.pipeline.input_retention = InputRetention.LOCAL
+    adapters = {name: FakeAdapter(name) for name in config.providers}
+
+    output, workspace, _ = PipelineRunner(config, adapters).run(
+        "Aplicativo de meditação",
+        loops=1,
+        output=tmp_path / "proposal.md",
+        workspace_root=tmp_path / "workspace",
+    )
+
+    manifest = workspace.load_manifest()
+    artifact_paths = [workspace.path / "input.md", output]
+    for result in manifest.stages:
+        artifact_paths.extend(
+            workspace.path / name
+            for name in (result.prompt_file, result.output_file)
+            if name
+        )
+
+    for path in artifact_paths:
+        content = path.read_text(encoding="utf-8")
+        assert content.endswith("\n")
+        assert not content.endswith("\\n")
 
 
 def test_pipeline_resume_retries_failed_stage(tmp_path: Path) -> None:
